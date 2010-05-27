@@ -1,0 +1,14 @@
+How do I structure the code now?
+- The field adapter could still work as expected, the shadow stack must be rewritten from scratch. 
+
+- What happens with code that instruments itself? 
+
+So ASM depends on some of the java core classes. 
+
+Move ASM to my own root package.
+
+Who should be implemented?
+
+The code in my methods should not be instrumented. Nothing in my methods should be instrumented. Ah, but I depend on arraylust, etc, and those classes will be instrumented. damn. Now, is there a problem if I run against uninstrumented classes? I think not, my code should be robust enough to maintain unistrumented classes working well. 
+
+A better idea, however, would be to keep my dependencies limited to uninstrumented classes.

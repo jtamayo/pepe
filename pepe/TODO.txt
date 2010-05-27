@@ -1,0 +1,5 @@
+TODO:
+
+- Implement method name filtering.
+- Handle method exit on thrown exceptions - Perhaps this should be done differently than from regular method exit.
+- Fix Cloned fields

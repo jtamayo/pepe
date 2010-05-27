@@ -1,0 +1,36 @@
+
+<project name="Pepe" basedir="." default="agent">
+
+	<property name="buildDir" value="build" />
+	<property name="libDir" value="lib" />
+	<property name="srcDir" value="src" />
+	<property name="agentJar" value="pepeagent.jar" />
+
+
+	<!-- ================================= 
+          target: agent              
+         ================================= -->
+	<target name="agent" depends="" description="Builds a java agent for instrumenting an application">
+		<mkdir dir="${buildDir}" />
+		<delete>
+			<fileset dir="${buildDir}">
+				<include name="**/*.*" />
+			</fileset>
+		</delete>
+
+		<mkdir dir="${buildDir}" />
+		<javac srcdir="${srcDir}" destdir="${buildDir}" debug="on">
+			<classpath>
+				<fileset dir="${libDir}">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<jar destfile="${agentJar}" includes="**/*.*" basedir="${buildDir}">
+			<manifest>
+				<attribute name="Premain-Class" value="edu.stanford.pepe.PepeAgent" />
+				<attribute name="Boot-Class-Path" value="pepeagent.jar" />
+			</manifest>
+		</jar>
+	</target>
+</project>
