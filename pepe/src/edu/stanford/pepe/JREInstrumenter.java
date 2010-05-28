@@ -9,6 +9,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import edu.stanford.pepe.org.objectweb.asm.ClassReader;
+import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
+
 public class JREInstrumenter {
 
 	/**
@@ -16,18 +19,26 @@ public class JREInstrumenter {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		ZipInputStream is = new ZipInputStream(new FileInputStream("jre/rt_macos_1_6.jar"));
+		ZipInputStream is = new ZipInputStream(new FileInputStream("jre/macos_1.6/classes.jar"));
 		ZipEntry je;
 		ZipOutputStream os = new ZipOutputStream(new FileOutputStream("jre/rt_instrumented.jar"));
 		while ((je = is.getNextEntry()) != null) {
-			System.out.println(je.getName());
-				byte[] byteArray = read(is);
-				if (je.getName().endsWith(".class")) {
-					byteArray = PepeAgent.instrumentClass(byteArray);
+			byte[] byteArray = read(is);
+			if (je.getName().endsWith(".class")) {
+				ClassNode cn = new ClassNode();
+				ClassReader cr = new ClassReader(byteArray);
+				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
+				
+				if (!InstrumentationPolicy.isTypeInstrumentable(cn.name)) {
+					System.out.println("Skipping " + cn.name);
+					continue;
 				}
-				JarEntry newJarEntry = new JarEntry(je.getName());
-				os.putNextEntry(newJarEntry);
-				os.write(byteArray);
+				
+				byteArray = PepeAgent.instrumentClass(cn);
+			}
+			JarEntry newJarEntry = new JarEntry(je.getName());
+			os.putNextEntry(newJarEntry);
+			os.write(byteArray);
 		}
 		is.close();
 		os.close();

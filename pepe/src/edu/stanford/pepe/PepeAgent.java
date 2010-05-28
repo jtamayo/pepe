@@ -5,13 +5,17 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
+import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
+import edu.stanford.pepe.org.objectweb.asm.ClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
+import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
+import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
 
 /**
  * Main agent. Registers itself as a ClassFileTransformer with the JVM at
@@ -42,7 +46,6 @@ public class PepeAgent implements ClassFileTransformer {
 		logger.info("Using classloader " + PepeAgent.class.getClassLoader());
 
 		inst.addTransformer(new PepeAgent());
-		printLoadedClasses(inst);
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
@@ -53,16 +56,6 @@ public class PepeAgent implements ClassFileTransformer {
 				logger.severe("Context class loader: " + printClassLoader(t.getContextClassLoader()));
 			}
 		});
-	}
-
-	private static void printLoadedClasses(Instrumentation inst) {
-		System.out.println(" --- All loaded classes --- ");
-		Class[] allLoadedClasses = inst.getAllLoadedClasses();
-		
-		for (Class c : allLoadedClasses) {
-			System.out.println(c);
-		}
-		
 	}
 
 	/**
@@ -88,10 +81,10 @@ public class PepeAgent implements ClassFileTransformer {
 	 */
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (IgnoreList.ignoreClass(className, loader)) {
+		if (!InstrumentationPolicy.isTypeInstrumentable(className)) {
 			return null;
 		}
-
+		
 		try {
 			logger.fine("Transforming class " + className + " with ClassLoader " + loader);
 			byte[] b = instrumentClass(classfileBuffer);
@@ -99,22 +92,32 @@ public class PepeAgent implements ClassFileTransformer {
 		} catch (Throwable t) {
 			logger.severe("PEPE: Exception while transforming " + className);
 			t.printStackTrace();
-			System.exit(1);
 			throw new RuntimeException(t);
 		}
 	}
 
 	public static byte[] instrumentClass(byte[] classfileBuffer) {
 		ClassNode cn = new ClassNode();
+		for (FieldNode fn : (List<FieldNode>)cn.fields) {
+			if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
+				System.out.println("Skipping already instrumented class " + cn.name);
+				return null;
+			}
+		}
 		ClassReader cr = new ClassReader(classfileBuffer);
 		cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 		
-		ShadowFieldRewriter.rewrite(cn);
+		return instrumentClass(cn);
+	}
 
+	public static byte[] instrumentClass(ClassNode cn) {
+		// First add the taint fields
+		ShadowFieldRewriter.rewrite(cn);
+		// Now add the shadow stack
 		ClassWriter cw = new ClassWriter(0);
-		cn.accept(cw);
-		byte[] b = cw.toByteArray();
-		return b;
+		ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
+		ShadowStackRewriter.rewrite(cn, verifier);
+		return cw.toByteArray();
 	}
 
 }

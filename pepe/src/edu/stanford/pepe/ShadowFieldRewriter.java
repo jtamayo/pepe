@@ -16,13 +16,14 @@ import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
  */
 public class ShadowFieldRewriter implements Opcodes {
 
-	public static Logger logger = Logger.getLogger("edu.stanford.pepe.ShadowFieldAdapter");
+	public static Logger logger = Logger.getLogger(ShadowFieldRewriter.class.getName());
 	{
 		logger.setLevel(Level.INFO);
 	}
 
 	public static final Type TAINT_TYPE = Type.LONG_TYPE;
 	public static final String TAINT_SUFFIX = "__$TAINT$__";
+	public static final String TAINT_MARK = "__$INSTRUMENTED$__" + TAINT_SUFFIX;
 
 	
 	@SuppressWarnings("unchecked")
@@ -44,6 +45,10 @@ public class ShadowFieldRewriter implements Opcodes {
 			final boolean isStatic = (fieldAccess & ACC_STATIC) != 0;
 			final boolean isFinal = (fieldAccess & ACC_FINAL) != 0;
 			if (isStatic && isFinal) continue;
+			if (!InstrumentationPolicy.isFieldInstrumentable(cn.name, fn.name, isStatic)) {
+				System.out.println("Skipping " + cn.name + " " + fn.name);
+				continue;
+			}
 			
 			// Section 4.7.6 in the JVMS, if it's not in the source code it's synthetic
 			// A non-static field should be transient, so it is not serialized
@@ -59,7 +64,17 @@ public class ShadowFieldRewriter implements Opcodes {
 			shadowFields.add(shadowFn);
 			logger.finer("Instrumenting field " + cn.name + " " + fn.name);
 		}
+		// Add the mark to de termine that this class has been instrumented
+		shadowFields.add(new FieldNode(ACC_STATIC + ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC, TAINT_MARK, TAINT_TYPE.getDescriptor(), null, new Long(0)));
+		
+		
 		cn.fields.addAll(shadowFields);
+		
+		// TODO: What should we do with volatile fields? Should the shadow be volatile or not?
+		// TODO: Make our fields transient, so they are not serialized - Change the computeSErialVersionUid
+		// TODO: What do we do with static final fields? do we instrument them or not? are they really constants? is it easier to keep an always 0 shadow field? Doesn't happen in real life
+		// TODO: How about the this$0 parameter, equivalent to the (OuterClass) this pointer in inner classes?
+	
 	}
 
 }
