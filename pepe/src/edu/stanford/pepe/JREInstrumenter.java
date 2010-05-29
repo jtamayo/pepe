@@ -29,12 +29,12 @@ public class JREInstrumenter {
 				ClassReader cr = new ClassReader(byteArray);
 				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 				
-				if (!InstrumentationPolicy.isTypeInstrumentable(cn.name)) {
+				if (InstrumentationPolicy.isTypeInstrumentable(cn.name)) {
+					byteArray = PepeAgent.instrumentClass(cn);
+				} else {
 					System.out.println("Skipping " + cn.name);
-					continue;
 				}
 				
-				byteArray = PepeAgent.instrumentClass(cn);
 			}
 			JarEntry newJarEntry = new JarEntry(je.getName());
 			os.putNextEntry(newJarEntry);

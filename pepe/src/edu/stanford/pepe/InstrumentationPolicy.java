@@ -28,7 +28,10 @@ public class InstrumentationPolicy {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean isTypeInstrumentable(String type) {
-        return !isPepeClass(type) &&
+        return 
+//        !(type.compareTo("java/lang/I") >= 0 &&
+//          type.compareTo("java/lang/N") < 0) && 
+        !isPepeClass(type) &&
         !isComplicatedSunClass(type) &&
         !type.equals(THROWABLE_TYPE) &&
         !type.equals(STACK_TRACE_ELEMENT_TYPE) &&
@@ -38,6 +41,9 @@ public class InstrumentationPolicy {
         // XXX
         && !type.equals("java/lang/RuntimePermission")
         && !type.equals("java/lang/Object")
+        && !type.startsWith("java/security")
+        && !type.startsWith("java/lang/") //XXX This ignore list needs to be cleaned up
+//        && !(type.startsWith("java/lang/") && type.indexOf('/', 10) > 0)
         ;        
 //		String[] ignore = {"org/apache/geronimo/connector/outbound/connectionmanagerconfig/XATransactions", 
 //				"org/apache/geronimo/security/jaas/LoginModuleControlFlag",

@@ -61,7 +61,7 @@ public class ShadowStackRewriter {
 	
 	static class ShadowStackVisitor implements MethodVisitor, Opcodes {
 		
-		public static final int WORKING_STACK_SIZE = 2;
+		public static final int WORKING_STACK_SIZE = 6; // DUP_X2 uses 3 working stack vars
 
 		private final MethodNode mn;
 		private final MethodVisitor output;
@@ -118,9 +118,16 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitCode() {
 			output.visitCode();
+			clearShadowStack();
 		}
 
 
+
+		private void clearShadowStack() {
+			for (int i = 0; i < mn.maxStack; i++) {
+				clear(shadowStackStart + SHADOW_FIELD_SIZE*i);
+			}
+		}
 
 		@Override
 		public void visitEnd() {
@@ -205,11 +212,45 @@ public class ShadowStackRewriter {
 			case FASTORE:
 			case DASTORE:
 			case AASTORE:
+				// TODO: implement the array shadows
+				output.visitInsn(opcode);
+				break;
 			case POP:
 			case POP2:
+				// The variable is discarded, as wel as its taint
+				output.visitInsn(opcode);
+				break;
 			case DUP:
+				// Copy the taint
+//				clear(shadowStackIndex-1);
+				output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+				output.visitVarInsn(LSTORE, shadowStackIndex);
+				output.visitInsn(opcode);
+				break;
 			case DUP_X1:
+				// ...,V2,V1 -> ...,V1,V2,V1
+				//    ,-2,-1       ,-2,-1, 0
+				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+				output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+				output.visitInsn(DUP2); // V1 V1
+				output.visitVarInsn(LSTORE, shadowStackIndex - 2*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LSTORE, shadowStackIndex); // V1
+				output.visitInsn(opcode);
+				break;
 			case DUP_X2:
+				// ...,V3,V2,V1  ...,V1,V3,V2,V1
+				//    ,-3,-2,-1      -3,-2,-1, 0
+				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+				output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
+				output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V3
+				output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
+				output.visitInsn(DUP2); // V1, V1
+				output.visitVarInsn(LSTORE, shadowStackIndex - 3*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LSTORE, shadowStackIndex); // V1
+				output.visitInsn(opcode);
+				break;
 			case DUP2:
 			case DUP2_X1:
 			case DUP2_X2:
@@ -289,6 +330,14 @@ public class ShadowStackRewriter {
 		}
 
 
+
+		// Will load 0l at the indicated index
+		private void clear(int i) {
+			// TODO: Until all instructions are properly instrumented the types at the beginning will be garbage. Thus,
+			// they must be cleared manually.
+			output.visitInsn(LCONST_0);
+			output.visitVarInsn(LSTORE, i);
+		}
 
 		@Override
 		public void visitIntInsn(int opcode, int operand) {
