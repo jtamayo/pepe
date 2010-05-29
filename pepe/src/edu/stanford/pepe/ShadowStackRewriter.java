@@ -61,7 +61,7 @@ public class ShadowStackRewriter {
 	
 	static class ShadowStackVisitor implements MethodVisitor, Opcodes {
 		
-		public static final int WORKING_STACK_SIZE = 6; // DUP_X2 uses 3 working stack vars
+		public static final int WORKING_STACK_SIZE = 8; // DUP2_X2 uses 4 stack vars
 
 		private final MethodNode mn;
 		private final MethodVisitor output;
@@ -217,12 +217,11 @@ public class ShadowStackRewriter {
 				break;
 			case POP:
 			case POP2:
-				// The variable is discarded, as wel as its taint
+				// The variable is discarded, as well as its taint
 				output.visitInsn(opcode);
 				break;
 			case DUP:
 				// Copy the taint
-//				clear(shadowStackIndex-1);
 				output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE);
 				output.visitVarInsn(LSTORE, shadowStackIndex);
 				output.visitInsn(opcode);
@@ -239,22 +238,148 @@ public class ShadowStackRewriter {
 				output.visitInsn(opcode);
 				break;
 			case DUP_X2:
-				// ...,V3,V2,V1  ...,V1,V3,V2,V1
-				//    ,-3,-2,-1      -3,-2,-1, 0
-				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
-				output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
-				output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
-				output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V3
-				output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
-				output.visitInsn(DUP2); // V1, V1
-				output.visitVarInsn(LSTORE, shadowStackIndex - 3*SHADOW_FIELD_SIZE); // V1
-				output.visitVarInsn(LSTORE, shadowStackIndex); // V1
+				if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+					// Form 1 in the JVM spec 2nd ed: all values are narrow
+					// ...,V3,V2,V1  ...,V1,V3,V2,V1
+					//    ,-3,-2,-1      -3,-2,-1, 0
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+					output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
+					output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V3
+					output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
+					output.visitInsn(DUP2); // V1, V1
+					output.visitVarInsn(LSTORE, shadowStackIndex - 3*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex); // V1
+				} else {
+					// Form 2 in the JVM spec 2nd. Top is narrow, next one is long/double
+					// ...,W2,V1 -> ...,V1,W2,V1
+					// ...,-2,-1 -> ...,-2,-1, 0
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W2
+					output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // W2
+					output.visitInsn(DUP2); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex - 2*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex); // V1
+				}
 				output.visitInsn(opcode);
 				break;
 			case DUP2:
+				if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+					// The top of the stack has two values, and they're both being copied
+					// ...,V2,V1 -> ...,V2,V1,V2,V1
+					// ...,-2,-1 -> ...,-2,-1, 0, 1
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex + 1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+					output.visitVarInsn(LSTORE, shadowStackIndex); // V2
+				} else {
+					// The top of the stack contains a single long/double value
+					// ...,W1 -> ...,W1,W1
+					// ...,-1 -> ...,-1, 0
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W1
+					output.visitVarInsn(LSTORE, shadowStackIndex); // W1
+				}
+				output.visitInsn(opcode);
+				break;
 			case DUP2_X1:
+				if (frames[inst].getStack(stackSize -1).getSize() == 1) {
+					// The top of the stack has two values
+					// ...,V3,V2,V1 -> ...,V2,V1,V3,V2,V1
+					// ...,-3,-2,-1 -> ...,-3,-2,-1, 0, 1
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+					output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
+					output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V3
+					output.visitInsn(DUP2); // V2
+					output.visitVarInsn(LSTORE, shadowStackIndex); // V2
+					output.visitVarInsn(LSTORE, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V2
+					output.visitInsn(DUP2); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex+1*SHADOW_FIELD_SIZE); // V1
+					output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V1
+					output.visitInsn(opcode);
+				} else {
+					// The top of the stack has a single long/double value
+					// ...,V2,W1 -> ...,W1,V2,W1
+					// ...,-2,-1 -> ...,-2,-1, 0
+					output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W1
+					output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+					output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
+					output.visitInsn(DUP2); // W1
+					output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // W1
+					output.visitVarInsn(LSTORE, shadowStackIndex); // W1
+					output.visitInsn(opcode);
+				}
+				break;
 			case DUP2_X2:
+				if (frames[inst].getStack(stackSize-1).getSize() == 1) {
+					// Top two elements are narrow. Form 1 or Form 3 in the JVM specification 2nd edition 
+					if (frames[inst].getStack(stackSize-3).getSize() == 1) {
+						// All elements are narrow. Form 1 in the JVM spec 2nd edition
+						// ...,V4,V3,V2,V1 -> V2,V1,V4,V3,V2,V1
+						// ...,-4,-3,-2,-1 -> -4,-3,-2,-1, 0, 1
+						output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+						output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+						output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
+						output.visitVarInsn(LLOAD, shadowStackIndex-4*SHADOW_FIELD_SIZE); // V4
+						output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V4
+						output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V3
+						output.visitInsn(DUP2); // V2
+						output.visitVarInsn(LSTORE, shadowStackIndex); // V2
+						output.visitVarInsn(LSTORE, shadowStackIndex-4*SHADOW_FIELD_SIZE); // V2
+						output.visitInsn(DUP2); // V1
+						output.visitVarInsn(LSTORE, shadowStackIndex+1*SHADOW_FIELD_SIZE); // V1
+						output.visitVarInsn(LSTORE, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V1
+					} else {
+						// Top two elements are narrow, third element is long/double
+						// ...,W3,V2,V1 -> V2,V1,W3,V2,V1
+						// ...,-3,-2,-1 -> -3,-2,-1, 0, 1
+						output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+						output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+						output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // W3
+						output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W3
+						output.visitInsn(DUP2); // V2
+						output.visitVarInsn(LSTORE, shadowStackIndex); // V2
+						output.visitVarInsn(LSTORE, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V2
+						output.visitInsn(DUP2); // V1
+						output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V1
+						output.visitVarInsn(LSTORE, shadowStackIndex+1*SHADOW_FIELD_SIZE); // V1
+					}
+				} else {
+					// Top element is long or double. Form 2 or Form 4 in the JVM specification 2nd edition
+					if (frames[inst].getStack(stackSize-2).getSize() == 1) {
+						// Top element is long/double, next two elements are narrow
+						// ...,V3,V2,W1 -> ...,W1,V3,V2,W1
+						// ...,-3,-2,-1 -> ...,-3,-2,-1, 0
+						output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W1
+						output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+						output.visitVarInsn(LLOAD, shadowStackIndex-3*SHADOW_FIELD_SIZE); // V3
+						output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V3
+						output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
+						output.visitInsn(DUP2); // W1
+						output.visitVarInsn(LSTORE, shadowStackIndex); // W1
+						output.visitVarInsn(LSTORE, shadowStackIndex-3*SHADOW_FIELD_SIZE); // W1
+					} else {
+						// Top two elements are long/double
+						// ...,W2,W1 -> ...,W1,W2,W1
+						// ...,-2,-1 -> ...,-2,-1, 0
+						output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W1
+						output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // W2
+						output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // W2
+						output.visitInsn(DUP2); // W1
+						output.visitVarInsn(LSTORE, shadowStackIndex); // W1
+						output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // W1
+					}
+				}
+				output.visitInsn(opcode);
+				break;
 			case SWAP:
+				// ...,V2,V1 -> ...,V1,V2
+				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+				output.visitVarInsn(LSTORE, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V2
+				output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V1
+				output.visitInsn(opcode);
+				break;
 			case IADD:
 			case LADD:
 			case FADD:

@@ -38,12 +38,10 @@ public class InstrumentationPolicy {
         !type.startsWith("java/lang/Thread") &&
         !type.equals("java/lang/String") &&
         !type.equals("java/lang/System") 
-        // XXX
         && !type.equals("java/lang/RuntimePermission")
         && !type.equals("java/lang/Object")
         && !type.startsWith("java/security")
         && !type.startsWith("java/lang/") //XXX This ignore list needs to be cleaned up
-//        && !(type.startsWith("java/lang/") && type.indexOf('/', 10) > 0)
         ;        
 //		String[] ignore = {"org/apache/geronimo/connector/outbound/connectionmanagerconfig/XATransactions", 
 //				"org/apache/geronimo/security/jaas/LoginModuleControlFlag",
