@@ -75,6 +75,7 @@ public class ShadowStackRewriter {
 
 		private int inst = -1; // Start one before the instructions, because it's incremented before any visitXX method is executed
 
+		// TODO: The EnhancedClassNode is no longer required, because I don't need field info by name
 		private final EnhancedClassNode cn;
 
 		public ShadowStackVisitor(MethodVisitor output, MethodNode mn, Frame[] frames, EnhancedClassNode cn) {
@@ -158,36 +159,61 @@ public class ShadowStackRewriter {
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case GETSTATIC:
-//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
-//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
-//					output.visitFieldInsn(GETSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
-//					output.visitVarInsn(LSTORE, shadowStackIndex);
-//				}
+				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
+					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+					output.visitFieldInsn(GETSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
+					output.visitVarInsn(LSTORE, shadowStackIndex);
+				}
 				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case PUTSTATIC:
-//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
-//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
-//					output.visitVarInsn(LLOAD, shadowStackIndex - 1); // The taint is in the head of the stack
-//					output.visitFieldInsn(PUTSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
-//				}
+				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
+					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+					output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // The taint is in the head of the stack
+					output.visitFieldInsn(PUTSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
+				}
 				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case GETFIELD:
-//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
-//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
-//					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
-//					output.visitVarInsn(LSTORE, shadowStackIndex); // Taint goes to the next space in the stack
-//				}
-				output.visitFieldInsn(opcode, owner, name, desc);
+				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
+					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+					// TODO: Load the taint after loading the field
+					output.visitInsn(DUP); // Copy the object reference of the field
+					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
+					output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // Return value goes on top of the stack
+					// TODO: Meet the taint of the field and the taint of the reference
+					output.visitFieldInsn(opcode, owner, name, desc);
+				} else {
+					output.visitFieldInsn(opcode, owner, name, desc);
+				}
 				break;
 			case PUTFIELD:
-//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
-//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
-//					output.visitVarInsn(LLOAD, shadowStackIndex - 1); // The taint is in the head of the stack
-//					output.visitFieldInsn(PUTFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
-//				}
-				output.visitFieldInsn(opcode, owner, name, desc);
+				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
+					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+					// ...,objref, value -> ...
+					// I need to determine whether value is long or int, to properly fix it
+					if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+						// Top of the stack contains a narrow value
+						// ...,ref,V1
+						output.visitInsn(DUP_X1); // ...,V1,ref,V1
+						output.visitInsn(POP); // ...,V1,ref
+						output.visitInsn(DUP_X1); // ...,ref,V1,ref						
+						output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // ...,ref,V1,ref,taint
+						output.visitFieldInsn(PUTFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // ...,ref,V1
+						output.visitFieldInsn(opcode, owner, name, desc); // store original field
+					} else {
+						// Top of the stack contains a long/double
+						// ...,ref,W1
+						output.visitInsn(DUP2_X1); // ...,W1,ref,W1
+						output.visitInsn(POP2); // ...,W1,ref
+						output.visitInsn(DUP_X2); // ...,ref,W1,ref
+						output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // ...,ref,V1,ref,taint
+						output.visitFieldInsn(PUTFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // ...,ref,V1
+						output.visitFieldInsn(opcode, owner, name, desc); // store original field
+					}
+				} else {
+					output.visitFieldInsn(opcode, owner, name, desc);
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Method visitFieldInsn is not supposed to receive opcode " + opcode);
