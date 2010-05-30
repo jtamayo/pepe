@@ -122,9 +122,17 @@ public class ShadowStackRewriter {
 		public void visitCode() {
 			output.visitCode();
 			clearShadowStack();
+			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
 		}
 
 
+
+		private void clearLocals() {
+			for (int i = 0; i < mn.maxLocals; i++) {
+				clear(mn.maxLocals + SHADOW_FIELD_SIZE*i);
+			}
+			
+		}
 
 		private void clearShadowStack() {
 			for (int i = 0; i < mn.maxStack; i++) {
@@ -683,7 +691,44 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitVarInsn(int opcode, int var) {
 			inst++;
-			output.visitVarInsn(opcode, var);
+			// Unlike the stack, where we keep one shadow per value, whether the value
+			// is a long/double or a int/float/ref, here we just keep an exact 2 to 1 map
+			// between locals and shadowLocals. If locals[var] contains a double, we'll
+			// just have 2 shadows, even though we only really need one.
+			int shadowVar = mn.maxLocals + SHADOW_FIELD_SIZE*var;
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
+			switch (opcode) {
+			case ILOAD:
+			case LLOAD:
+			case FLOAD:
+			case DLOAD:
+			case ALOAD:
+				// ... -> ...,V1
+				// ... -> ..., 0
+				output.visitVarInsn(LLOAD, shadowVar);
+				output.visitVarInsn(LSTORE, shadowStackIndex);
+				output.visitVarInsn(opcode, var);
+				break;
+			case ISTORE:
+			case LSTORE:
+			case FSTORE:
+			case DSTORE:
+			case ASTORE:
+				// ...,V1 -> ...
+				// ...,-1 -> ...
+				output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+				output.visitVarInsn(LSTORE, shadowVar);
+				output.visitVarInsn(opcode, var);
+				break;
+			case RET:
+				// Simply changes the PC, we don't care
+				output.visitVarInsn(opcode, var);
+				break;
+			default:
+				throw new IllegalArgumentException("Method visitVarInsn cannot receive opcode " + opcode);
+
+			}
 		}
 
 		/**
