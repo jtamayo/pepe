@@ -159,14 +159,16 @@ public class ShadowStackRewriter {
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case GETSTATIC:
+				// Load the original field before the taint, in case the original field is volatile we preserve happens-before
+				output.visitFieldInsn(opcode, owner, name, desc);
 				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
 					output.visitFieldInsn(GETSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
 					output.visitVarInsn(LSTORE, shadowStackIndex);
 				}
-				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case PUTSTATIC:
+				// Store the taint before the original field, in case the original field is volatile 
 				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
 					output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // The taint is in the head of the stack
@@ -577,10 +579,22 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitIntInsn(int opcode, int operand) {
 			inst++;
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case BIPUSH:
 			case SIPUSH:
+				// Equivalent to a constant load.
+				// ... -> ...,C
+				clear(shadowStackIndex);
+				output.visitIntInsn(opcode, operand);
+				break;
 			case NEWARRAY:
+				// TODO: What should happen if the array length were to be tainted?
+				// For now, treat it as a constant load
+				// .., count -> ..., arrayref
+				// ..., -1   -> ..., -1
+				clear(shadowStackIndex -1*SHADOW_FIELD_SIZE);
 				output.visitIntInsn(opcode, operand);
 				break;
 			default:
@@ -593,6 +607,7 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitJumpInsn(int opcode, Label label) {
 			inst++;
+			// Right now we're not tracking control flow dependencies, and thus we don't care about jump instructions
 			output.visitJumpInsn(opcode, label);
 		}
 
@@ -609,6 +624,10 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitLdcInsn(Object cst) {
 			inst++;
+			// Constants are untainted
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
+			clear(shadowStackIndex);
 			output.visitLdcInsn(cst);
 		}
 
@@ -632,6 +651,7 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 			inst++;
+			// Because we're not tracking control flow, we don't care about switch instructions
 			output.visitLookupSwitchInsn(dflt, keys, labels);
 		}
 
@@ -679,6 +699,13 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitMultiANewArrayInsn(String desc, int dims) {
 			inst++;
+			// TODO: At this point I need to create the shadow array
+			// Say dims = 3
+			// ..., count1, count2, count3 -> ..., arrayref
+			// ..., -3    , -2    , -1     -> ..., -3
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
+			clear(shadowStackIndex -dims*SHADOW_FIELD_SIZE);
 			output.visitMultiANewArrayInsn(desc, dims);
 		}
 
@@ -694,6 +721,7 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
 			inst++;
+			// Because we're not tracking control flow, we don't care about switch instructions
 			output.visitTableSwitchInsn(min, max, dflt, labels);
 		}
 
@@ -709,7 +737,38 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitTypeInsn(int opcode, String type) {
 			inst++;
-			output.visitTypeInsn(opcode, type);
+			// The stack depth before instruction inst. Long and doubles count as only one value.
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
+			switch (opcode) {
+			case NEW:
+				// Just object creation cannot taint an object (maybe the constructor can). Thus, treat it as a load constant.
+				// ... -> ...,ref
+				clear(shadowStackIndex);
+				output.visitTypeInsn(opcode, type);
+				break;
+			case ANEWARRAY:
+				// TODO: Create the shadow array at this point.
+				// For now, treat it as a constant load.
+				// ..., count -> ..., arrayref
+				clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+				output.visitTypeInsn(opcode, type);
+				break;
+			case CHECKCAST:
+				// It leaves the stack unchanged if the cast is allowed, and throws an exception if it's not
+				// Thus, the taint remains unchanged
+				output.visitTypeInsn(opcode, type);
+				break;
+			case INSTANCEOF:
+				// ..., objectref -> ..., result
+				// ..., -1        -> ..., -1
+				// We assume the result of this instruction is untainted
+				clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+				output.visitTypeInsn(opcode, type);
+				break;
+			default:
+				throw new IllegalArgumentException("Method visitVarInsn cannot receive opcode " + opcode);
+			}
 		}
 
 
