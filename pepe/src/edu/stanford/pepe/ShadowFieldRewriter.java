@@ -38,7 +38,7 @@ public class ShadowFieldRewriter implements Opcodes {
 				// because at the caller side it's impossible to know whether a field is
 				// final, and thus it's impossible to determine whether it is shadowed or not.
 				int newAccess = ACC_STATIC | ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC;
-				String newName = fn.name + TAINT_SUFFIX;
+				String newName = getShadowFieldName(fn.name);
 				FieldNode shadowFn = new FieldNode(newAccess, newName, TAINT_TYPE.getDescriptor(), null, new Long(0));
 				shadowFields.add(shadowFn);
 				logger.finer("Instrumenting static final field " + cn.name + " " + fn.name);
@@ -47,7 +47,7 @@ public class ShadowFieldRewriter implements Opcodes {
 				// A non-static field should be transient, so it is not serialized
 				int newAccess = isStatic ? (ACC_STATIC | ACC_PUBLIC | ACC_SYNTHETIC)
 						: (ACC_TRANSIENT | ACC_PUBLIC | ACC_SYNTHETIC);
-				String newName = fn.name + TAINT_SUFFIX;
+				String newName = getShadowFieldName(fn.name);
 				FieldNode shadowFn = new FieldNode(newAccess, newName, TAINT_TYPE.getDescriptor(), null, null);
 				shadowFields.add(shadowFn);
 				logger.finer("Instrumenting field " + cn.name + " " + fn.name);
@@ -67,6 +67,13 @@ public class ShadowFieldRewriter implements Opcodes {
 		// TODO: What do we do with static final fields? do we instrument them or not? are they really constants? is it easier to keep an always 0 shadow field? Doesn't happen in real life
 		// TODO: How about the this$0 parameter, equivalent to the (OuterClass) this pointer in inner classes?
 	
+	}
+
+
+	public static String getShadowFieldName(String fieldName) {
+		// TODO: Determine where to put this method, because it's invoked from ShadowStackRewriter, and 
+		// perhaps that class should not depend on this one.
+		return fieldName + TAINT_SUFFIX;
 	}
 
 }

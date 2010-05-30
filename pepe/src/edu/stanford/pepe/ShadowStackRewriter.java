@@ -145,11 +145,39 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 			inst++;
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case GETSTATIC:
+//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
+//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+//					output.visitFieldInsn(GETSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
+//					output.visitVarInsn(LSTORE, shadowStackIndex);
+//				}
+				output.visitFieldInsn(opcode, owner, name, desc);
+				break;
 			case PUTSTATIC:
+//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, true)) {
+//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+//					output.visitVarInsn(LLOAD, shadowStackIndex - 1); // The taint is in the head of the stack
+//					output.visitFieldInsn(PUTSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
+//				}
+				output.visitFieldInsn(opcode, owner, name, desc);
+				break;
 			case GETFIELD:
+//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
+//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+//					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
+//					output.visitVarInsn(LSTORE, shadowStackIndex); // Taint goes to the next space in the stack
+//				}
+				output.visitFieldInsn(opcode, owner, name, desc);
+				break;
 			case PUTFIELD:
+//				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
+//					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
+//					output.visitVarInsn(LLOAD, shadowStackIndex - 1); // The taint is in the head of the stack
+//					output.visitFieldInsn(PUTFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
+//				}
 				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			default:
@@ -171,6 +199,7 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitIincInsn(int var, int increment) {
 			inst++;
+			// The local variable remains tainted like it was before
 			output.visitIincInsn(var, increment);
 		}
 
@@ -513,7 +542,15 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitIntInsn(int opcode, int operand) {
 			inst++;
-			output.visitIntInsn(opcode, operand);
+			switch (opcode) {
+			case BIPUSH:
+			case SIPUSH:
+			case NEWARRAY:
+				output.visitIntInsn(opcode, operand);
+				break;
+			default:
+				throw new IllegalArgumentException("Method visitIntInsn does not expect opcode " + opcode);
+			}
 		}
 
 
