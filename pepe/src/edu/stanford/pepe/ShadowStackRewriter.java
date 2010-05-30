@@ -400,10 +400,6 @@ public class ShadowStackRewriter {
 			case LREM:
 			case FREM:
 			case DREM:
-			case INEG:
-			case LNEG:
-			case FNEG:
-			case DNEG:
 			case ISHL:
 			case LSHL:
 			case ISHR:
@@ -416,6 +412,32 @@ public class ShadowStackRewriter {
 			case LOR:
 			case IXOR:
 			case LXOR:
+			case LCMP:
+			case FCMPL:
+			case FCMPG:
+			case DCMPL:
+			case DCMPG:
+				// Binary operations
+				// I must meet both their taints, and store the result
+				// TODO: What to do with ArithmeticException in div operations?
+				// TODO: How to handle comparison operators whti NAN values?
+				// ...,V2,V1 -> ...,V2+V1
+				// ...,-2,-1 -> ..., -2
+				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
+				output.visitVarInsn(LLOAD, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V2
+				emitMeetOperator();
+				output.visitVarInsn(LSTORE, shadowStackIndex-2*SHADOW_FIELD_SIZE); // V1+V2
+				output.visitInsn(opcode);
+				break;
+			case INEG:
+			case LNEG:
+			case FNEG:
+			case DNEG:
+				// Unary operations
+				// Do nothing, the taint is the same
+				// ...,V1 -> ...,V1
+				output.visitInsn(opcode);
+				break;
 			case I2L:
 			case I2F:
 			case I2D:
@@ -431,24 +453,36 @@ public class ShadowStackRewriter {
 			case I2B:
 			case I2C:
 			case I2S:
-			case LCMP:
-			case FCMPL:
-			case FCMPG:
-			case DCMPL:
-			case DCMPG:
+				// Cast operations. No change is necessary, because they're essentially the
+				// same as a unary operation, even if the type in the stack changes.
+				output.visitInsn(opcode);
+				break;
 			case IRETURN:
 			case LRETURN:
 			case FRETURN:
 			case DRETURN:
 			case ARETURN:
 			case RETURN:
-			case ARRAYLENGTH:
-			case ATHROW:
-			case MONITORENTER:
-			case MONITOREXIT:
+				// TODO: Store the taint in Thread.returnVal
 				output.visitInsn(opcode);
 				break;
-
+			case ARRAYLENGTH:
+				// TODO: If the reference to the array is tainted, should the length of the array be also tainted?
+				output.visitInsn(opcode);
+				break;
+			case ATHROW:
+				// There is no way of tainting a thrown exception.
+				// When the exception is thrown, if there is a handler for the exception in the current method
+				// the current method stack is cleared, and the exception reference is loaded onto the stack.
+				// If there is no handler for the exception in the current method, the entire frame is discarded,
+				// and the process is repeated until an exception handler is found or the thread exits.
+				output.visitInsn(opcode);
+				break;
+			case MONITORENTER:
+			case MONITOREXIT:
+				// Don't really care
+				output.visitInsn(opcode);
+				break;
 			default:
 				throw new RuntimeException("visitInst should not receive opcode " + opcode);
 			}
@@ -569,6 +603,15 @@ public class ShadowStackRewriter {
 		public void visitVarInsn(int opcode, int var) {
 			inst++;
 			output.visitVarInsn(opcode, var);
+		}
+
+		/**
+		 * Emits bytecode equivalent to the invocation of a static method call.
+		 * The descriptor of the "method call" is (JJ)J.
+		 */
+		private void emitMeetOperator() {
+			// XXX: For now, simply discard one of the two values
+			output.visitInsn(POP2); // XXX: Remove when the merge operator actually works
 		}
 		
 	}
