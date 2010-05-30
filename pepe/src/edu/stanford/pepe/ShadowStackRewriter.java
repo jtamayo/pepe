@@ -15,6 +15,7 @@ import edu.stanford.pepe.org.objectweb.asm.ClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Label;
 import edu.stanford.pepe.org.objectweb.asm.MethodVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
+import edu.stanford.pepe.org.objectweb.asm.Type;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
@@ -605,7 +606,38 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 			inst++;
-			output.visitMethodInsn(opcode, owner, name, desc);
+			final int stackSize = frames[inst].getStackSize();
+			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
+			final int argSize = Type.getArgumentTypes(desc).length;
+			
+			switch (opcode) {
+			case INVOKESTATIC:
+				output.visitMethodInsn(opcode, owner, name, desc);
+				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
+					// ...,arg1,arg2,...,arg_(argSize-1) -> ...,retvalue
+					output.visitInsn(LCONST_0);
+					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*argSize);
+				}
+				break;
+			case INVOKEVIRTUAL:
+			case INVOKESPECIAL:
+			case INVOKEINTERFACE:
+				// This is a problem, I need to know how many values will be popped out of the stack after the method invocation
+				// I also need to taint it AFTER invoking the method, not before.
+				output.visitMethodInsn(opcode, owner, name, desc);
+				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
+					// The method will return a value
+					// TODO: Get the value from Thread instead of a constant
+					output.visitInsn(LCONST_0);
+					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*(argSize+1)); // Plus one for the "this" parameter
+				}
+				break;
+			case INVOKEDYNAMIC:
+				throw new UnsupportedOperationException("Method visitMethodInsn does not yet support INVOKEDYNAMIC");
+			default:
+				throw new IllegalArgumentException("Method visitMethodInsn should not receive opcode " + opcode);
+
+			}
 		}
 
 
