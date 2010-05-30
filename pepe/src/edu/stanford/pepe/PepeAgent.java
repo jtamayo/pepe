@@ -10,6 +10,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
 import edu.stanford.pepe.org.objectweb.asm.ClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
@@ -96,8 +97,13 @@ public class PepeAgent implements ClassFileTransformer {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static byte[] instrumentClass(byte[] classfileBuffer) {
-		ClassNode cn = new ClassNode();
+		EnhancedClassNode cn = new EnhancedClassNode();
+		if (!InstrumentationPolicy.isTypeInstrumentable(cn)) {
+			// TODO: Optimize: there are two calls to isTypeInstrumentable. The problem is, if I don't do two calls I'd have to split the instrumentation, or I'd have to build a classnode without need
+			return null;
+		}
 		for (FieldNode fn : (List<FieldNode>)cn.fields) {
 			if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
 				System.out.println("Skipping already instrumented class " + cn.name);
@@ -106,11 +112,10 @@ public class PepeAgent implements ClassFileTransformer {
 		}
 		ClassReader cr = new ClassReader(classfileBuffer);
 		cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
-		
 		return instrumentClass(cn);
 	}
 
-	public static byte[] instrumentClass(ClassNode cn) {
+	public static byte[] instrumentClass(EnhancedClassNode cn) {
 		// First add the taint fields
 		ShadowFieldRewriter.rewrite(cn);
 		// Now add the shadow stack

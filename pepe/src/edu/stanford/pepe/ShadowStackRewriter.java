@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.stanford.aj.prep.FrameAnalyzer;
+import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.AnnotationVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Attribute;
 import edu.stanford.pepe.org.objectweb.asm.ClassAdapter;
@@ -15,6 +16,7 @@ import edu.stanford.pepe.org.objectweb.asm.Label;
 import edu.stanford.pepe.org.objectweb.asm.MethodVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
+import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 
@@ -25,7 +27,7 @@ public class ShadowStackRewriter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void rewrite(ClassNode cn, ClassVisitor output) {
+	public static void rewrite(EnhancedClassNode cn, ClassVisitor output) {
 		// First output the entire class, except the methods and the visitEnd
 		copyAllButMethods(cn, output);
 
@@ -61,7 +63,7 @@ public class ShadowStackRewriter {
 	
 	static class ShadowStackVisitor implements MethodVisitor, Opcodes {
 		
-		public static final int WORKING_STACK_SIZE = 8; // DUP2_X2 uses 4 stack vars
+		public static final int WORKING_STACK_SIZE = 8; // DUP2_X2 uses 4 shadow vars
 
 		private final MethodNode mn;
 		private final MethodVisitor output;
@@ -72,9 +74,9 @@ public class ShadowStackRewriter {
 
 		private int inst = -1; // Start one before the instructions, because it's incremented before any visitXX method is executed
 
-		private final ClassNode cn;
+		private final EnhancedClassNode cn;
 
-		public ShadowStackVisitor(MethodVisitor output, MethodNode mn, Frame[] frames, ClassNode cn) {
+		public ShadowStackVisitor(MethodVisitor output, MethodNode mn, Frame[] frames, EnhancedClassNode cn) {
 			this.output = output;
 			this.mn = mn;
 			this.frames = frames;
@@ -143,7 +145,17 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 			inst++;
-			output.visitFieldInsn(opcode, owner, name, desc);
+			switch (opcode) {
+			case GETSTATIC:
+			case PUTSTATIC:
+			case GETFIELD:
+			case PUTFIELD:
+				output.visitFieldInsn(opcode, owner, name, desc);
+				break;
+			default:
+				throw new IllegalArgumentException("Method visitFieldInsn is not supposed to receive opcode " + opcode);
+
+			}
 		}
 
 

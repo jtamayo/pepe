@@ -9,8 +9,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
-import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 
 public class JREInstrumenter {
 
@@ -25,7 +25,7 @@ public class JREInstrumenter {
 		while ((je = is.getNextEntry()) != null) {
 			byte[] byteArray = read(is);
 			if (je.getName().endsWith(".class")) {
-				ClassNode cn = new ClassNode();
+				EnhancedClassNode cn = new EnhancedClassNode();
 				ClassReader cr = new ClassReader(byteArray);
 				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 				

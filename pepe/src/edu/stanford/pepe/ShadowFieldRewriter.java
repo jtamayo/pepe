@@ -28,45 +28,37 @@ public class ShadowFieldRewriter implements Opcodes {
 	
 	@SuppressWarnings("unchecked")
 	public static void rewrite(ClassNode cn) {
-		int classAccess = cn.access;
-		boolean isInterface = (classAccess & ACC_INTERFACE) != 0;
-		boolean isEnum = (classAccess & ACC_ENUM) != 0;
-		boolean isAnnotation = (classAccess & ACC_ANNOTATION) != 0;
-		
-
-		if (isInterface || isAnnotation || isEnum) {
-			logger.finer("Skipping field rewriting for class " + cn.name);
-			return;
-		}
-		
 		List<FieldNode> shadowFields = new ArrayList<FieldNode>();
 		for (FieldNode fn : (List<FieldNode>) cn.fields) {
-			int fieldAccess = fn.access;
+			final int fieldAccess = fn.access;
 			final boolean isStatic = (fieldAccess & ACC_STATIC) != 0;
 			final boolean isFinal = (fieldAccess & ACC_FINAL) != 0;
-			if (isStatic && isFinal) continue;
-			if (!InstrumentationPolicy.isFieldInstrumentable(cn.name, fn.name, isStatic)) {
-				System.out.println("Skipping " + cn.name + " " + fn.name);
-				continue;
-			}
-			
-			// Section 4.7.6 in the JVMS, if it's not in the source code it's synthetic
-			// A non-static field should be transient, so it is not serialized
-			int newAccess;
-			if (isStatic) {
-				newAccess = ACC_STATIC | ACC_PUBLIC | ACC_SYNTHETIC; 
+			if (isStatic && isFinal) {
+				// static final fields are instrumented, even though it's not necessary,
+				// because at the caller side it's impossible to know whether a field is
+				// final, and thus it's impossible to determine whether it is shadowed or not.
+				int newAccess = ACC_STATIC | ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC;
+				String newName = fn.name + TAINT_SUFFIX;
+				FieldNode shadowFn = new FieldNode(newAccess, newName, TAINT_TYPE.getDescriptor(), null, new Long(0));
+				shadowFields.add(shadowFn);
+				logger.finer("Instrumenting static final field " + cn.name + " " + fn.name);
+			} else if (InstrumentationPolicy.isFieldInstrumentable(cn.name, fn.name, isStatic)) {
+				// Section 4.7.6 in the JVMS, if it's not in the source code it's synthetic
+				// A non-static field should be transient, so it is not serialized
+				int newAccess = isStatic ? (ACC_STATIC | ACC_PUBLIC | ACC_SYNTHETIC)
+						: (ACC_TRANSIENT | ACC_PUBLIC | ACC_SYNTHETIC);
+				String newName = fn.name + TAINT_SUFFIX;
+				FieldNode shadowFn = new FieldNode(newAccess, newName, TAINT_TYPE.getDescriptor(), null, null);
+				shadowFields.add(shadowFn);
+				logger.finer("Instrumenting field " + cn.name + " " + fn.name);
+
 			} else {
-				newAccess = ACC_TRANSIENT | ACC_PUBLIC | ACC_SYNTHETIC; 
+				logger.finer("Skipping field " + cn.name + " " + fn.name);
 			}
-			
-			String newName = fn.name + TAINT_SUFFIX;
-			FieldNode shadowFn = new FieldNode(newAccess, newName, TAINT_TYPE.getDescriptor(), null, null);
-			shadowFields.add(shadowFn);
-			logger.finer("Instrumenting field " + cn.name + " " + fn.name);
+
 		}
-		// Add the mark to de termine that this class has been instrumented
+		// Add the mark to determine that this class has been instrumented
 		shadowFields.add(new FieldNode(ACC_STATIC + ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC, TAINT_MARK, TAINT_TYPE.getDescriptor(), null, new Long(0)));
-		
 		
 		cn.fields.addAll(shadowFields);
 		
