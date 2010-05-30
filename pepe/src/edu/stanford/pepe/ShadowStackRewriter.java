@@ -17,7 +17,6 @@ import edu.stanford.pepe.org.objectweb.asm.MethodVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.Type;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
-import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 
@@ -122,7 +121,7 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitCode() {
 			output.visitCode();
-			clearShadowStack();
+//			clearShadowStack();
 			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
 		}
 
