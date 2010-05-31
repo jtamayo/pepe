@@ -82,7 +82,7 @@ public class PepeAgent implements ClassFileTransformer {
 	 */
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (!InstrumentationPolicy.isTypeInstrumentable(className)) {
+		if (!InstrumentationPolicy.isTypeInstrumentable(className) && className.equals("java/lang/Thread")) {
 			return null;
 		}
 		
@@ -100,7 +100,7 @@ public class PepeAgent implements ClassFileTransformer {
 	@SuppressWarnings("unchecked")
 	public static byte[] instrumentClass(byte[] classfileBuffer) {
 		EnhancedClassNode cn = new EnhancedClassNode();
-		if (!InstrumentationPolicy.isTypeInstrumentable(cn)) {
+		if (!InstrumentationPolicy.isTypeInstrumentable(cn) && !cn.name.equals("java/lang/Thread")) {
 			// TODO: Optimize: there are two calls to isTypeInstrumentable. The problem is, if I don't do two calls I'd have to split the instrumentation, or I'd have to build a classnode without need
 			return null;
 		}
@@ -117,7 +117,11 @@ public class PepeAgent implements ClassFileTransformer {
 
 	public static byte[] instrumentClass(EnhancedClassNode cn) {
 		// First add the taint fields
-		ShadowFieldRewriter.rewrite(cn);
+		if (cn.name.equals("java/lang/Thread")) {
+			ThreadReturnValuesRewriter.rewrite(cn);
+		} else {
+			ShadowFieldRewriter.rewrite(cn);
+		}
 		// Now add the shadow stack
 		ClassWriter cw = new ClassWriter(0);
 		ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible

@@ -39,6 +39,7 @@ public class TestJDBC4 {
 	
 	public static void main(String[] args) throws Exception {
 		TestJDBC4 testJDBC = new TestJDBC4();
+		Thread t = Thread.currentThread();
 		testJDBC.doTest();
 	}
 

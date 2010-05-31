@@ -23,7 +23,7 @@ import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.TryCatchBlockNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 
-public class ShadowStackRewriter {
+public class ShadowStackRewriter implements Opcodes {
 	public static Logger logger = Logger.getLogger(ShadowStackRewriter.class.getName());
 	{
 		logger.setLevel(Level.INFO);
@@ -45,9 +45,45 @@ public class ShadowStackRewriter {
 			mn.accept(v);
 		}
 		
+		if (cn.name.equals("java/lang/Thread")) {
+			emitGetReturnValue(cn, output);
+		}
+		
 		// Every method has been visited, all that remains is to call visitEnd on the output
 		output.visitEnd();
 	}
+
+	private static void emitGetReturnValue(EnhancedClassNode cn, ClassVisitor output) {
+		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, "returnValue", "()J", null, null);
+		mv.visitCode();
+		Label l0 = new Label();
+		mv.visitLabel(l0);
+		mv.visitLineNumber(6, l0);
+		mv.visitMethodInsn(INVOKESTATIC, "edu/stanford/pepe/EmptyClass$MyThread", "currentThread", "()Ledu/stanford/pepe/EmptyClass$MyThread;");
+		mv.visitVarInsn(ASTORE, 0);
+		Label l1 = new Label();
+		mv.visitLabel(l1);
+		mv.visitLineNumber(7, l1);
+		mv.visitVarInsn(ALOAD, 0);
+		Label l2 = new Label();
+		mv.visitJumpInsn(IFNONNULL, l2);
+		mv.visitInsn(LCONST_0);
+		Label l3 = new Label();
+		mv.visitJumpInsn(GOTO, l3);
+		mv.visitLabel(l2);
+		mv.visitFrame(Opcodes.F_APPEND,1, new Object[] {"edu/stanford/pepe/EmptyClass$MyThread"}, 0, null);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, "edu/stanford/pepe/EmptyClass$MyThread", "__RET_VAL", "J");
+		mv.visitLabel(l3);
+		mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {Opcodes.LONG});
+		mv.visitInsn(LRETURN);
+		Label l4 = new Label();
+		mv.visitLabel(l4);
+		mv.visitLocalVariable("t", "Ledu/stanford/pepe/EmptyClass$MyThread;", null, l1, l4, 0);
+		mv.visitMaxs(2, 1);
+		mv.visitEnd();
+		
+}
 
 	/** Transfer all events except visitMethod and visitEnd. */
 	private static void copyAllButMethods(final ClassNode root, final ClassVisitor output) {
@@ -126,7 +162,6 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitCode() {
 			output.visitCode();
-//			clearShadowStack();
 			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
 		}
 
@@ -578,8 +613,6 @@ public class ShadowStackRewriter {
 
 		// Will load 0l at the indicated index
 		private void clear(int i) {
-			// TODO: Until all instructions are properly instrumented the types at the beginning will be garbage. Thus,
-			// they must be cleared manually.
 			output.visitInsn(LCONST_0);
 			output.visitVarInsn(LSTORE, i);
 		}
@@ -704,7 +737,8 @@ public class ShadowStackRewriter {
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// ...,arg1,arg2,...,arg_(argSize-1) -> ...,retvalue
-					output.visitInsn(LCONST_0);
+					loadReturnValueTaint();
+//					output.visitInsn(LCONST_0);
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*argSize);
 				}
 				break;
@@ -717,7 +751,8 @@ public class ShadowStackRewriter {
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// The method will return a value
 					// TODO: Get the value from Thread instead of a constant
-					output.visitInsn(LCONST_0);
+					loadReturnValueTaint();
+//					output.visitInsn(LCONST_0);
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*(argSize+1)); // Plus one for the "this" parameter
 				}
 				break;
@@ -730,6 +765,11 @@ public class ShadowStackRewriter {
 		}
 
 
+
+		private void loadReturnValueTaint() {
+			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", Type.getMethodDescriptor(Type.getObjectType("java/lang/Thread"), new Type[]{}));
+			output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
+		}
 
 		@Override
 		public void visitMultiANewArrayInsn(String desc, int dims) {
