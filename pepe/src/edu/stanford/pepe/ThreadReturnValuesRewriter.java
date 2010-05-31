@@ -9,7 +9,7 @@ public class ThreadReturnValuesRewriter implements Opcodes {
 	public static final int PARAMETER_NUMBER = 30;
 	public static final String PARAMETER_FIELD_PREFIX = "__$$PARAMETER";
 	public static final String RETURN_VALUE_NAME = "__$$RETURN_VAL";
-	public static final String RETURN_VALUE_GET = "get" + RETURN_VALUE_NAME;
+	public static final String GET_RETURN_VALUE = "get" + RETURN_VALUE_NAME;
 	
 	/**
 	 * Add the return value and parameter fields to java.lang.Thread.

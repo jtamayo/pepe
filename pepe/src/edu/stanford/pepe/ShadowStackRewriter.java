@@ -54,16 +54,14 @@ public class ShadowStackRewriter implements Opcodes {
 	}
 
 	private static void emitGetReturnValue(EnhancedClassNode cn, ClassVisitor output) {
-		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, "returnValue", "()J", null, null);
+		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, ThreadReturnValuesRewriter.GET_RETURN_VALUE, "()J", null, null);
 		mv.visitCode();
 		Label l0 = new Label();
 		mv.visitLabel(l0);
-		mv.visitLineNumber(6, l0);
-		mv.visitMethodInsn(INVOKESTATIC, "edu/stanford/pepe/EmptyClass$MyThread", "currentThread", "()Ledu/stanford/pepe/EmptyClass$MyThread;");
+		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;");
 		mv.visitVarInsn(ASTORE, 0);
 		Label l1 = new Label();
 		mv.visitLabel(l1);
-		mv.visitLineNumber(7, l1);
 		mv.visitVarInsn(ALOAD, 0);
 		Label l2 = new Label();
 		mv.visitJumpInsn(IFNONNULL, l2);
@@ -71,15 +69,15 @@ public class ShadowStackRewriter implements Opcodes {
 		Label l3 = new Label();
 		mv.visitJumpInsn(GOTO, l3);
 		mv.visitLabel(l2);
-		mv.visitFrame(Opcodes.F_APPEND,1, new Object[] {"edu/stanford/pepe/EmptyClass$MyThread"}, 0, null);
+		mv.visitFrame(Opcodes.F_APPEND,1, new Object[] {"java/lang/Thread"}, 0, null);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, "edu/stanford/pepe/EmptyClass$MyThread", "__RET_VAL", "J");
+		mv.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, "J");
 		mv.visitLabel(l3);
 		mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {Opcodes.LONG});
 		mv.visitInsn(LRETURN);
 		Label l4 = new Label();
 		mv.visitLabel(l4);
-		mv.visitLocalVariable("t", "Ledu/stanford/pepe/EmptyClass$MyThread;", null, l1, l4, 0);
+//		mv.visitLocalVariable("t", "Ljava/lang/Thread;", null, l1, l4, 0);
 		mv.visitMaxs(2, 1);
 		mv.visitEnd();
 		
@@ -767,8 +765,8 @@ public class ShadowStackRewriter implements Opcodes {
 
 
 		private void loadReturnValueTaint() {
-			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", Type.getMethodDescriptor(Type.getObjectType("java/lang/Thread"), new Type[]{}));
-			output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
+			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadReturnValuesRewriter.GET_RETURN_VALUE, "()J");
+			//			output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
 		}
 
 		@Override
