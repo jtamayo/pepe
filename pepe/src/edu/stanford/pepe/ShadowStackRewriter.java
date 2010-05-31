@@ -2,7 +2,9 @@ package edu.stanford.pepe;
 
 import static edu.stanford.pepe.TaintProperties.SHADOW_FIELD_SIZE;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +20,7 @@ import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.Type;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
+import edu.stanford.pepe.org.objectweb.asm.tree.TryCatchBlockNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 
 public class ShadowStackRewriter {
@@ -71,6 +74,8 @@ public class ShadowStackRewriter {
 		private final int newMaxStack;
 		private final int newMaxLocals;
 		private final int shadowStackStart;
+		
+		private final Map<Label, Label> newLabels = new HashMap<Label, Label>();
 
 		private int inst = -1; // Start one before the instructions, because it's incremented before any visitXX method is executed
 
@@ -164,6 +169,9 @@ public class ShadowStackRewriter {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
 					output.visitFieldInsn(GETSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
 					output.visitVarInsn(LSTORE, shadowStackIndex);
+				} else {
+					// If the field is not instrumentable, we assume it is not tainted
+					clear(shadowStackIndex);
 				}
 				break;
 			case PUTSTATIC:
@@ -172,7 +180,7 @@ public class ShadowStackRewriter {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
 					output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // The taint is in the head of the stack
 					output.visitFieldInsn(PUTSTATIC, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
-				}
+				} 
 				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case GETFIELD:
@@ -185,6 +193,7 @@ public class ShadowStackRewriter {
 					// TODO: Meet the taint of the field and the taint of the reference
 					output.visitFieldInsn(opcode, owner, name, desc);
 				} else {
+					clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
 					output.visitFieldInsn(opcode, owner, name, desc);
 				}
 				break;
@@ -607,15 +616,42 @@ public class ShadowStackRewriter {
 		public void visitJumpInsn(int opcode, Label label) {
 			inst++;
 			// Right now we're not tracking control flow dependencies, and thus we don't care about jump instructions
-			output.visitJumpInsn(opcode, label);
+			output.visitJumpInsn(opcode, getNewLabel(label));
 		}
 
 
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void visitLabel(Label label) {
 			inst++;
-			output.visitLabel(label);
+			// I need to check whether this is the start of a catch block, so I can clear the stack
+			List tryCatchBlocks = mn.tryCatchBlocks;
+			boolean isCatchBlock = false;
+			for (TryCatchBlockNode tc : (List<TryCatchBlockNode>) tryCatchBlocks) {
+				if (tc.handler == label.info) {
+					isCatchBlock = true;
+					break;
+				}
+			}
+			output.visitLabel(getNewLabel(label));
+			if (isCatchBlock) {
+				// The stack will be cleared before we reach here, and a ref to the thrown exception will be loaded
+				// to the first position. I must clear it after the label
+				// ... -> exceptionRef
+				// ... -> stackStart
+				clear(shadowStackStart);
+			}
+		}
+		
+		private Label getNewLabel(Label oldLabel) {
+			if (newLabels.containsKey(oldLabel)) {
+				return newLabels.get(oldLabel);
+			} else {
+				Label newLabel = new Label();
+				newLabels.put(oldLabel, newLabel);
+				return newLabel;
+			}
 		}
 
 
@@ -635,14 +671,14 @@ public class ShadowStackRewriter {
 		@Override
 		public void visitLineNumber(int line, Label start) {
 			inst++;
-			output.visitLineNumber(line, start);
+			output.visitLineNumber(line, getNewLabel(start));
 		}
 
 
 
 		@Override
 		public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-			output.visitLocalVariable(name, desc, signature, start, end, index);
+			output.visitLocalVariable(name, desc, signature, getNewLabel(start), getNewLabel(end), index);
 		}
 
 
@@ -651,7 +687,7 @@ public class ShadowStackRewriter {
 		public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 			inst++;
 			// Because we're not tracking control flow, we don't care about switch instructions
-			output.visitLookupSwitchInsn(dflt, keys, labels);
+			output.visitLookupSwitchInsn(getNewLabel(dflt), keys, getNewLabels(labels));
 		}
 
 
@@ -721,14 +757,23 @@ public class ShadowStackRewriter {
 		public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
 			inst++;
 			// Because we're not tracking control flow, we don't care about switch instructions
-			output.visitTableSwitchInsn(min, max, dflt, labels);
+			output.visitTableSwitchInsn(min, max, getNewLabel(dflt), getNewLabels(labels));
+		}
+		
+		private Label[] getNewLabels(Label[] oldLabels) {
+			Label[] newLabels = new Label[oldLabels.length];
+			for (int i = 0; i < oldLabels.length; i++) {
+				Label oldLabel = oldLabels[i];
+				newLabels[i] = getNewLabel(oldLabel);
+			}
+			return newLabels;
 		}
 
 
 
 		@Override
 		public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-			output.visitTryCatchBlock(start, end, handler, type);
+			output.visitTryCatchBlock(getNewLabel(start), getNewLabel(end), getNewLabel(handler), type);
 		}
 
 
