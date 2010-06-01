@@ -31,6 +31,9 @@ public class ShadowStackRewriter implements Opcodes {
 
 	@SuppressWarnings("unchecked")
 	public static void rewrite(EnhancedClassNode cn, ClassVisitor output) {
+		// Switch to version 1.5, to avoid generating stack frames
+		cn.version = V1_5;
+		
 		// First output the entire class, except the methods and the visitEnd
 		copyAllButMethods(cn, output);
 
@@ -69,11 +72,9 @@ public class ShadowStackRewriter implements Opcodes {
 		Label l3 = new Label();
 		mv.visitJumpInsn(GOTO, l3);
 		mv.visitLabel(l2);
-		mv.visitFrame(Opcodes.F_APPEND,1, new Object[] {"java/lang/Thread"}, 0, null);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, "J");
 		mv.visitLabel(l3);
-		mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {Opcodes.LONG});
 		mv.visitInsn(LRETURN);
 		Label l4 = new Label();
 		mv.visitLabel(l4);
@@ -108,6 +109,7 @@ public class ShadowStackRewriter implements Opcodes {
 		private final int newMaxStack;
 		private final int newMaxLocals;
 		private final int shadowStackStart;
+		private final int currentThreadIndex;
 		
 		private final Map<Label, Label> newLabels = new HashMap<Label, Label>();
 
@@ -122,11 +124,12 @@ public class ShadowStackRewriter implements Opcodes {
 			this.frames = frames;
 			this.cn = cn;
 			// new locals will be: the old locals + shadow for old locals + shadow copy of the stack
-			this.newMaxLocals = mn.maxLocals + SHADOW_FIELD_SIZE*mn.maxLocals + SHADOW_FIELD_SIZE*mn.maxStack;
+			this.newMaxLocals = mn.maxLocals + SHADOW_FIELD_SIZE*mn.maxLocals + SHADOW_FIELD_SIZE*mn.maxStack + 1; // 1 for the currentThread
 			// The shadow stack will start right after the shadows for the locals
 			this.shadowStackStart = mn.maxLocals + SHADOW_FIELD_SIZE*mn.maxLocals;
 			// The stack is the old stack, plus our working variables
 			this.newMaxStack = mn.maxStack + WORKING_STACK_SIZE;
+			this.currentThreadIndex = newMaxLocals - 1; // the current thread is always the last local variable
 		}
 		
 		@Override
@@ -160,10 +163,20 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitCode() {
 			output.visitCode();
-			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
+			emitLoadCurrentThread();
+			emitLoadParameterShadows();
 		}
 
 
+
+		private void emitLoadParameterShadows() {
+			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
+		}
+
+		private void emitLoadCurrentThread() {
+			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;");
+			output.visitVarInsn(ASTORE, currentThreadIndex);			
+		}
 
 		private void clearLocals() {
 			for (int i = 0; i < mn.maxLocals; i++) {
@@ -269,7 +282,8 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
 			inst++;
-			output.visitFrame(type, nLocal, local, nStack, stack);
+			// I emit V1_5 classes to avoid dealing with stack frames
+//			output.visitFrame(type, nLocal, local, nStack, stack);
 		}
 
 
@@ -732,11 +746,11 @@ public class ShadowStackRewriter implements Opcodes {
 			
 			switch (opcode) {
 			case INVOKESTATIC:
+				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize -1);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// ...,arg1,arg2,...,arg_(argSize-1) -> ...,retvalue
 					loadReturnValueTaint();
-//					output.visitInsn(LCONST_0);
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*argSize);
 				}
 				break;
@@ -745,12 +759,13 @@ public class ShadowStackRewriter implements Opcodes {
 			case INVOKEINTERFACE:
 				// This is a problem, I need to know how many values will be popped out of the stack after the method invocation
 				// I also need to taint it AFTER invoking the method, not before.
+				// I need to load all of the taints in the method call, including the "this" parameter.
+				// I also need to check for null in the current thread, and if null I should not attempt to access the fields
+				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// The method will return a value
-					// TODO: Get the value from Thread instead of a constant
 					loadReturnValueTaint();
-//					output.visitInsn(LCONST_0);
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*(argSize+1)); // Plus one for the "this" parameter
 				}
 				break;
@@ -761,7 +776,47 @@ public class ShadowStackRewriter implements Opcodes {
 
 			}
 		}
-
+		
+		/**
+		 * Stores the shadows of the values currently in the stack into the
+		 * shadow fields in java.lang.Thread, as to prepare the values for a
+		 * method invocation.
+		 * 
+		 * @param stackSize
+		 *            the size of the stack before the INVOKExxx Instruction is
+		 *            called
+		 * @param shadowStackIndex
+		 *            the index of the next available space in the shadow stack,
+		 *            computed based on stackSize
+		 * @param parameters
+		 *            the number of parameters the method receives; it includes
+		 *            the "this" parameter for plain method invocations
+		 */
+		private void emitStoreMethodTaints(final int stackSize, final int shadowStackIndex, final int parameters) {
+			output.visitCode();
+			Label l1 = new Label();
+			output.visitLabel(l1);
+			output.visitVarInsn(ALOAD, currentThreadIndex);
+			Label l2 = new Label();
+			output.visitJumpInsn(IFNONNULL, l2);
+			Label l3 = new Label();
+			output.visitJumpInsn(GOTO, l3);
+			output.visitLabel(l2);
+			// with 3 parameters
+			// ...,p1,p2,p3
+			// ...,-3,-2,-1
+			for (int i = parameters; i > 0; i--) {
+				output.visitVarInsn(ALOAD, currentThreadIndex); // load current thread
+				output.visitVarInsn(LLOAD, shadowStackIndex - i*SHADOW_FIELD_SIZE);
+				final int parameterIndex = parameters - i; // When i = parameters, parameterIndex = 0
+				output.visitFieldInsn(PUTFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.PARAMETER_FIELD_PREFIX + parameterIndex, "J");
+			}
+			if (parameters >= 1) {
+			}
+			output.visitLabel(l3);
+			Label l4 = new Label();
+			output.visitLabel(l4);
+		}
 
 
 		private void loadReturnValueTaint() {
