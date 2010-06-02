@@ -2,6 +2,7 @@ package edu.stanford.pepe;
 
 import static edu.stanford.pepe.TaintProperties.SHADOW_FIELD_SIZE;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +171,39 @@ public class ShadowStackRewriter implements Opcodes {
 
 
 		private void emitLoadParameterShadows() {
-			clearLocals(); // TODO: Load the values from the Thread instead of constant 0
+			// I need to determine whether the method is static or not, and on that depends what values do I load.
+			boolean isStatic = (mn.access & ACC_STATIC) != 0;
+			Type[] argumentTypes = Type.getArgumentTypes(mn.desc);
+			List<Integer> offsets = new ArrayList<Integer>();
+			int offset = 0;
+			if (!isStatic) {
+				offsets.add(offset); // 0 offset for the "this" parameter in instance methods
+				offset++;
+			}
+			for (Type type : argumentTypes) {
+				offsets.add(offset);
+				offset += type.getSize();
+			}
+			
+			Label l1 = new Label();
+			output.visitLabel(l1);
+			output.visitVarInsn(ALOAD, currentThreadIndex);
+			Label l2 = new Label();
+			output.visitJumpInsn(IFNONNULL, l2);
+			clearLocals(); // When there's no currentThread, load constant 0 everywhere
+			Label l3 = new Label();
+			output.visitJumpInsn(GOTO, l3);
+			output.visitLabel(l2);
+			for (int i = 0; i < offsets.size(); i++) {
+				int localVar = offsets.get(i);
+				final int shadowVar = mn.maxLocals + SHADOW_FIELD_SIZE*localVar;
+				output.visitVarInsn(ALOAD, currentThreadIndex); // load current thread
+				output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.PARAMETER_FIELD_PREFIX + i, "J");
+				output.visitVarInsn(LSTORE, shadowVar);
+			}
+			output.visitLabel(l3);
+			Label l4 = new Label();
+			output.visitLabel(l4);
 		}
 
 		private void emitLoadCurrentThread() {
@@ -179,6 +212,7 @@ public class ShadowStackRewriter implements Opcodes {
 		}
 
 		private void clearLocals() {
+			// TODO: I should clear only the local variables corresponding to method parameters, not every local variable
 			for (int i = 0; i < mn.maxLocals; i++) {
 				clear(mn.maxLocals + SHADOW_FIELD_SIZE*i);
 			}
@@ -793,7 +827,7 @@ public class ShadowStackRewriter implements Opcodes {
 		 *            the "this" parameter for plain method invocations
 		 */
 		private void emitStoreMethodTaints(final int stackSize, final int shadowStackIndex, final int parameters) {
-			output.visitCode();
+//			output.visitCode();
 			Label l1 = new Label();
 			output.visitLabel(l1);
 			output.visitVarInsn(ALOAD, currentThreadIndex);
@@ -810,8 +844,6 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitVarInsn(LLOAD, shadowStackIndex - i*SHADOW_FIELD_SIZE);
 				final int parameterIndex = parameters - i; // When i = parameters, parameterIndex = 0
 				output.visitFieldInsn(PUTFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.PARAMETER_FIELD_PREFIX + parameterIndex, "J");
-			}
-			if (parameters >= 1) {
 			}
 			output.visitLabel(l3);
 			Label l4 = new Label();
