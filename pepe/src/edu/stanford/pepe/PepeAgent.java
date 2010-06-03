@@ -29,7 +29,7 @@ import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
  * @author jtamayo
  */
 public class PepeAgent implements ClassFileTransformer,Opcodes {
-
+	
 	public static final Logger logger = Logger.getLogger("edu.stanford.pepe");
 	{
 		for (Handler h : Logger.getLogger("").getHandlers()) {
@@ -122,15 +122,9 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	public static byte[] instrumentClass(EnhancedClassNode cn) {
 		// First add the taint fields
 		if (cn.name.equals("java/lang/Thread")) {
-			ThreadReturnValuesRewriter.rewrite(cn);
+//			ThreadReturnValuesRewriter.rewrite(cn);
 			final ClassWriter cw = new ClassWriter(0);
-			ClassAdapter ca = new ClassAdapter(cw){
-				@Override
-				public void visitEnd() {
-					emitGetReturnValue(cw);
-					super.visitEnd();
-				}
-			};
+			ClassAdapter ca = new ThreadInstrumenter(cw);
 			cn.accept(ca);
 			return cw.toByteArray();
 		} else {
@@ -143,32 +137,5 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		}
 	}
 	
-	private static void emitGetReturnValue(ClassVisitor output) {
-		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, ThreadReturnValuesRewriter.GET_RETURN_VALUE, "()J", null, null);
-		mv.visitCode();
-		Label l0 = new Label();
-		mv.visitLabel(l0);
-		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;");
-		mv.visitVarInsn(ASTORE, 0);
-		Label l1 = new Label();
-		mv.visitLabel(l1);
-		mv.visitVarInsn(ALOAD, 0);
-		Label l2 = new Label();
-		mv.visitJumpInsn(IFNONNULL, l2);
-		mv.visitInsn(LCONST_0);
-		Label l3 = new Label();
-		mv.visitJumpInsn(GOTO, l3);
-		mv.visitLabel(l2);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, "J");
-		mv.visitLabel(l3);
-		mv.visitInsn(LRETURN);
-		Label l4 = new Label();
-		mv.visitLabel(l4);
-//		mv.visitLocalVariable("t", "Ljava/lang/Thread;", null, l1, l4, 0);
-		mv.visitMaxs(2, 1);
-		mv.visitEnd();
-		
-}
 
 }

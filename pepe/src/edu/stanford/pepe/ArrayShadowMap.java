@@ -4,7 +4,6 @@ package edu.stanford.pepe;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Each thread should get an instance of this. */

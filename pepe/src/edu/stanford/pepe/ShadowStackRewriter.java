@@ -58,7 +58,7 @@ public class ShadowStackRewriter implements Opcodes {
 	}
 
 	private static void emitGetReturnValue(EnhancedClassNode cn, ClassVisitor output) {
-		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, ThreadReturnValuesRewriter.GET_RETURN_VALUE, "()J", null, null);
+		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, ThreadInstrumenter.GET_RETURN_VALUE, "()J", null, null);
 		mv.visitCode();
 		Label l0 = new Label();
 		mv.visitLabel(l0);
@@ -74,7 +74,7 @@ public class ShadowStackRewriter implements Opcodes {
 		mv.visitJumpInsn(GOTO, l3);
 		mv.visitLabel(l2);
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, "J");
+		mv.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadInstrumenter.RETURN_VALUE_NAME, "J");
 		mv.visitLabel(l3);
 		mv.visitInsn(LRETURN);
 		Label l4 = new Label();
@@ -198,7 +198,7 @@ public class ShadowStackRewriter implements Opcodes {
 				int localVar = offsets.get(i);
 				final int shadowVar = mn.maxLocals + SHADOW_FIELD_SIZE*localVar;
 				output.visitVarInsn(ALOAD, currentThreadIndex); // load current thread
-				output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.PARAMETER_FIELD_PREFIX + i, "J");
+				output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadInstrumenter.PARAMETER_FIELD_PREFIX + i, "J");
 				output.visitVarInsn(LSTORE, shadowVar);
 			}
 			output.visitLabel(l3);
@@ -371,6 +371,15 @@ public class ShadowStackRewriter implements Opcodes {
 			case BALOAD:
 			case CALOAD:
 			case SALOAD:
+				// TODO: implement the array shadows
+				// ...,arrayref, index -> ...,value
+				output.visitInsn(SWAP); // ...,index,arrayref
+				output.visitInsn(DUP); // ...,index,arrayref, arrayref
+				output.visitMethodInsn(INVOKESTATIC, ThreadInstrumenter.ARRAY_SHADOW_HOLDER.getInternalName(), "getArrayShadow", "(Ljava/lang/Object;)[J");
+				output.visitInsn(POP);
+				output.visitInsn(SWAP);
+				output.visitInsn(opcode);
+				break;
 			case IASTORE:
 			case BASTORE:
 			case CASTORE:
@@ -843,7 +852,7 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitVarInsn(ALOAD, currentThreadIndex); // load current thread
 				output.visitVarInsn(LLOAD, shadowStackIndex - i*SHADOW_FIELD_SIZE);
 				final int parameterIndex = parameters - i; // When i = parameters, parameterIndex = 0
-				output.visitFieldInsn(PUTFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.PARAMETER_FIELD_PREFIX + parameterIndex, "J");
+				output.visitFieldInsn(PUTFIELD, "java/lang/Thread", ThreadInstrumenter.PARAMETER_FIELD_PREFIX + parameterIndex, "J");
 			}
 			output.visitLabel(l3);
 			Label l4 = new Label();
@@ -852,7 +861,7 @@ public class ShadowStackRewriter implements Opcodes {
 
 
 		private void loadReturnValueTaint() {
-			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadReturnValuesRewriter.GET_RETURN_VALUE, "()J");
+			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_RETURN_VALUE, "()J");
 			//			output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
 		}
 
