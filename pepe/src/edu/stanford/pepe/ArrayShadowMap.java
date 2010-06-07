@@ -4,7 +4,6 @@ package edu.stanford.pepe;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
-import java.util.concurrent.ConcurrentHashMap;
 
 /** Each thread should get an instance of this. */
 public class ArrayShadowMap {
@@ -45,6 +44,23 @@ public class ArrayShadowMap {
                     Integer.toHexString(System.identityHashCode(_shadow)) +
                     ", length=" + _shadow.length + "]";
         }
+        
+        // XXX: Inside this class so that it is executed only when WeakKey is instantiated for the first time.
+        static {
+            for (int i = 0; i < NUM_CLEANUP_THREADS; ++i) {
+                final ReferenceQueue queue = new ReferenceQueue();
+                cleanupQueues[i] = queue;
+                final Thread t = new Thread("ArrayShadowMap cleanup thread " + i) {
+                    public void run() {
+                        while (true) {
+                            cleanupOne(queue);
+                        }
+                    }
+                };
+                t.setDaemon(true);
+                t.start();
+            }
+        }
     }
 
     private static class TmpKey {
@@ -72,27 +88,11 @@ public class ArrayShadowMap {
     private static void cleanupOne(final ReferenceQueue queue) {
         try {
             final WeakKey key = (WeakKey) queue.remove();
-            System.out.println("removing " + key);
+//            System.out.println("removing " + key);
             shadows.remove(key);
         }
         catch (final InterruptedException xx) {
             System.out.println("unexpected interrupt");
-        }
-    }
-
-    static {
-        for (int i = 0; i < NUM_CLEANUP_THREADS; ++i) {
-            final ReferenceQueue queue = new ReferenceQueue();
-            cleanupQueues[i] = queue;
-            final Thread t = new Thread("ArrayShadowMap cleanup thread " + i) {
-                public void run() {
-                    while (true) {
-                        cleanupOne(queue);
-                    }
-                }
-            };
-            t.setDaemon(true);
-            t.start();
         }
     }
 

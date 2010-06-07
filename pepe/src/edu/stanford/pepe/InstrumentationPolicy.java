@@ -35,6 +35,10 @@ public class InstrumentationPolicy implements Opcodes {
 				&& !type.equals("java/lang/String") && !type.equals("java/lang/System")
 				&& !type.equals("java/lang/RuntimePermission") && !type.equals("java/lang/Object")
 				&& !type.startsWith("java/security") && !type.startsWith("java/lang/") //XXX This ignore list needs to be cleaned up
+				&& !type.startsWith("java/io/ObjectStreamClass")
+				&& !type.startsWith("javax/servlet/http/HttpServletResponse") // TODO: determine why this class breaks dacapo
+				&& !type.equals("org/apache/xmlbeans/impl/piccolo/xml/Piccolo") // It breaks because of method length
+//				&& !(type.compareTo("javax/servlet/http") > 0) //fails with sed
 		;
 		//		String[] ignore = {"org/apache/geronimo/connector/outbound/connectionmanagerconfig/XATransactions", 
 		//				"org/apache/geronimo/security/jaas/LoginModuleControlFlag",

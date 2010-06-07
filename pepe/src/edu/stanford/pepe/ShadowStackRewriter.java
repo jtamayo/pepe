@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.stanford.aj.prep.FrameAnalyzer;
-import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.AnnotationVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Attribute;
 import edu.stanford.pepe.org.objectweb.asm.ClassAdapter;
@@ -31,7 +30,7 @@ public class ShadowStackRewriter implements Opcodes {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void rewrite(EnhancedClassNode cn, ClassVisitor output) {
+	public static void rewrite(ClassNode cn, ClassVisitor output) {
 		// Switch to version 1.5, to avoid generating stack frames
 		cn.version = V1_5;
 		
@@ -57,7 +56,7 @@ public class ShadowStackRewriter implements Opcodes {
 		output.visitEnd();
 	}
 
-	private static void emitGetReturnValue(EnhancedClassNode cn, ClassVisitor output) {
+	private static void emitGetReturnValue(ClassNode cn, ClassVisitor output) {
 		MethodVisitor mv = output.visitMethod(ACC_PUBLIC + ACC_STATIC, ThreadInstrumenter.GET_RETURN_VALUE, "()J", null, null);
 		mv.visitCode();
 		Label l0 = new Label();
@@ -111,15 +110,16 @@ public class ShadowStackRewriter implements Opcodes {
 		private final int newMaxLocals;
 		private final int shadowStackStart;
 		private final int currentThreadIndex;
+		private final Label startLabel;
+		private final Label endLabel;
 		
 		private final Map<Label, Label> newLabels = new HashMap<Label, Label>();
 
 		private int inst = -1; // Start one before the instructions, because it's incremented before any visitXX method is executed
 
-		// TODO: The EnhancedClassNode is no longer required, because I don't need field info by name
-		private final EnhancedClassNode cn;
+		private final ClassNode cn;
 
-		public ShadowStackVisitor(MethodVisitor output, MethodNode mn, Frame[] frames, EnhancedClassNode cn) {
+		public ShadowStackVisitor(MethodVisitor output, MethodNode mn, Frame[] frames, ClassNode cn) {
 			this.output = output;
 			this.mn = mn;
 			this.frames = frames;
@@ -131,10 +131,16 @@ public class ShadowStackRewriter implements Opcodes {
 			// The stack is the old stack, plus our working variables
 			this.newMaxStack = mn.maxStack + WORKING_STACK_SIZE;
 			this.currentThreadIndex = newMaxLocals - 1; // the current thread is always the last local variable
+			this.startLabel = new Label();
+			this.endLabel = new Label();
 		}
 		
 		@Override
 		public void visitMaxs(int maxStack, int maxLocals) {
+			output.visitLabel(endLabel);
+			for (int i = 0; i < mn.maxStack; i++) {
+				output.visitLocalVariable("_$shadowStack_" + i, "J", null, startLabel, endLabel, shadowStackStart + i*SHADOW_FIELD_SIZE);
+			}
 			output.visitMaxs(newMaxStack, newMaxLocals);
 		}
 
@@ -164,6 +170,7 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitCode() {
 			output.visitCode();
+			output.visitLabel(startLabel);
 			emitLoadCurrentThread();
 			emitLoadParameterShadows();
 		}
@@ -239,7 +246,12 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 			inst++;
-			final int stackSize = frames[inst].getStackSize();
+			final Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitFieldInsn(opcode, owner, name, desc);
+				return;
+			}
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case GETSTATIC:
@@ -264,13 +276,15 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case GETFIELD:
+				// ...,objectref -> ...,value
 				if (InstrumentationPolicy.isTypeInstrumentable(owner) && InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
-					// TODO: Load the taint after loading the field
-					output.visitInsn(DUP); // Copy the object reference of the field
-					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // Loaded shadow
-					output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // Return value goes on top of the stack
-					// TODO: Meet the taint of the field and the taint of the reference
+					// TODO: Load the taint after loading the field, in case the field is volatile
+					output.visitInsn(DUP); // ...,objectref,objectref
+					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // ...,objectref,value_taint
+					output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // objectref,value_taint,ref_taint
+					emitMeetOperator(); // ...,objectref,merged_taint
+					output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // ...,objectref
 					output.visitFieldInsn(opcode, owner, name, desc);
 				} else {
 					clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
@@ -282,7 +296,7 @@ public class ShadowStackRewriter implements Opcodes {
 					String shadowName = ShadowFieldRewriter.getShadowFieldName(name);
 					// ...,objref, value -> ...
 					// I need to determine whether value is long or int, to properly fix it
-					if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+					if (frame.getStack(stackSize - 1).getSize() == 1) {
 						// Top of the stack contains a narrow value
 						// ...,ref,V1
 						output.visitInsn(DUP_X1); // ...,V1,ref,V1
@@ -334,8 +348,13 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitInsn(int opcode) {
 			inst++;
+			final Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitInsn(opcode);
+				return;
+			}
 			// The stack depth before instruction inst. Long and doubles count as only one value.
-			final int stackSize = frames[inst].getStackSize();
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			
 			switch (opcode) {
@@ -371,24 +390,49 @@ public class ShadowStackRewriter implements Opcodes {
 			case BALOAD:
 			case CALOAD:
 			case SALOAD:
-				// TODO: implement the array shadows
+				// TODO: Merge the taints of the arrayref, index and shadow value
 				// ...,arrayref, index -> ...,value
-				output.visitInsn(SWAP); // ...,index,arrayref
-				output.visitInsn(DUP); // ...,index,arrayref, arrayref
-				output.visitMethodInsn(INVOKESTATIC, ThreadInstrumenter.ARRAY_SHADOW_HOLDER.getInternalName(), "getArrayShadow", "(Ljava/lang/Object;)[J");
-				output.visitInsn(POP);
-				output.visitInsn(SWAP);
+				// ..., -2     , -1    -> ..., -2
+				output.visitInsn(DUP2); // ...,arrayref,index,arrayref, index
+				output.visitInsn(SWAP); // ...,arrayref,index,index,arrayref
+				output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_SHADOW_ARRAY, "(Ljava/lang/Object;)[J"); // ...,arrayref,index,index,shadow_arrayref
+				output.visitInsn(SWAP); // ...,arrayref,index,shadow_arrayref,index
+				output.visitInsn(LALOAD); // ...,arrayref,index,taint
+				output.visitVarInsn(LSTORE, shadowStackIndex -2*SHADOW_FIELD_SIZE); // ..., arrayref,index
 				output.visitInsn(opcode);
 				break;
 			case IASTORE:
 			case BASTORE:
 			case CASTORE:
 			case SASTORE:
-			case LASTORE:
 			case FASTORE:
-			case DASTORE:
 			case AASTORE:
-				// TODO: implement the array shadows
+				// ...,arrayref, index, value -> ...
+				// ..., -3     ,  -2  , -1    -> ...
+				// value is a narrow type
+				output.visitInsn(DUP_X2); // ...,value, arrayref, index, value
+				output.visitInsn(POP); // ...,value,arrayref,index
+				output.visitInsn(DUP2_X1); // ...,arrayref,index,value,arrayref,index
+				output.visitInsn(SWAP); // ...,arrayref,index,value,index,arrayref
+				output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_SHADOW_ARRAY, "(Ljava/lang/Object;)[J"); // ...,arrayref,index,value,index,shadow_arrayref
+				output.visitInsn(SWAP); // ...,arrayref,index,value,shadow_arrayref,index
+				output.visitVarInsn(LLOAD, shadowStackIndex -1*SHADOW_FIELD_SIZE); // ...,arrayref,index,value,shadow_arrayref,index,shadow_value
+				output.visitInsn(LASTORE);
+				output.visitInsn(opcode);
+				break;
+			case LASTORE:
+			case DASTORE:
+				// ...,arrayref, index, value -> ...
+				// ..., -3     ,  -2  , -1    -> ...
+				// value is long/double
+				output.visitInsn(DUP2_X2); // ...,value, arrayref, index, value
+				output.visitInsn(POP2); // ...,value,arrayref,index
+				output.visitInsn(DUP2_X2); // ...,arrayref,index,value,arrayref,index
+				output.visitInsn(SWAP); // ...,arrayref,index,value,index,arrayref
+				output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_SHADOW_ARRAY, "(Ljava/lang/Object;)[J"); // ...,arrayref,index,value,index,shadow_arrayref
+				output.visitInsn(SWAP); // ...,arrayref,index,value,shadow_arrayref,index
+				output.visitVarInsn(LLOAD, shadowStackIndex -1*SHADOW_FIELD_SIZE); // ...,arrayref,index,value,shadow_arrayref,index,shadow_value
+				output.visitInsn(LASTORE);
 				output.visitInsn(opcode);
 				break;
 			case POP:
@@ -414,7 +458,7 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitInsn(opcode);
 				break;
 			case DUP_X2:
-				if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+				if (frame.getStack(stackSize - 1).getSize() == 1) {
 					// Form 1 in the JVM spec 2nd ed: all values are narrow
 					// ...,V3,V2,V1  ...,V1,V3,V2,V1
 					//    ,-3,-2,-1      -3,-2,-1, 0
@@ -440,7 +484,7 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitInsn(opcode);
 				break;
 			case DUP2:
-				if (frames[inst].getStack(stackSize - 1).getSize() == 1) {
+				if (frame.getStack(stackSize - 1).getSize() == 1) {
 					// The top of the stack has two values, and they're both being copied
 					// ...,V2,V1 -> ...,V2,V1,V2,V1
 					// ...,-2,-1 -> ...,-2,-1, 0, 1
@@ -458,7 +502,7 @@ public class ShadowStackRewriter implements Opcodes {
 				output.visitInsn(opcode);
 				break;
 			case DUP2_X1:
-				if (frames[inst].getStack(stackSize -1).getSize() == 1) {
+				if (frame.getStack(stackSize -1).getSize() == 1) {
 					// The top of the stack has two values
 					// ...,V3,V2,V1 -> ...,V2,V1,V3,V2,V1
 					// ...,-3,-2,-1 -> ...,-3,-2,-1, 0, 1
@@ -487,9 +531,9 @@ public class ShadowStackRewriter implements Opcodes {
 				}
 				break;
 			case DUP2_X2:
-				if (frames[inst].getStack(stackSize-1).getSize() == 1) {
+				if (frame.getStack(stackSize-1).getSize() == 1) {
 					// Top two elements are narrow. Form 1 or Form 3 in the JVM specification 2nd edition 
-					if (frames[inst].getStack(stackSize-3).getSize() == 1) {
+					if (frame.getStack(stackSize-3).getSize() == 1) {
 						// All elements are narrow. Form 1 in the JVM spec 2nd edition
 						// ...,V4,V3,V2,V1 -> V2,V1,V4,V3,V2,V1
 						// ...,-4,-3,-2,-1 -> -4,-3,-2,-1, 0, 1
@@ -522,7 +566,7 @@ public class ShadowStackRewriter implements Opcodes {
 					}
 				} else {
 					// Top element is long or double. Form 2 or Form 4 in the JVM specification 2nd edition
-					if (frames[inst].getStack(stackSize-2).getSize() == 1) {
+					if (frame.getStack(stackSize-2).getSize() == 1) {
 						// Top element is long/double, next two elements are narrow
 						// ...,V3,V2,W1 -> ...,W1,V3,V2,W1
 						// ...,-3,-2,-1 -> ...,-3,-2,-1, 0
@@ -595,8 +639,6 @@ public class ShadowStackRewriter implements Opcodes {
 			case DCMPG:
 				// Binary operations
 				// I must meet both their taints, and store the result
-				// TODO: What to do with ArithmeticException in div operations?
-				// TODO: How to handle comparison operators whti NAN values?
 				// ...,V2,V1 -> ...,V2+V1
 				// ...,-2,-1 -> ..., -2
 				output.visitVarInsn(LLOAD, shadowStackIndex-1*SHADOW_FIELD_SIZE); // V1
@@ -638,8 +680,13 @@ public class ShadowStackRewriter implements Opcodes {
 			case FRETURN:
 			case DRETURN:
 			case ARETURN:
+				// ...,value -> ...,value in the new stack
+				output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+				output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.SET_RETURN_VALUE, "(J)V");
+				output.visitInsn(opcode);
+				break;
 			case RETURN:
-				// TODO: Store the taint in Thread.returnVal
+				// Void methods don't return tainted values
 				output.visitInsn(opcode);
 				break;
 			case ARRAYLENGTH:
@@ -675,7 +722,12 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitIntInsn(int opcode, int operand) {
 			inst++;
-			final int stackSize = frames[inst].getStackSize();
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitIntInsn(opcode, operand);
+				return;
+			}
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case BIPUSH:
@@ -748,7 +800,12 @@ public class ShadowStackRewriter implements Opcodes {
 		public void visitLdcInsn(Object cst) {
 			inst++;
 			// Constants are untainted
-			final int stackSize = frames[inst].getStackSize();
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitLdcInsn(cst);
+				return;
+			}
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			clear(shadowStackIndex);
 			output.visitLdcInsn(cst);
@@ -767,6 +824,7 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
 			output.visitLocalVariable(name, desc, signature, getNewLabel(start), getNewLabel(end), index);
+			output.visitLocalVariable("_$shadow$_" + name, "J", null, getNewLabel(start), getNewLabel(end), mn.maxLocals + index*SHADOW_FIELD_SIZE);
 		}
 
 
@@ -783,13 +841,21 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 			inst++;
-			final int stackSize = frames[inst].getStackSize();
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitMethodInsn(opcode, owner, name, desc);
+				return;
+			}
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			final int argSize = Type.getArgumentTypes(desc).length;
 			
+			// TODO: I should clear Thread.RETURN_VAL, in case the called method is not insturmented I don't read garbage.
+			// TODO: The constructors return void, which implies they don't taint the reference pointing to them!
+			
 			switch (opcode) {
 			case INVOKESTATIC:
-				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize -1);
+				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// ...,arg1,arg2,...,arg_(argSize-1) -> ...,retvalue
@@ -804,9 +870,12 @@ public class ShadowStackRewriter implements Opcodes {
 				// I also need to taint it AFTER invoking the method, not before.
 				// I need to load all of the taints in the method call, including the "this" parameter.
 				// I also need to check for null in the current thread, and if null I should not attempt to access the fields
-				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize);
+				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize + 1);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
+					// Say 3 arguments to the method
+					// ...,objref,arg1,arg2,arg3 -> ...,value
+					// ...,-4    ,-3  ,-2  ,-1   -> ..., -4
 					// The method will return a value
 					loadReturnValueTaint();
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*(argSize+1)); // Plus one for the "this" parameter
@@ -846,11 +915,12 @@ public class ShadowStackRewriter implements Opcodes {
 			output.visitJumpInsn(GOTO, l3);
 			output.visitLabel(l2);
 			// with 3 parameters
-			// ...,p1,p2,p3
+			// ...,p0,p1,p2
 			// ...,-3,-2,-1
 			for (int i = parameters; i > 0; i--) {
+				// parameters = 3,2,1
 				output.visitVarInsn(ALOAD, currentThreadIndex); // load current thread
-				output.visitVarInsn(LLOAD, shadowStackIndex - i*SHADOW_FIELD_SIZE);
+				output.visitVarInsn(LLOAD, shadowStackIndex - i*SHADOW_FIELD_SIZE); // -3,-2,-1
 				final int parameterIndex = parameters - i; // When i = parameters, parameterIndex = 0
 				output.visitFieldInsn(PUTFIELD, "java/lang/Thread", ThreadInstrumenter.PARAMETER_FIELD_PREFIX + parameterIndex, "J");
 			}
@@ -862,17 +932,20 @@ public class ShadowStackRewriter implements Opcodes {
 
 		private void loadReturnValueTaint() {
 			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_RETURN_VALUE, "()J");
-			//			output.visitFieldInsn(GETFIELD, "java/lang/Thread", ThreadReturnValuesRewriter.RETURN_VALUE_NAME, ShadowFieldRewriter.TAINT_TYPE.getDescriptor());
 		}
 
 		@Override
 		public void visitMultiANewArrayInsn(String desc, int dims) {
 			inst++;
-			// TODO: At this point I need to create the shadow array
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitMultiANewArrayInsn(desc, dims);
+				return;
+			}
 			// Say dims = 3
 			// ..., count1, count2, count3 -> ..., arrayref
 			// ..., -3    , -2    , -1     -> ..., -3
-			final int stackSize = frames[inst].getStackSize();
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			clear(shadowStackIndex -dims*SHADOW_FIELD_SIZE);
 			output.visitMultiANewArrayInsn(desc, dims);
@@ -915,19 +988,22 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitTypeInsn(int opcode, String type) {
 			inst++;
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitTypeInsn(opcode, type);
+				return;
+			}
 			// The stack depth before instruction inst. Long and doubles count as only one value.
-			final int stackSize = frames[inst].getStackSize();
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case NEW:
-				// Just object creation cannot taint an object (maybe the constructor can). Thus, treat it as a load constant.
+				// Just object creation cannot taint an object, the constructor might. Thus, treat it as a load constant.
 				// ... -> ...,ref
 				clear(shadowStackIndex);
 				output.visitTypeInsn(opcode, type);
 				break;
 			case ANEWARRAY:
-				// TODO: Create the shadow array at this point.
-				// For now, treat it as a constant load.
 				// ..., count -> ..., arrayref
 				clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
 				output.visitTypeInsn(opcode, type);
@@ -954,12 +1030,17 @@ public class ShadowStackRewriter implements Opcodes {
 		@Override
 		public void visitVarInsn(int opcode, int var) {
 			inst++;
+			Frame frame = frames[inst];
+			if (frame == null) {
+				output.visitVarInsn(opcode, var);
+				return;
+			}
 			// Unlike the stack, where we keep one shadow per value, whether the value
 			// is a long/double or a int/float/ref, here we just keep an exact 2 to 1 map
 			// between locals and shadowLocals. If locals[var] contains a double, we'll
 			// just have 2 shadows, even though we only really need one.
 			int shadowVar = mn.maxLocals + SHADOW_FIELD_SIZE*var;
-			final int stackSize = frames[inst].getStackSize();
+			final int stackSize = frame.getStackSize();
 			final int shadowStackIndex = SHADOW_FIELD_SIZE*(stackSize) + shadowStackStart;
 			switch (opcode) {
 			case ILOAD:
@@ -999,8 +1080,8 @@ public class ShadowStackRewriter implements Opcodes {
 		 * The descriptor of the "method call" is (JJ)J.
 		 */
 		private void emitMeetOperator() {
-			// XXX: For now, simply discard one of the two values
-			output.visitInsn(POP2); // XXX: Remove when the merge operator actually works
+			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "meet", "(JJ)J");
+//			output.visitInsn(POP2);
 		}
 		
 	}

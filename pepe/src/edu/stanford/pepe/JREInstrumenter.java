@@ -9,8 +9,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
+import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 
 public class JREInstrumenter {
 
@@ -25,11 +25,11 @@ public class JREInstrumenter {
 		while ((je = is.getNextEntry()) != null) {
 			byte[] byteArray = read(is);
 			if (je.getName().endsWith(".class")) {
-				EnhancedClassNode cn = new EnhancedClassNode();
+				ClassNode cn = new ClassNode();
 				ClassReader cr = new ClassReader(byteArray);
 				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 				
-				if (InstrumentationPolicy.isTypeInstrumentable(cn.name) || cn.name.equals("java/lang/Thread")) {
+				if (InstrumentationPolicy.isTypeInstrumentable(cn.name) || cn.name.equals("java/lang/Thread") || cn.name.startsWith("java/io/ObjectStreamClass")) {
 					byteArray = PepeAgent.instrumentClass(cn);
 				} else {
 					System.out.println("Skipping " + cn.name);

@@ -1,5 +1,6 @@
 package edu.stanford.pepe;
 
+import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -10,16 +11,14 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.stanford.pepe.modifiedasm.EnhancedClassNode;
 import edu.stanford.pepe.org.objectweb.asm.ClassAdapter;
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
 import edu.stanford.pepe.org.objectweb.asm.ClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
-import edu.stanford.pepe.org.objectweb.asm.Label;
-import edu.stanford.pepe.org.objectweb.asm.MethodVisitor;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
+import edu.stanford.pepe.org.objectweb.asm.util.ASMifierClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
 
 /**
@@ -80,61 +79,85 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		return sb.toString();
 	}
 
+	/*
+	 * Mmm, There are several cases:
+	 * - When I'm instrumenting rt.jar, I want to instrument everything not in the ignore list, and I 
+	 * want to instrument certain classes with special transformers.
+	 * - When I'm running as an agent, I need to instrument every class except the ones on the ignore list,
+	 * and the ones that have already been instrumented. I don't want to instrument the special classes.
+	 */
+	
 	/**
 	 * Invoked by the JVM when a class is first loaded. Initiates the bytecode
 	 * transformation.
 	 */
+	@SuppressWarnings("unchecked")
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (!InstrumentationPolicy.isTypeInstrumentable(className) && className.equals("java/lang/Thread")) {
+//		System.out.println(className);
+		if (!InstrumentationPolicy.isTypeInstrumentable(className) 
+				|| className.equals("java/lang/Thread") 
+				|| className.equals("java/io/ObjectStreamClass")) {
 			return null;
 		}
 		
 		try {
-			logger.fine("Transforming class " + className + " with ClassLoader " + loader);
-			byte[] b = instrumentClass(classfileBuffer);
-			return b;
-		} catch (Throwable t) {
+			ClassNode cn = new ClassNode();
+			ClassReader cr = new ClassReader(classfileBuffer);
+			cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
+			for (FieldNode fn : (List<FieldNode>)cn.fields) {
+				if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
+					logger.info("Skipping already instrumented class " + cn.name);
+					return null;
+				}
+			}
+			logger.info("Transforming class " + className + " with ClassLoader " + loader);
+			return instrumentClass(cn);
+		} catch (Exception t) {
 			logger.severe("PEPE: Exception while transforming " + className);
 			t.printStackTrace();
 			throw new RuntimeException(t);
+		} catch (Error e) {
+			logger.severe("PEPE: Error while transforming " + className);
+			e.printStackTrace();
+			throw new Error(e);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static byte[] instrumentClass(byte[] classfileBuffer) {
-		EnhancedClassNode cn = new EnhancedClassNode();
-		if (!InstrumentationPolicy.isTypeInstrumentable(cn) && !cn.name.equals("java/lang/Thread")) {
-			// TODO: Optimize: there are two calls to isTypeInstrumentable. The problem is, if I don't do two calls I'd have to split the instrumentation, or I'd have to build a classnode without need
-			return null;
-		}
-		for (FieldNode fn : (List<FieldNode>)cn.fields) {
-			if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
-				System.out.println("Skipping already instrumented class " + cn.name);
-				return null;
-			}
-		}
-		ClassReader cr = new ClassReader(classfileBuffer);
-		cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
-		return instrumentClass(cn);
-	}
-
-	public static byte[] instrumentClass(EnhancedClassNode cn) {
-		// First add the taint fields
+	public static byte[] instrumentClass(ClassNode cn) {
 		if (cn.name.equals("java/lang/Thread")) {
-//			ThreadReturnValuesRewriter.rewrite(cn);
 			final ClassWriter cw = new ClassWriter(0);
 			ClassAdapter ca = new ThreadInstrumenter(cw);
 			cn.accept(ca);
 			return cw.toByteArray();
+		} else if (cn.name.equals("java/io/ObjectStreamClass")) {
+			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			ClassAdapter ca = new ObjectStreamClassInstrumenter(cw);
+			cn.accept(ca);
+			return cw.toByteArray();
+		} else if (cn.name.equals("edu/stanford/pepe/TaintCheck")) {
+			System.out.println("Creating TaintCheck!!");
+			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			ClassAdapter ca = new TaintCheckInstrumenter(cw);
+			cn.accept(ca);
+			return cw.toByteArray();
 		} else {
+			// First add the taint fields
 			ShadowFieldRewriter.rewrite(cn);
 			// Now add the shadow stack
 			ClassWriter cw = new ClassWriter(0);
 			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
 			ShadowStackRewriter.rewrite(cn, verifier);
+			if (cn.name.endsWith("TestSimpleInstrumentation")) {
+				printClass(cw.toByteArray());
+			}
 			return cw.toByteArray();
 		}
+	}
+
+	private static void printClass(byte[] bs) {
+		ClassReader cr = new ClassReader(bs);
+		CheckClassAdapter.verify(cr, true, new PrintWriter(System.out));
 	}
 	
 

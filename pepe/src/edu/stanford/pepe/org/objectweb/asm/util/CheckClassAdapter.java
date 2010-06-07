@@ -250,7 +250,7 @@ public class CheckClassAdapter extends ClassAdapter {
         verify(cr, null, dump, pw);
     }
     
-    static void printAnalyzerResult(
+    public static void printAnalyzerResult(
         MethodNode method,
         Analyzer a,
         final PrintWriter pw)
