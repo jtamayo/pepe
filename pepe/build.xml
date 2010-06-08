@@ -29,7 +29,7 @@
 		<jar destfile="${agentJar}" includes="**/*.*" basedir="${buildDir}">
 			<manifest>
 				<attribute name="Premain-Class" value="edu.stanford.pepe.PepeAgent" />
-				<attribute name="Boot-Class-Path" value="pepeagent.jar" />
+				<!--attribute name="Boot-Class-Path" value="pepeagent.jar" /-->
 			</manifest>
 		</jar>
 	</target>

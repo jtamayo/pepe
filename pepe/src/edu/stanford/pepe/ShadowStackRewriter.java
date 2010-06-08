@@ -141,6 +141,7 @@ public class ShadowStackRewriter implements Opcodes {
 			for (int i = 0; i < mn.maxStack; i++) {
 				output.visitLocalVariable("_$shadowStack_" + i, "J", null, startLabel, endLabel, shadowStackStart + i*SHADOW_FIELD_SIZE);
 			}
+			output.visitLocalVariable("_$currentThread_", "Ljava/lang/Thread;", null, startLabel, endLabel, currentThreadIndex);
 			output.visitMaxs(newMaxStack, newMaxLocals);
 		}
 
@@ -858,7 +859,9 @@ public class ShadowStackRewriter implements Opcodes {
 				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
-					// ...,arg1,arg2,...,arg_(argSize-1) -> ...,retvalue
+					// For 3 arguments
+					// ...,arg1,arg2,arg3 -> ...,retvalue
+					// ...,-3  ,-2  ,-1   -> ...,-3
 					loadReturnValueTaint();
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*argSize);
 				}
@@ -866,17 +869,12 @@ public class ShadowStackRewriter implements Opcodes {
 			case INVOKEVIRTUAL:
 			case INVOKESPECIAL:
 			case INVOKEINTERFACE:
-				// This is a problem, I need to know how many values will be popped out of the stack after the method invocation
-				// I also need to taint it AFTER invoking the method, not before.
-				// I need to load all of the taints in the method call, including the "this" parameter.
-				// I also need to check for null in the current thread, and if null I should not attempt to access the fields
 				emitStoreMethodTaints(stackSize, shadowStackIndex, argSize + 1);
 				output.visitMethodInsn(opcode, owner, name, desc);
 				if (!Type.getReturnType(desc).equals(Type.VOID_TYPE)) {
 					// Say 3 arguments to the method
 					// ...,objref,arg1,arg2,arg3 -> ...,value
 					// ...,-4    ,-3  ,-2  ,-1   -> ..., -4
-					// The method will return a value
 					loadReturnValueTaint();
 					output.visitVarInsn(LSTORE, shadowStackIndex - SHADOW_FIELD_SIZE*(argSize+1)); // Plus one for the "this" parameter
 				}
@@ -1080,6 +1078,7 @@ public class ShadowStackRewriter implements Opcodes {
 		 * The descriptor of the "method call" is (JJ)J.
 		 */
 		private void emitMeetOperator() {
+			// It had to be a method in java.lang.Thread. Otherwise the VM would crash at the start.
 			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "meet", "(JJ)J");
 //			output.visitInsn(POP2);
 		}

@@ -63,43 +63,50 @@ public class ThreadInstrumenter extends ClassAdapter implements Opcodes {
 	}
 
 	private void emitMeet() {
+		// Assembly code for the meet(long,long) method in this class
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "meet", "(JJ)J", null, null);
 		mv.visitCode();
 		Label l0 = new Label();
 		mv.visitLabel(l0);
-		mv.visitLineNumber(12, l0);
+		mv.visitLineNumber(123, l0);
 		mv.visitVarInsn(LLOAD, 0);
-		mv.visitInsn(L2I);
+		mv.visitLdcInsn(new Long(4294967295L));
+		mv.visitInsn(LAND);
 		mv.visitVarInsn(LLOAD, 2);
-		mv.visitInsn(L2I);
-		mv.visitInsn(ISUB);
-		mv.visitVarInsn(ISTORE, 4);
+		mv.visitLdcInsn(new Long(4294967295L));
+		mv.visitInsn(LAND);
+		mv.visitInsn(LSUB);
+		mv.visitVarInsn(LSTORE, 4);
 		Label l1 = new Label();
 		mv.visitLabel(l1);
-		mv.visitLineNumber(13, l1);
-		mv.visitVarInsn(ILOAD, 4);
+		mv.visitLineNumber(124, l1);
+		mv.visitVarInsn(LLOAD, 4);
+		mv.visitInsn(LCONST_0);
+		mv.visitInsn(LCMP);
 		Label l2 = new Label();
 		mv.visitJumpInsn(IFNE, l2);
 		Label l3 = new Label();
 		mv.visitLabel(l3);
-		mv.visitLineNumber(14, l3);
+		mv.visitLineNumber(125, l3);
 		mv.visitVarInsn(LLOAD, 0);
 		mv.visitVarInsn(LLOAD, 2);
 		mv.visitInsn(LOR);
 		mv.visitInsn(LRETURN);
 		mv.visitLabel(l2);
-		mv.visitLineNumber(15, l2);
-		mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { Opcodes.INTEGER }, 0, null);
-		mv.visitVarInsn(ILOAD, 4);
+		mv.visitLineNumber(126, l2);
+		mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { Opcodes.LONG }, 0, null);
+		mv.visitVarInsn(LLOAD, 4);
+		mv.visitInsn(LCONST_0);
+		mv.visitInsn(LCMP);
 		Label l4 = new Label();
 		mv.visitJumpInsn(IFGE, l4);
 		Label l5 = new Label();
 		mv.visitLabel(l5);
-		mv.visitLineNumber(16, l5);
+		mv.visitLineNumber(127, l5);
 		mv.visitVarInsn(LLOAD, 2);
 		mv.visitInsn(LRETURN);
 		mv.visitLabel(l4);
-		mv.visitLineNumber(18, l4);
+		mv.visitLineNumber(129, l4);
 		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mv.visitVarInsn(LLOAD, 0);
 		mv.visitInsn(LRETURN);
@@ -107,9 +114,21 @@ public class ThreadInstrumenter extends ClassAdapter implements Opcodes {
 		mv.visitLabel(l6);
 		mv.visitLocalVariable("a", "J", null, l0, l6, 0);
 		mv.visitLocalVariable("b", "J", null, l0, l6, 2);
-		mv.visitLocalVariable("dif", "I", null, l1, l6, 4);
-		mv.visitMaxs(4, 5);
+		mv.visitLocalVariable("dif", "J", null, l1, l6, 4);
+		mv.visitMaxs(6, 6);
 		mv.visitEnd();
+
+	}
+	
+	public static long meet(long a, long b) {
+		long dif = (a & 0xFFFFFFFFL) - (b & 0xFFFFFFFFL);
+		if (dif == 0) {
+			return a | b;
+		} else if (dif < 0) { //a-b < 0 -> a < b
+			return b;
+		} else {
+			return a;
+		}
 	}
 
 	private void emitFields() {

@@ -18,7 +18,6 @@ import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
-import edu.stanford.pepe.org.objectweb.asm.util.ASMifierClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
 
 /**
@@ -34,7 +33,7 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		for (Handler h : Logger.getLogger("").getHandlers()) {
 			h.setLevel(Level.ALL);
 		}
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.WARNING);
 	}
 
 	/**
@@ -94,10 +93,9 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	@SuppressWarnings("unchecked")
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-//		System.out.println(className);
-		if (!InstrumentationPolicy.isTypeInstrumentable(className) 
+		if ((!className.equals("edu/stanford/pepe/TaintCheck")) && (!InstrumentationPolicy.isTypeInstrumentable(className) 
 				|| className.equals("java/lang/Thread") 
-				|| className.equals("java/io/ObjectStreamClass")) {
+				|| className.equals("java/io/ObjectStreamClass"))) {
 			return null;
 		}
 		
@@ -136,7 +134,6 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 			cn.accept(ca);
 			return cw.toByteArray();
 		} else if (cn.name.equals("edu/stanford/pepe/TaintCheck")) {
-			System.out.println("Creating TaintCheck!!");
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			ClassAdapter ca = new TaintCheckInstrumenter(cw);
 			cn.accept(ca);
