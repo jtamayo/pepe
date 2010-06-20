@@ -11,10 +11,43 @@ public class InstrumentationPolicy implements Opcodes {
 	public static final String THROWABLE_TYPE = "java/lang/Throwable";
 	public static final String STACK_TRACE_ELEMENT_TYPE = "java/lang/StackTraceElement";
 	public static final String CLASS_TYPE = "java/lang/Class";
-
+	
 	public static boolean isFieldInstrumentable(String ownerType, String fieldName, boolean isStatic) {
-		// CAUTION: At call time I cannot determine whether certain field is final or not. For that reason static final fields are also instrumented.
-		return !(isStatic && ownerType.equals("java/security/AccessControlContext") && fieldName.startsWith("debug"));
+		// CAUTION: At instrumentation time I cannot determine whether certain field is final or not. For that reason static final fields are also instrumented.
+		return isTypeInstrumentable(ownerType) && !isSpecialJavaClass(ownerType) && !isSpecialPepeClass(ownerType);
+	}
+
+	/**
+	 * Not very appropriately named, but it returns whether the given type is
+	 * part of the core JVM classes and it should be instrumented differently
+	 * from the others.
+	 */
+	public static boolean isSpecialJavaClass(String type) {
+		return isPrimitiveWrapperOrString(type) || type.equals("java/lang/Thread") || type.equals("java/io/ObjectStreamClass");
+	}
+	
+	/**
+	 * As the name indicates, returns whether the given type is a primitive wrapper or a String.
+	 */
+	public static boolean isPrimitiveWrapperOrString(String type) {
+		return type.startsWith("java/lang") && (
+				type.equals("java/lang/Integer") ||
+				type.equals("java/lang/String") ||
+				type.equals("java/lang/Long") ||
+				type.equals("java/lang/Byte") ||
+				type.equals("java/lang/Short") ||
+				type.equals("java/lang/Character") ||
+				type.equals("java/lang/Float") ||
+				type.equals("java/lang/Double")
+				);
+	}
+
+	/**
+	 * Also not very appropriately named, but it returns whether the given type
+	 * is a special pepe class that should be modified at runtime.
+	 */
+	public static boolean isSpecialPepeClass(String type) {
+		return type.equals("edu/stanford/pepe/TaintCheck");
 	}
 
 	/**
@@ -30,46 +63,16 @@ public class InstrumentationPolicy implements Opcodes {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean isTypeInstrumentable(String type) {
-		return !isPepeClass(type) && !isComplicatedSunClass(type) && !type.equals(THROWABLE_TYPE)
+		return  !isPepeClass(type) && !isComplicatedSunClass(type) && !type.equals(THROWABLE_TYPE)
 				&& !type.equals(STACK_TRACE_ELEMENT_TYPE) && !type.startsWith("java/lang/Thread")
 				&& !type.equals("java/lang/String") && !type.equals("java/lang/System")
 				&& !type.equals("java/lang/RuntimePermission") && !type.equals("java/lang/Object")
-				&& !type.startsWith("java/security") && !type.startsWith("java/lang/") //XXX This ignore list needs to be cleaned up
+				&& !type.startsWith("java/security")
+				&& !type.startsWith("java/lang/") //XXX This ignore list needs to be cleaned up
 				&& !type.startsWith("java/io/ObjectStreamClass")
 				&& !type.startsWith("javax/servlet/http/HttpServletResponse") // TODO: determine why this class breaks dacapo
 				&& !type.equals("org/apache/xmlbeans/impl/piccolo/xml/Piccolo") // It breaks because of method length
-//				&& !(type.compareTo("javax/servlet/http") > 0) //fails with sed
-		;
-		//		String[] ignore = {"org/apache/geronimo/connector/outbound/connectionmanagerconfig/XATransactions", 
-		//				"org/apache/geronimo/security/jaas/LoginModuleControlFlag",
-		//				"org/apache/geronimo/connector/outbound/connectionmanagerconfig/SinglePool",
-		//				"org/apache/geronimo/connector/outbound/connectionmanagerconfig/NoTransactions",
-		//				"org/apache/xbean/naming/reference/SimpleReference",
-		//				"org/apache/geronimo/axis/client/AxisServiceReference",
-		//				"org/apache/geronimo/axis/client/SEIFactoryImpl",
-		//				"org/apache/geronimo/axis/client/OperationInfo",
-		//				"org/apache/geronimo/security/realm/providers/GeronimoGroupPrincipal",
-		//				"org/apache/geronimo/security/jacc/ComponentPermissions",
-		//				"org/apache/axis/description/OperationDesc",
-		//				"org/apache/axis/description/ParameterDesc",
-		//				"org/apache/geronimo/j2ee/annotation/Holder",
-		//				"org/apache/axis/constants", // I don't care about any class in this package
-		//				"org/apache/axis/soap/SOAP11Constants",
-		//				"org/apache/geronimo/axis/client", // TODO: Check if all the classes in this package can be safely ignored
-		//				"org/apache/axis/encoding/ser" // TODO: can the entire package be ignored?
-		//				, "org/apache/axis" // TODO: Arrrgh!! it's so annoying
-		//				,"org/apache/geronimo/naming/reference/SimpleAwareReference"
-		//				,"org/apache/geronimo/naming"
-		//				,"org/apache/openejb/assembler/classic"
-		//				,"org/apache/geronimo"
-		//				,"org/apache/openejb"
-		//				};
-		//		for (String s : ignore) {
-		//			if (ownerType.startsWith(s))  return true;
-		//		}
-		//		
-		//		// All classes are instrumented by default
-		//		return false;
+				;
 	}
 
 	private static boolean isPepeClass(String ownerType) {
@@ -77,9 +80,8 @@ public class InstrumentationPolicy implements Opcodes {
 	}
 
 	private static boolean isComplicatedSunClass(final String classType) {
-		return (
-				classType.charAt(0) == 's' && 
-				(classType.startsWith("sun/misc/Unsafe") || classType.startsWith("sun/misc/AtomicLong") || classType.startsWith("sun/reflect/") || classType
+		return (classType.charAt(0) == 's' && (classType.startsWith("sun/misc/Unsafe")
+				|| classType.startsWith("sun/misc/AtomicLong") || classType.startsWith("sun/reflect/") || classType
 				.startsWith("sun/instrument/")))
 				|| (classType.charAt(0) == 'j' && (classType.equals(CLASS_TYPE)
 						|| classType.startsWith(CLASS_TYPE + "$") || classType.equals("java/lang/ClassLoader")
@@ -92,9 +94,11 @@ public class InstrumentationPolicy implements Opcodes {
 	}
 
 	/**
-	 * Makes more stringent checks on whether a Class is instrumentable. In particular, it checks
-	 * whether it is an interface, annotation or enum.
-	 * @param cn the class to be instrumented
+	 * Makes more stringent checks on whether a Class is instrumentable. In
+	 * particular, it checks whether it is an interface, annotation or enum.
+	 * 
+	 * @param cn
+	 *            the class to be instrumented
 	 */
 	public static boolean isTypeInstrumentable(ClassNode cn) {
 		int classAccess = cn.access;
@@ -106,6 +110,18 @@ public class InstrumentationPolicy implements Opcodes {
 			return false;
 		}
 		return isTypeInstrumentable(cn.name);
+	}
+
+	static boolean isPrimitive(String type) {
+		return type.equals("java/lang/Integer") ||
+				type.equals("java/lang/String") ||
+				type.equals("java/lang/Long") ||
+				type.equals("java/lang/Byte") ||
+				type.equals("java/lang/Short") ||
+				type.equals("java/lang/Character") ||
+				type.equals("java/lang/Float") ||
+				type.equals("java/lang/Double")
+				;
 	}
 
 }

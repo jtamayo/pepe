@@ -120,6 +120,12 @@ public class ThreadInstrumenter extends ClassAdapter implements Opcodes {
 
 	}
 	
+	/**
+	 * This method is never called; its bytecode is instead injected in java.lang.Thread.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public static long meet(long a, long b) {
 		long dif = (a & 0xFFFFFFFFL) - (b & 0xFFFFFFFFL);
 		if (dif == 0) {

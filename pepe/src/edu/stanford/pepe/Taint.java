@@ -9,6 +9,7 @@ public class Taint {
 	public static String MEET_OP_DESCRIPTOR = "(JJ)J";
 
 	public static long meet(long a, long b) {
+		int i = new Integer((int)a);
 		int dif = (int) a - (int) b;
 		if (dif == 0) {
 			return a | b;

@@ -47,7 +47,7 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	public static void premain(String agentArgs, Instrumentation inst) {
 		logger.info("Pepe agent started");
 		logger.info("Using classloader " + PepeAgent.class.getClassLoader());
-
+		
 		inst.addTransformer(new PepeAgent());
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -78,14 +78,6 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		return sb.toString();
 	}
 
-	/*
-	 * Mmm, There are several cases:
-	 * - When I'm instrumenting rt.jar, I want to instrument everything not in the ignore list, and I 
-	 * want to instrument certain classes with special transformers.
-	 * - When I'm running as an agent, I need to instrument every class except the ones on the ignore list,
-	 * and the ones that have already been instrumented. I don't want to instrument the special classes.
-	 */
-	
 	/**
 	 * Invoked by the JVM when a class is first loaded. Initiates the bytecode
 	 * transformation.
@@ -93,9 +85,11 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	@SuppressWarnings("unchecked")
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if ((!className.equals("edu/stanford/pepe/TaintCheck")) && (!InstrumentationPolicy.isTypeInstrumentable(className) 
-				|| className.equals("java/lang/Thread") 
-				|| className.equals("java/io/ObjectStreamClass"))) {
+		if ((!InstrumentationPolicy.isTypeInstrumentable(className) 
+				|| InstrumentationPolicy.isSpecialJavaClass(className))
+				&& !InstrumentationPolicy.isSpecialPepeClass(className)) {
+			// Types in the ignore list, and special java classes must be ignored.
+			// Special Pepe classes, even if in the ignore list, must be instrumented
 			return null;
 		}
 		
@@ -138,6 +132,29 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 			ClassAdapter ca = new TaintCheckInstrumenter(cw);
 			cn.accept(ca);
 			return cw.toByteArray();
+		} else if (cn.name.equals("java/lang/String")) {
+			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			ClassAdapter ca = new StringInstrumenter(cw);
+			cn.accept(ca);
+			return cw.toByteArray();
+		} else if (InstrumentationPolicy.isPrimitive(cn.name)) {
+
+			// First add the taint fields
+//			ShadowFieldRewriter.rewrite(cn);
+			// Now add the shadow stack
+			ClassWriter cw = new ClassWriter(0);
+			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
+			ShadowStackRewriter.rewrite(cn, verifier);
+//			if (cn.name.equals("java/lang/Integer")) {
+//				printClass(cw.toByteArray());
+//			}
+			return cw.toByteArray();
+		
+//			// it's not a String, because we're checking for that before this else-if
+//			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+//			ClassAdapter ca = new PrimitiveWrapperInstrumenter(cw);
+//			cn.accept(ca);
+//			return cw.toByteArray();
 		} else {
 			// First add the taint fields
 			ShadowFieldRewriter.rewrite(cn);
@@ -145,9 +162,9 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 			ClassWriter cw = new ClassWriter(0);
 			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
 			ShadowStackRewriter.rewrite(cn, verifier);
-			if (cn.name.endsWith("TestSimpleInstrumentation")) {
-				printClass(cw.toByteArray());
-			}
+//			if (cn.name.endsWith("Integer")) {
+//				printClass(cw.toByteArray());
+//			}
 			return cw.toByteArray();
 		}
 	}

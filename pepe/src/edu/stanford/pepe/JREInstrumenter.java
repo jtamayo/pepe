@@ -29,7 +29,7 @@ public class JREInstrumenter {
 				ClassReader cr = new ClassReader(byteArray);
 				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 				
-				if (InstrumentationPolicy.isTypeInstrumentable(cn.name) || cn.name.equals("java/lang/Thread") || cn.name.startsWith("java/io/ObjectStreamClass")) {
+				if (InstrumentationPolicy.isTypeInstrumentable(cn.name) || InstrumentationPolicy.isSpecialJavaClass(cn.name)) {
 					byteArray = PepeAgent.instrumentClass(cn);
 				} else {
 					System.out.println("Skipping " + cn.name);

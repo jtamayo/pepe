@@ -9,6 +9,7 @@ public class TestSimpleInstrumentation extends TestCase {
 		int tainted = TaintCheck.taint(5, taint);
 		long endTaint = TaintCheck.getTaint(tainted);
 		assertEquals(taint, endTaint);
+		String a = "Help" + endTaint;
 	}
 
 	public void testSimpleMethodInvocation() throws Exception {
@@ -23,7 +24,7 @@ public class TestSimpleInstrumentation extends TestCase {
 	public void testSimpleObject() {
 		final long taint = 23987469278364l;
 		int tainted = TaintCheck.taint(8, taint);
-		SimpleObject o = new SimpleObject(tainted);
+		SimpleObject o = new SimpleObject(tainted + 5);
 		long endTaint = TaintCheck.getTaint(o.value);
 		assertEquals(taint, endTaint);
 	}
@@ -96,6 +97,14 @@ public class TestSimpleInstrumentation extends TestCase {
 		SimpleObject tainted = TaintCheck.taint(original, taint1);
 		assertEquals(0, TaintCheck.getTaint(original.value));
 		assertEquals(taint1, TaintCheck.getTaint(tainted.value));
+	}
+	
+	public void testIntegerWrapper() throws Exception {
+		final long taint = 0x11111111F0000010L;
+		int taintedInt = TaintCheck.taint(678, taint);
+		Integer wrapper = new Integer(taintedInt);
+		assertEquals(5, wrapper.intValue());
+		assertEquals(taint, TaintCheck.getTaint(wrapper.intValue()));
 		
 	}
 	
