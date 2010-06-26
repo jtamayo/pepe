@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/2628/trunk/h2/src/test/org/h2/test/jdbcx
+END
+TestXASimple.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/jdbcx/TestXASimple.java
+END
+TestXid.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/jdbcx/TestXid.java
+END
+TestXA.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2427/trunk/h2/src/test/org/h2/test/jdbcx/TestXA.java
+END
+TestConnectionPool.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/2628/trunk/h2/src/test/org/h2/test/jdbcx/TestConnectionPool.java
+END
+TestDataSource.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2416/trunk/h2/src/test/org/h2/test/jdbcx/TestDataSource.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2428/trunk/h2/src/test/org/h2/test/jdbcx/package.html
+END

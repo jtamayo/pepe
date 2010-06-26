@@ -1,0 +1,449 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res
+END
+admin.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/admin.jsp
+END
+header.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2513/trunk/h2/src/main/org/h2/server/web/res/header.jsp
+END
+help.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2561/trunk/h2/src/main/org/h2/server/web/res/help.jsp
+END
+_text_en.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_en.prop
+END
+tree_database.gif
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_database.gif
+END
+ico_write.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_write.gif
+END
+_text_in.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_in.prop
+END
+tree_index.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_index.gif
+END
+_text_nl.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_nl.prop
+END
+_text_pl.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_pl.prop
+END
+tree_view.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_view.gif
+END
+sort_up.gif
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/sort_up.gif
+END
+index.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/index.jsp
+END
+icon_help.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_help.gif
+END
+tree_plus.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_plus.gif
+END
+_text_pt_pt.prop
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_pt_pt.prop
+END
+icon_refresh.gif
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_refresh.gif
+END
+_text_de.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_de.prop
+END
+tree.js
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/tree.js
+END
+adminLogin.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/adminLogin.jsp
+END
+_text_ja.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_ja.prop
+END
+icon_run.gif
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_run.gif
+END
+tree_empty.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_empty.gif
+END
+sort_down.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/sort_down.gif
+END
+autoCompleteList.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/autoCompleteList.jsp
+END
+_text_es.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_es.prop
+END
+tools.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/tools.jsp
+END
+_text_hu.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_hu.prop
+END
+_text_sk.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_sk.prop
+END
+query.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/query.jsp
+END
+_text_uk.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_uk.prop
+END
+tree_user.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_user.gif
+END
+table.js
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/table.js
+END
+notAllowed.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/notAllowed.jsp
+END
+login.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/login.jsp
+END
+ico_search.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_search.gif
+END
+ico_undo.gif
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_undo.gif
+END
+tree_type.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_type.gif
+END
+_text_ru.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_ru.prop
+END
+_text_zh_tw.prop
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_zh_tw.prop
+END
+tree_sequences.gif
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_sequences.gif
+END
+tree_minus.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_minus.gif
+END
+tree_column.gif
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_column.gif
+END
+background.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/background.gif
+END
+_text_zh_cn.prop
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_zh_cn.prop
+END
+tree_index_az.gif
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_index_az.gif
+END
+frame.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/frame.jsp
+END
+ico_add.gif
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_add.gif
+END
+tree_types.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_types.gif
+END
+_text_pt_br.prop
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_pt_br.prop
+END
+_text_fr.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_fr.prop
+END
+tree_sequence.gif
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_sequence.gif
+END
+ico_remove.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_remove.gif
+END
+_text_it.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_it.prop
+END
+favicon.ico
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/584/trunk/h2/src/main/org/h2/server/web/res/favicon.ico
+END
+tree_folder.gif
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_folder.gif
+END
+helpTranslate.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/helpTranslate.jsp
+END
+icon_line.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_line.gif
+END
+icon_commit.gif
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_commit.gif
+END
+icon_rollback.gif
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_rollback.gif
+END
+ico_ok.gif
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/ico_ok.gif
+END
+_text_tr.prop
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2586/trunk/h2/src/main/org/h2/server/web/res/_text_tr.prop
+END
+result.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/result.jsp
+END
+tree_line.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_line.gif
+END
+icon_history.gif
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_history.gif
+END
+stylesheet.css
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/stylesheet.css
+END
+error.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/error.jsp
+END
+tree_users.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_users.gif
+END
+tree_page.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_page.gif
+END
+icon_stop.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_stop.gif
+END
+tables.jsp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/web/res/tables.jsp
+END
+icon_disconnect.gif
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/icon_disconnect.gif
+END
+tree_table.gif
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_table.gif
+END
+tree_info.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/14/trunk/h2/src/main/org/h2/server/web/res/tree_info.gif
+END

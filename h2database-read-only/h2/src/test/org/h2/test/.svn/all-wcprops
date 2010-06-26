@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/2677/trunk/h2/src/test/org/h2/test
+END
+otherDatabases.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2660/trunk/h2/src/test/org/h2/test/otherDatabases.txt
+END
+TestAll.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2672/trunk/h2/src/test/org/h2/test/TestAll.java
+END
+TestBase.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2599/trunk/h2/src/test/org/h2/test/TestBase.java
+END
+test-1.2.txt
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2677/trunk/h2/src/test/org/h2/test/test-1.2.txt
+END
+testSimple.in.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2593/trunk/h2/src/test/org/h2/test/testSimple.in.txt
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2428/trunk/h2/src/test/org/h2/test/package.html
+END

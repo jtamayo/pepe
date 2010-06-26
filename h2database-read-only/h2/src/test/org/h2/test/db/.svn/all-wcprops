@@ -1,0 +1,335 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/2675/trunk/h2/src/test/org/h2/test/db
+END
+TestBigResult.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestBigResult.java
+END
+TestTableEngines.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2438/trunk/h2/src/test/org/h2/test/db/TestTableEngines.java
+END
+TestSpeed.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestSpeed.java
+END
+TestRights.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestRights.java
+END
+TaskProcess.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TaskProcess.java
+END
+TestSessionsLocks.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2427/trunk/h2/src/test/org/h2/test/db/TestSessionsLocks.java
+END
+TestTwoPhaseCommit.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2304/trunk/h2/src/test/org/h2/test/db/TestTwoPhaseCommit.java
+END
+TestEncryptedDb.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestEncryptedDb.java
+END
+TestScript.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestScript.java
+END
+TestDeadlock.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestDeadlock.java
+END
+TestFullText.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestFullText.java
+END
+TestFunctions.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2670/trunk/h2/src/test/org/h2/test/db/TestFunctions.java
+END
+TestMultiConn.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2327/trunk/h2/src/test/org/h2/test/db/TestMultiConn.java
+END
+TestCompatibility.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2436/trunk/h2/src/test/org/h2/test/db/TestCompatibility.java
+END
+TestOptimizations.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2623/trunk/h2/src/test/org/h2/test/db/TestOptimizations.java
+END
+TestViewAlterTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestViewAlterTable.java
+END
+TestTriggersConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/2589/trunk/h2/src/test/org/h2/test/db/TestTriggersConstraints.java
+END
+TestLinkedTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestLinkedTable.java
+END
+TestFunctionOverload.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestFunctionOverload.java
+END
+TestMultiThread.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2440/trunk/h2/src/test/org/h2/test/db/TestMultiThread.java
+END
+TestTransaction.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2299/trunk/h2/src/test/org/h2/test/db/TestTransaction.java
+END
+TestCheckpoint.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestCheckpoint.java
+END
+TestPowerOff.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2580/trunk/h2/src/test/org/h2/test/db/TestPowerOff.java
+END
+TestRunscript.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestRunscript.java
+END
+TestLargeBlob.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2427/trunk/h2/src/test/org/h2/test/db/TestLargeBlob.java
+END
+TestViewDropView.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2675/trunk/h2/src/test/org/h2/test/db/TestViewDropView.java
+END
+TestCsv.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2612/trunk/h2/src/test/org/h2/test/db/TestCsv.java
+END
+TestMultiThreadedKernel.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestMultiThreadedKernel.java
+END
+TestMemoryUsage.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2576/trunk/h2/src/test/org/h2/test/db/TestMemoryUsage.java
+END
+TestCases.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2593/trunk/h2/src/test/org/h2/test/db/TestCases.java
+END
+TestSpaceReuse.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestSpaceReuse.java
+END
+TestTempTables.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestTempTables.java
+END
+TestMultiDimension.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2331/trunk/h2/src/test/org/h2/test/db/TestMultiDimension.java
+END
+TestSQLInjection.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestSQLInjection.java
+END
+Task.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/Task.java
+END
+TestLobObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestLobObject.java
+END
+TestBackup.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestBackup.java
+END
+TestAlter.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestAlter.java
+END
+TestBigDb.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2321/trunk/h2/src/test/org/h2/test/db/TestBigDb.java
+END
+TestIndex.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2621/trunk/h2/src/test/org/h2/test/db/TestIndex.java
+END
+TestExclusive.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2427/trunk/h2/src/test/org/h2/test/db/TestExclusive.java
+END
+TestAutoRecompile.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestAutoRecompile.java
+END
+TestSequence.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestSequence.java
+END
+TestView.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestView.java
+END
+TestConnectionInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2358/trunk/h2/src/test/org/h2/test/db/TestConnectionInfo.java
+END
+TestLob.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2578/trunk/h2/src/test/org/h2/test/db/TestLob.java
+END
+TestReadOnly.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestReadOnly.java
+END
+TestScriptSimple.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/db/TestScriptSimple.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2428/trunk/h2/src/test/org/h2/test/db/package.html
+END
+TestCluster.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2670/trunk/h2/src/test/org/h2/test/db/TestCluster.java
+END
+Db.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2305/trunk/h2/src/test/org/h2/test/db/Db.java
+END
+TestNestedJoins.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2661/trunk/h2/src/test/org/h2/test/db/TestNestedJoins.java
+END
+TestListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2327/trunk/h2/src/test/org/h2/test/db/TestListener.java
+END
+TestOutOfMemory.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2418/trunk/h2/src/test/org/h2/test/db/TestOutOfMemory.java
+END
+TestOpenClose.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/db/TestOpenClose.java
+END

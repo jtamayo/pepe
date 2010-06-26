@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/2539/trunk/h2/src/main/org/h2/message
+END
+TraceSystem.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2368/trunk/h2/src/main/org/h2/message/TraceSystem.java
+END
+DbException.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2539/trunk/h2/src/main/org/h2/message/DbException.java
+END
+TraceObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/message/TraceObject.java
+END
+TraceWriter.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/message/TraceWriter.java
+END
+TraceWriterAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/message/TraceWriterAdapter.java
+END
+Trace.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2321/trunk/h2/src/main/org/h2/message/Trace.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/message/package.html
+END

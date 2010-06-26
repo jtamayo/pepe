@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2642/trunk/h2/src/main/org/h2/server
+END
+Service.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2499/trunk/h2/src/main/org/h2/server/Service.java
+END
+TcpServerThread.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2456/trunk/h2/src/main/org/h2/server/TcpServerThread.java
+END
+ShutdownHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/server/ShutdownHandler.java
+END
+TcpServer.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2630/trunk/h2/src/main/org/h2/server/TcpServer.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/server/package.html
+END

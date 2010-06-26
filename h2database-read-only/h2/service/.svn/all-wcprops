@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/2557/trunk/h2/service
+END
+wrapper.exe
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/1046/trunk/h2/service/wrapper.exe
+END
+serviceWrapperLicense.txt
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1112/trunk/h2/service/serviceWrapperLicense.txt
+END
+5_uninstall_service.bat
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2557/trunk/h2/service/5_uninstall_service.bat
+END
+2_start_service.bat
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/7/trunk/h2/service/2_start_service.bat
+END
+0_run_server_debug.bat
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2557/trunk/h2/service/0_run_server_debug.bat
+END
+wrapper.conf
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/816/trunk/h2/service/wrapper.conf
+END
+3_start_browser.bat
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/7/trunk/h2/service/3_start_browser.bat
+END
+wrapper.dll
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/1046/trunk/h2/service/wrapper.dll
+END
+1_install_service.bat
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2557/trunk/h2/service/1_install_service.bat
+END
+wrapper.jar
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/1046/trunk/h2/service/wrapper.jar
+END
+4_stop_service.bat
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/7/trunk/h2/service/4_stop_service.bat
+END

@@ -1,0 +1,269 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/2675/trunk/h2/src/main/org/h2/command/ddl
+END
+DropView.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2675/trunk/h2/src/main/org/h2/command/ddl/DropView.java
+END
+SchemaCommand.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/command/ddl/SchemaCommand.java
+END
+DropUserDataType.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropUserDataType.java
+END
+AlterView.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterView.java
+END
+PrepareProcedure.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/2339/trunk/h2/src/main/org/h2/command/ddl/PrepareProcedure.java
+END
+AlterTableDropConstraint.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterTableDropConstraint.java
+END
+CreateAggregate.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2556/trunk/h2/src/main/org/h2/command/ddl/CreateAggregate.java
+END
+DropTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2446/trunk/h2/src/main/org/h2/command/ddl/DropTable.java
+END
+CreateConstant.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateConstant.java
+END
+DropConstant.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropConstant.java
+END
+SetComment.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2555/trunk/h2/src/main/org/h2/command/ddl/SetComment.java
+END
+CreateFunctionAlias.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/2556/trunk/h2/src/main/org/h2/command/ddl/CreateFunctionAlias.java
+END
+CreateSchema.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateSchema.java
+END
+AlterTableRenameColumn.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterTableRenameColumn.java
+END
+DropSchema.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropSchema.java
+END
+GrantRevoke.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/GrantRevoke.java
+END
+DropTrigger.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropTrigger.java
+END
+DropIndex.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropIndex.java
+END
+AlterTableAddConstraint.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/2631/trunk/h2/src/main/org/h2/command/ddl/AlterTableAddConstraint.java
+END
+TruncateTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/TruncateTable.java
+END
+CreateLinkedTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateLinkedTable.java
+END
+CreateUser.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateUser.java
+END
+Analyze.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2523/trunk/h2/src/main/org/h2/command/ddl/Analyze.java
+END
+DropUser.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropUser.java
+END
+CreateTableData.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2475/trunk/h2/src/main/org/h2/command/ddl/CreateTableData.java
+END
+DeallocateProcedure.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/command/ddl/DeallocateProcedure.java
+END
+AlterUser.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterUser.java
+END
+AlterTableRename.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterTableRename.java
+END
+DropAggregate.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropAggregate.java
+END
+CreateTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2592/trunk/h2/src/main/org/h2/command/ddl/CreateTable.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/command/ddl/package.html
+END
+DropFunctionAlias.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/2556/trunk/h2/src/main/org/h2/command/ddl/DropFunctionAlias.java
+END
+CreateRole.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateRole.java
+END
+AlterTableAlterColumn.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/2671/trunk/h2/src/main/org/h2/command/ddl/AlterTableAlterColumn.java
+END
+DropRole.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropRole.java
+END
+CreateTrigger.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateTrigger.java
+END
+AlterIndexRename.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/AlterIndexRename.java
+END
+DropDatabase.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2555/trunk/h2/src/main/org/h2/command/ddl/DropDatabase.java
+END
+DefineCommand.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/command/ddl/DefineCommand.java
+END
+CreateIndex.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateIndex.java
+END
+CreateSequence.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateSequence.java
+END
+DropSequence.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/DropSequence.java
+END
+CreateUserDataType.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/command/ddl/CreateUserDataType.java
+END
+CreateView.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2672/trunk/h2/src/main/org/h2/command/ddl/CreateView.java
+END

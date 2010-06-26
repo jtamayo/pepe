@@ -1,0 +1,167 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/2640/trunk/h2/src/main/org/h2/value
+END
+ValueByte.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueByte.java
+END
+ValueTimestamp.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2459/trunk/h2/src/main/org/h2/value/ValueTimestamp.java
+END
+ValueFloat.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueFloat.java
+END
+ValueUuid.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2321/trunk/h2/src/main/org/h2/value/ValueUuid.java
+END
+ValueString.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2324/trunk/h2/src/main/org/h2/value/ValueString.java
+END
+ValueStringIgnoreCase.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2308/trunk/h2/src/main/org/h2/value/ValueStringIgnoreCase.java
+END
+ValueJavaObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2321/trunk/h2/src/main/org/h2/value/ValueJavaObject.java
+END
+ValueDouble.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueDouble.java
+END
+ValueNull.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueNull.java
+END
+ValueLob.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2640/trunk/h2/src/main/org/h2/value/ValueLob.java
+END
+ValueDate.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2459/trunk/h2/src/main/org/h2/value/ValueDate.java
+END
+DataType.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2508/trunk/h2/src/main/org/h2/value/DataType.java
+END
+ValueArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2611/trunk/h2/src/main/org/h2/value/ValueArray.java
+END
+ValueBoolean.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/value/ValueBoolean.java
+END
+Value.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2611/trunk/h2/src/main/org/h2/value/Value.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/value/package.html
+END
+ValueLobDb.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2640/trunk/h2/src/main/org/h2/value/ValueLobDb.java
+END
+ValueStringFixed.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2308/trunk/h2/src/main/org/h2/value/ValueStringFixed.java
+END
+ValueBytes.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueBytes.java
+END
+Transfer.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2446/trunk/h2/src/main/org/h2/value/Transfer.java
+END
+ValueResultSet.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2611/trunk/h2/src/main/org/h2/value/ValueResultSet.java
+END
+ValueInt.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueInt.java
+END
+ValueDecimal.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2634/trunk/h2/src/main/org/h2/value/ValueDecimal.java
+END
+CompareMode.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/value/CompareMode.java
+END
+ValueTime.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueTime.java
+END
+ValueShort.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/value/ValueShort.java
+END
+ValueLong.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2408/trunk/h2/src/main/org/h2/value/ValueLong.java
+END

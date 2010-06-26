@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/2666/trunk/h2/src/test/org/h2/test/todo
+END
+versionlist.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/857/trunk/h2/src/test/org/h2/test/todo/versionlist.txt
+END
+TestUndoLogMemory.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2666/trunk/h2/src/test/org/h2/test/todo/TestUndoLogMemory.java
+END
+recursiveQueries.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/1112/trunk/h2/src/test/org/h2/test/todo/recursiveQueries.txt
+END
+todo.txt
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2665/trunk/h2/src/test/org/h2/test/todo/todo.txt
+END
+TestDiskSpaceLeak.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2623/trunk/h2/src/test/org/h2/test/todo/TestDiskSpaceLeak.java
+END
+dateFunctions.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/289/trunk/h2/src/test/org/h2/test/todo/dateFunctions.txt
+END
+columnAlias.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/289/trunk/h2/src/test/org/h2/test/todo/columnAlias.txt
+END
+supportTemplates.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/2662/trunk/h2/src/test/org/h2/test/todo/supportTemplates.txt
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2597/trunk/h2/src/test/org/h2/test/todo/package.html
+END
+tools.sql
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2427/trunk/h2/src/test/org/h2/test/todo/tools.sql
+END

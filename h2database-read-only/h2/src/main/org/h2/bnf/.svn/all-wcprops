@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/bnf
+END
+RuleElement.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/RuleElement.java
+END
+RuleList.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/RuleList.java
+END
+Sentence.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2323/trunk/h2/src/main/org/h2/bnf/Sentence.java
+END
+BnfVisitor.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/BnfVisitor.java
+END
+Bnf.java
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/2325/trunk/h2/src/main/org/h2/bnf/Bnf.java
+END
+RuleFixed.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/RuleFixed.java
+END
+Rule.java
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/Rule.java
+END
+RuleRepeat.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/RuleRepeat.java
+END
+RuleHead.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2323/trunk/h2/src/main/org/h2/bnf/RuleHead.java
+END
+RuleOptional.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2322/trunk/h2/src/main/org/h2/bnf/RuleOptional.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/bnf/package.html
+END

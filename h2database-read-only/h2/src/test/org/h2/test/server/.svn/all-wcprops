@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/server
+END
+TestAutoServer.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/server/TestAutoServer.java
+END
+TestInit.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2566/trunk/h2/src/test/org/h2/test/server/TestInit.java
+END
+TestNestedLoop.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/server/TestNestedLoop.java
+END
+WebClient.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/server/WebClient.java
+END
+TestWeb.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/test/org/h2/test/server/TestWeb.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2428/trunk/h2/src/test/org/h2/test/server/package.html
+END

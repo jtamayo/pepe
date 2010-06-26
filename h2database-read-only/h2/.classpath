@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src/tools"/>
+	<classpathentry kind="lib" path="bin/h2.jar"/>
+	<classpathentry kind="lib" path="ext/lucene-core-2.2.0.jar"/>
+	<classpathentry kind="lib" path="ext/org.osgi.core-1.2.0.jar"/>
+	<classpathentry kind="lib" path="ext/servlet-api-2.4.jar"/>
+	<classpathentry kind="lib" path="ext/slf4j-api-1.5.0.jar"/>
+	<classpathentry kind="lib" path="service/wrapper.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Pepe"/>
+	<classpathentry kind="output" path="temp"/>
+</classpath>

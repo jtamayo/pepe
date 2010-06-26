@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2290/trunk/h2/src/installer/eclipse.settings
+END
+org.eclipse.jdt.core.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/2259/trunk/h2/src/installer/eclipse.settings/org.eclipse.jdt.core.prefs
+END
+org.eclipse.jdt.launching.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/2259/trunk/h2/src/installer/eclipse.settings/org.eclipse.jdt.launching.prefs
+END
+eclipseCodeStyle.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/2290/trunk/h2/src/installer/eclipse.settings/eclipseCodeStyle.xml
+END
+org.eclipse.jdt.ui.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/2259/trunk/h2/src/installer/eclipse.settings/org.eclipse.jdt.ui.prefs
+END
+org.eclipse.core.resources.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/2259/trunk/h2/src/installer/eclipse.settings/org.eclipse.core.resources.prefs
+END

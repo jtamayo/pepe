@@ -1,0 +1,167 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/2663/trunk/h2/src/main/org/h2/engine
+END
+SessionRemote.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2653/trunk/h2/src/main/org/h2/engine/SessionRemote.java
+END
+FunctionAlias.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2556/trunk/h2/src/main/org/h2/engine/FunctionAlias.java
+END
+Role.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/Role.java
+END
+Comment.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/Comment.java
+END
+SessionInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/SessionInterface.java
+END
+Database.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2663/trunk/h2/src/main/org/h2/engine/Database.java
+END
+Engine.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2653/trunk/h2/src/main/org/h2/engine/Engine.java
+END
+UndoLogRecord.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2651/trunk/h2/src/main/org/h2/engine/UndoLogRecord.java
+END
+DbObjectBase.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/DbObjectBase.java
+END
+UndoLog.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2651/trunk/h2/src/main/org/h2/engine/UndoLog.java
+END
+UserDataType.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/UserDataType.java
+END
+ConnectionInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2563/trunk/h2/src/main/org/h2/engine/ConnectionInfo.java
+END
+SessionFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/engine/SessionFactory.java
+END
+Constants.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2653/trunk/h2/src/main/org/h2/engine/Constants.java
+END
+DatabaseCloser.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/DatabaseCloser.java
+END
+DbObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/DbObject.java
+END
+Right.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/Right.java
+END
+Setting.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/Setting.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2428/trunk/h2/src/main/org/h2/engine/package.html
+END
+User.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2520/trunk/h2/src/main/org/h2/engine/User.java
+END
+SessionWithState.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/SessionWithState.java
+END
+Session.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2577/trunk/h2/src/main/org/h2/engine/Session.java
+END
+Mode.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2651/trunk/h2/src/main/org/h2/engine/Mode.java
+END
+UserAggregate.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/UserAggregate.java
+END
+MetaRecord.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2327/trunk/h2/src/main/org/h2/engine/MetaRecord.java
+END
+RightOwner.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/engine/RightOwner.java
+END
+Procedure.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2247/trunk/h2/src/main/org/h2/engine/Procedure.java
+END

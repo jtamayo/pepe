@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/2428/trunk/h2/src/tools/org/h2/jaqu
+END
+QueryWhere.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/QueryWhere.java
+END
+TableDefinition.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/TableDefinition.java
+END
+Query.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Query.java
+END
+ConditionAndOr.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/ConditionAndOr.java
+END
+QueryCondition.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/QueryCondition.java
+END
+package.html
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/2428/trunk/h2/src/tools/org/h2/jaqu/package.html
+END
+Token.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Token.java
+END
+SQLStatement.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/SQLStatement.java
+END
+Filter.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Filter.java
+END
+Function.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Function.java
+END
+Db.java
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Db.java
+END
+QueryJoin.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/QueryJoin.java
+END
+TestCondition.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/TestCondition.java
+END
+Condition.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Condition.java
+END
+SelectTable.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/SelectTable.java
+END
+Table.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Table.java
+END
+CompareType.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/CompareType.java
+END
+Define.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/Define.java
+END
+OrderExpression.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/OrderExpression.java
+END
+QueryJoinCondition.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/QueryJoinCondition.java
+END
+SelectColumn.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/2247/trunk/h2/src/tools/org/h2/jaqu/SelectColumn.java
+END
