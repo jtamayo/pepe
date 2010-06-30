@@ -138,33 +138,17 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 			cn.accept(ca);
 			return cw.toByteArray();
 		} else if (InstrumentationPolicy.isPrimitive(cn.name)) {
-
-			// First add the taint fields
-//			ShadowFieldRewriter.rewrite(cn);
-			// Now add the shadow stack
 			ClassWriter cw = new ClassWriter(0);
 			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
 			ShadowStackRewriter.rewrite(cn, verifier);
-//			if (cn.name.equals("java/lang/Integer")) {
-//				printClass(cw.toByteArray());
-//			}
 			return cw.toByteArray();
-		
-//			// it's not a String, because we're checking for that before this else-if
-//			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-//			ClassAdapter ca = new PrimitiveWrapperInstrumenter(cw);
-//			cn.accept(ca);
-//			return cw.toByteArray();
 		} else {
 			// First add the taint fields
 			ShadowFieldRewriter.rewrite(cn);
-			// Now add the shadow stack
+//			// Now add the shadow stack
 			ClassWriter cw = new ClassWriter(0);
 			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
 			ShadowStackRewriter.rewrite(cn, verifier);
-//			if (cn.name.endsWith("Integer")) {
-//				printClass(cw.toByteArray());
-//			}
 			return cw.toByteArray();
 		}
 	}

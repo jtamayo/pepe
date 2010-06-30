@@ -210,14 +210,15 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 					// TODO: Load the taint after loading the field, in case the field is volatile
 					output.visitInsn(DUP); // ...,objectref,objectref
 					output.visitFieldInsn(GETFIELD, owner, shadowName, ShadowFieldRewriter.TAINT_TYPE.getDescriptor()); // ...,objectref,value_taint
-					output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // objectref,value_taint,ref_taint
-					emitMeetOperator(); // ...,objectref,merged_taint
-					output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // ...,objectref
-					output.visitFieldInsn(opcode, owner, name, desc);
 				} else {
-					clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
-					output.visitFieldInsn(opcode, owner, name, desc);
+					output.visitInsn(LCONST_0); // ...,objectref,value_taint_0
+//					clear(shadowStackIndex - 1*SHADOW_FIELD_SIZE);
+//					output.visitFieldInsn(opcode, owner, name, desc);
 				}
+				output.visitVarInsn(LLOAD, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // objectref,value_taint,ref_taint
+				emitMeetOperator(); // ...,objectref,merged_taint
+				output.visitVarInsn(LSTORE, shadowStackIndex - 1*SHADOW_FIELD_SIZE); // ...,objectref
+				output.visitFieldInsn(opcode, owner, name, desc);
 				break;
 			case PUTFIELD:
 				if (InstrumentationPolicy.isFieldInstrumentable(owner, name, false)) {
@@ -318,14 +319,17 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 			case BALOAD:
 			case CALOAD:
 			case SALOAD:
-				// TODO: Merge the taints of the arrayref, index and shadow value
 				// ...,arrayref, index -> ...,value
 				// ..., -2     , -1    -> ..., -2
 				output.visitInsn(DUP2); // ...,arrayref,index,arrayref, index
 				output.visitInsn(SWAP); // ...,arrayref,index,index,arrayref
 				output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_SHADOW_ARRAY, "(Ljava/lang/Object;)[J"); // ...,arrayref,index,index,shadow_arrayref
 				output.visitInsn(SWAP); // ...,arrayref,index,shadow_arrayref,index
-				output.visitInsn(LALOAD); // ...,arrayref,index,taint
+				output.visitInsn(LALOAD); // ...,arrayref,index,value_taint
+				output.visitVarInsn(LLOAD, shadowStackIndex -2*SHADOW_FIELD_SIZE); // ...,arrayref, index, value_taint, arrayref_taint
+				emitMeetOperator(); // ..., arrayref, index, value_arrayref_taint
+				output.visitVarInsn(LLOAD, shadowStackIndex -1*SHADOW_FIELD_SIZE); // ...,arrayref, index, value_arrayref_taint, index_taint
+				emitMeetOperator(); // ..., arrayref, index, value_arrayref_index_taint
 				output.visitVarInsn(LSTORE, shadowStackIndex -2*SHADOW_FIELD_SIZE); // ..., arrayref,index
 				output.visitInsn(opcode);
 				break;

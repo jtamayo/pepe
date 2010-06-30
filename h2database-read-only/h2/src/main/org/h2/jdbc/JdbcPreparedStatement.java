@@ -52,6 +52,7 @@ import org.h2.value.ValueTime;
 import org.h2.value.ValueTimestamp;
 
 import edu.stanford.pepe.TaintCheck;
+import edu.stanford.pepe.runtime.QueryLogger;
 
 //## Java 1.6 begin ##
 import java.sql.RowId;
@@ -107,8 +108,9 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             }
             resultSet = new JdbcResultSet(conn, this, result, id, closedByResultSet, scrollable, updatable);
             //##PEPE
-            resultSet.taint = conn.transactionId.getNextTaint();
-            System.out.println(dependencies);
+            long nextTaint = conn.transactionId.getNextTaint();
+            QueryLogger.log(sqlStatement, dependencies, nextTaint);
+			resultSet.taint = nextTaint;
             dependencies.clear();
             //##EPEP
             return resultSet;
@@ -136,7 +138,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             debugCodeCall("executeUpdate");
             checkClosedForWrite();
             try {
-                return executeUpdateInternal();
+                int executeUpdateInternal = executeUpdateInternal();
+                //##PEPE
+                long nextTaint = conn.transactionId.getNextTaint();
+                QueryLogger.log(sqlStatement, dependencies, nextTaint);
+                dependencies.clear();
+                //##EPEP
+                return executeUpdateInternal;
             } finally {
                 afterWriting();
             }
@@ -332,6 +340,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             }
             Value v = x == null ? (Value) ValueNull.INSTANCE : ValueString.get(x);
             setParameter(parameterIndex, v);
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -351,6 +361,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             }
             Value v = x == null ? (Value) ValueNull.INSTANCE : ValueDecimal.get(x);
             setParameter(parameterIndex, v);
+            //##PEPE
             if (x != null) dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
@@ -515,6 +526,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 debugCode("setByte("+parameterIndex+", "+x+");");
             }
             setParameter(parameterIndex, ValueByte.get(x));
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -533,6 +546,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 debugCode("setShort("+parameterIndex+", (short) "+x+");");
             }
             setParameter(parameterIndex, ValueShort.get(x));
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -551,6 +566,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 debugCode("setLong("+parameterIndex+", "+x+"L);");
             }
             setParameter(parameterIndex, ValueLong.get(x));
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -569,6 +586,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 debugCode("setFloat("+parameterIndex+", "+x+"f);");
             }
             setParameter(parameterIndex, ValueFloat.get(x));
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -587,6 +606,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 debugCode("setDouble("+parameterIndex+", "+x+"d);");
             }
             setParameter(parameterIndex, ValueDouble.get(x));
+            //##PEPE
+            dependencies.add(TaintCheck.getTaint(x));
         } catch (Exception e) {
             throw logAndConvert(e);
         }
@@ -617,6 +638,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 setParameter(parameterIndex, ValueNull.INSTANCE);
             } else {
                 setParameter(parameterIndex, DateTimeUtils.convertDateToUniversal(x, calendar));
+                //##PEPE
+                dependencies.add(TaintCheck.getTaint(x));
             }
         } catch (Exception e) {
             throw logAndConvert(e);
@@ -641,6 +664,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 setParameter(parameterIndex, ValueNull.INSTANCE);
             } else {
                 setParameter(parameterIndex, DateTimeUtils.convertTimeToUniversal(x, calendar));
+                //##PEPE
+                dependencies.add(TaintCheck.getTaint(x));
             }
         } catch (Exception e) {
             throw logAndConvert(e);
@@ -665,6 +690,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 setParameter(parameterIndex, ValueNull.INSTANCE);
             } else {
                 setParameter(parameterIndex, DateTimeUtils.convertTimestampToUniversal(x, calendar));
+                //##PEPE
+                dependencies.add(TaintCheck.getTaint(x));
             }
         } catch (Exception e) {
             throw logAndConvert(e);

@@ -67,7 +67,6 @@ public class JdbcConnection extends TraceObject implements Connection {
 	
 	//##PEPE
 	public TransactionId transactionId = TransactionId.newTransaction();
-	//##EPEP
 	
     /**
      * The stack trace of when the connection was created.

@@ -63,7 +63,7 @@ public class InstrumentationPolicy implements Opcodes {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean isTypeInstrumentable(String type) {
-		return  !isPepeClass(type) && !isComplicatedSunClass(type) && !type.equals(THROWABLE_TYPE)
+		return !isPepeClass(type) && !isComplicatedSunClass(type) && !type.equals(THROWABLE_TYPE)
 				&& !type.equals(STACK_TRACE_ELEMENT_TYPE) && !type.startsWith("java/lang/Thread")
 				&& !type.equals("java/lang/String") && !type.equals("java/lang/System")
 				&& !type.equals("java/lang/RuntimePermission") && !type.equals("java/lang/Object")
@@ -80,7 +80,7 @@ public class InstrumentationPolicy implements Opcodes {
 	}
 
 	private static boolean isComplicatedSunClass(final String classType) {
-		return (classType.charAt(0) == 's' && (classType.startsWith("sun/misc/Unsafe")
+		return (classType.charAt(0) == 's' && (classType.startsWith("sun/util/resources/TimeZoneName") || classType.startsWith("sun/misc/Unsafe")
 				|| classType.startsWith("sun/misc/AtomicLong") || classType.startsWith("sun/reflect/") || classType
 				.startsWith("sun/instrument/")))
 				|| (classType.charAt(0) == 'j' && (classType.equals(CLASS_TYPE)

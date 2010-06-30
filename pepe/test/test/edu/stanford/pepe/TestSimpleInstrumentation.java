@@ -1,5 +1,7 @@
 package test.edu.stanford.pepe;
 
+import java.math.BigDecimal;
+
 import junit.framework.TestCase;
 import edu.stanford.pepe.TaintCheck;
 
@@ -101,10 +103,47 @@ public class TestSimpleInstrumentation extends TestCase {
 	
 	public void testIntegerWrapper() throws Exception {
 		final long taint = 0x11111111F0000010L;
-		int taintedInt = TaintCheck.taint(678, taint);
+		int taintedInt = TaintCheck.taint(5, taint);
 		Integer wrapper = new Integer(taintedInt);
 		assertEquals(5, wrapper.intValue());
 		assertEquals(taint, TaintCheck.getTaint(wrapper.intValue()));
+	}
+	
+	public void testIntegerValueOfCached() throws Exception {
+		// 5 always hits the cache
+		final long taint = 0x11111111F0000010L;
+		int taintedInt = TaintCheck.taint(5, taint);
+		Integer wrapper = Integer.valueOf(taintedInt);
+		assertEquals(5, wrapper.intValue());
+		assertEquals(taint, TaintCheck.getTaint(wrapper.intValue()));
+	}
+
+	public void testIntegerValueOfNonCached() throws Exception {
+		// 678 is too large to hit the cache
+		final long taint = 0x11111111F0000010L;
+		int taintedInt = TaintCheck.taint(678, taint);
+		Integer wrapper = Integer.valueOf(taintedInt);
+		assertEquals(678, wrapper.intValue());
+		assertEquals(taint, TaintCheck.getTaint(wrapper.intValue()));
+	}
+	
+	public void testIntegerAutoBoxing() {
+		// should be identical to Integer.valueOf
+		final long taint = 0x11111111F0000010L;
+		int taintedInt = TaintCheck.taint(5, taint);
+		Integer wrapper = taintedInt;
+		assertEquals(5, wrapper.intValue());
+		assertEquals(taint, TaintCheck.getTaint(wrapper.intValue()));
+		
+	}
+	
+	public void testBigDecimal() {
+		// Tests that a BigDecimal is correctly tainted
+		final long taint = 0x11111111F0000010L;
+		int taintedInt = TaintCheck.taint(5, taint);
+		BigDecimal decimal = new BigDecimal(taintedInt);
+		assertEquals(5, decimal.intValue());
+		assertEquals(taint, TaintCheck.getTaint(decimal.intValue()));
 		
 	}
 	
