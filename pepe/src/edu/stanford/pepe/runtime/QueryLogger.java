@@ -59,19 +59,88 @@ public class QueryLogger {
 		}
 		// Now, I have built all the dependencies in the queryId, I need to somehow print the graph
 		int sequence = 1;
+		System.out.println();
+		System.out.println("-- Queries --");
 		Map<QueryId, Integer> sequences = new HashMap<QueryId, Integer>();
-		for (QueryId queryId : queries.keySet()) {
-			sequences.put(queryId, sequence);
-			sequence++;
-			System.out.println(Arrays.toString(queryId.stackTrace));
+		if (!queries.isEmpty()) {
+			int prefix = getStackPrefixSize();
+			int suffix = getStackSuffixSize();
+			for (QueryId queryId : queries.keySet()) {
+				sequences.put(queryId, sequence);
+				System.out.println(sequence + ": " + getShortDescription(queryId, prefix, suffix));
+				sequence++;
+			}
 		}
+		System.out.println();
+		System.out.println("-- Dependencies --");
 		for (Entry<QueryId, Query> entry : queries.entrySet()) {
 			System.out.print(sequences.get(entry.getKey()) + ": ");
 			for (QueryId dependency : entry.getValue().dependencies) {
-				System.out.print(sequences.get(dependency) + ", ");
+				System.out.print(sequences.get(dependency) + " ");
 			}
 			System.out.println();
 		}
+	}
+
+	private static String getShortDescription(QueryId queryId, int prefixLength, int suffix) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = queryId.stackTrace.length - suffix - 1; i >= prefixLength; i--) {
+			StackTraceElement element = queryId.stackTrace[i];
+			sb.append(toString(element));
+			if (i != queryId.stackTrace.length - 1) { 
+				sb.append(" > ");
+			}
+		}
+//		for (int i = prefixLength; i < queryId.stackTrace.length - suffix; i++) {
+//			StackTraceElement element = queryId.stackTrace[i];
+//			sb.append(toString(element));
+//			if (i != queryId.stackTrace.length - 1) { 
+//				sb.append(" < ");
+//			}
+//		}
+		return sb.toString();
+	}
+	
+	private static String toString(StackTraceElement element) {
+		String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
+		String fileName = element.getFileName();
+		String methodName = element.getMethodName();
+		int lineNumber = element.getLineNumber();
+		
+        return className + "." + methodName +
+		        (element.isNativeMethod() ? "(Native Method)" :
+		         (fileName != null && lineNumber >= 0 ?
+		          "(" + fileName + ":" + lineNumber + ")" :
+		          (fileName != null ?  "("+fileName+")" : "(Unknown Source)")));
+	}
+
+	/*
+	 * Loops through all the queries, and determines how many StackTraceElement are common
+	 * to all of them. Common StackTraceElement can safely be ignored.
+	 */
+	private static int getStackPrefixSize() {
+		final QueryId prototype = queries.keySet().iterator().next(); // get a query, all of the rest will be compared to this one
+		for (int i = 0; i < prototype.stackTrace.length; i++) {
+			for (QueryId query : queries.keySet()) {
+				if (!prototype.stackTrace[i].equals(query.stackTrace[i])) {
+					return i;
+				}
+			}
+		}
+		return prototype.stackTrace.length; // Mmm, shouldn't really happen, unless there's only one query
+	}
+	
+	private static int getStackSuffixSize() {
+		final QueryId prototype = queries.keySet().iterator().next(); // get a query, all of the rest will be compared to this one
+		for (int i = 0; i < prototype.stackTrace.length; i++) {
+			for (QueryId query : queries.keySet()) {
+				if (!prototype.stackTrace[prototype.stackTrace.length - i - 1]
+						.equals(query.stackTrace[query.stackTrace.length - i - 1])) {
+					return i;
+				}
+			}
+		}
+		return 0; // Mmm, shouldn't really happen, unless there's only one query, in which case we want to display all of it
 	}
 
 	private static Query findQuery(QueryExecution execution) {
