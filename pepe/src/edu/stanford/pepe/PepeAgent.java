@@ -26,8 +26,8 @@ import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
  * 
  * @author jtamayo
  */
-public class PepeAgent implements ClassFileTransformer,Opcodes {
-	
+public class PepeAgent implements ClassFileTransformer, Opcodes {
+
 	public static final Logger logger = Logger.getLogger("edu.stanford.pepe");
 	{
 		for (Handler h : Logger.getLogger("").getHandlers()) {
@@ -46,10 +46,9 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	 */
 	public static void premain(String agentArgs, Instrumentation inst) {
 		logger.info("Pepe agent started");
-		logger.info("Using classloader " + PepeAgent.class.getClassLoader());
-		
+
 		inst.addTransformer(new PepeAgent());
-		
+
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
@@ -85,19 +84,19 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 	@SuppressWarnings("unchecked")
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if ((!InstrumentationPolicy.isTypeInstrumentable(className) 
-				|| InstrumentationPolicy.isSpecialJavaClass(className))
+		if ((!InstrumentationPolicy.isTypeInstrumentable(className) || InstrumentationPolicy
+				.isSpecialJavaClass(className))
 				&& !InstrumentationPolicy.isSpecialPepeClass(className)) {
 			// Types in the ignore list, and special java classes must be ignored.
 			// Special Pepe classes, even if in the ignore list, must be instrumented
 			return null;
 		}
-		
+
 		try {
 			ClassNode cn = new ClassNode();
 			ClassReader cr = new ClassReader(classfileBuffer);
 			cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
-			for (FieldNode fn : (List<FieldNode>)cn.fields) {
+			for (FieldNode fn : (List<FieldNode>) cn.fields) {
 				if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
 					logger.info("Skipping already instrumented class " + cn.name);
 					return null;
@@ -145,7 +144,7 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		} else {
 			// First add the taint fields
 			ShadowFieldRewriter.rewrite(cn);
-//			// Now add the shadow stack
+			// Now add the shadow stack
 			ClassWriter cw = new ClassWriter(0);
 			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
 			ShadowStackRewriter.rewrite(cn, verifier);
@@ -153,10 +152,15 @@ public class PepeAgent implements ClassFileTransformer,Opcodes {
 		}
 	}
 
-	private static void printClass(byte[] bs) {
+	/**
+	 * For debugging purposes. Prints the disassembly list of the class,
+	 * toghether with the inferred types in the stack and the local variables.
+	 * 
+	 * @param bs
+	 */
+	static void printClass(byte[] bs) {
 		ClassReader cr = new ClassReader(bs);
 		CheckClassAdapter.verify(cr, true, new PrintWriter(System.out));
 	}
-	
 
 }

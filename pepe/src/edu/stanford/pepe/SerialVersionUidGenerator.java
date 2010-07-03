@@ -3,6 +3,7 @@ package edu.stanford.pepe;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -18,7 +19,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-
+/**
+ * Class for generating serialVersionUid without taking into account shadow
+ * fields. The code was shamelessly stolen from {@link ObjectStreamClass}.
+ * 
+ * @author jtamayo
+ */
 public class SerialVersionUidGenerator {
 
 	/**
@@ -49,23 +55,20 @@ public class SerialVersionUidGenerator {
 			signature = getMethodSignature(meth.getParameterTypes(), meth.getReturnType());
 		}
 	}
-	
 
-    /**
-     * Returns JVM type signature for given list of parameters and return type.
-     */
-    private static String getMethodSignature(Class[] paramTypes, 
-					     Class retType) 
-    {
-	StringBuffer sbuf = new StringBuffer();
-	sbuf.append('(');
-	for (int i = 0; i < paramTypes.length; i++) {
-	    sbuf.append(getClassSignature(paramTypes[i]));
+	/**
+	 * Returns JVM type signature for given list of parameters and return type.
+	 */
+	private static String getMethodSignature(Class[] paramTypes, Class retType) {
+		StringBuffer sbuf = new StringBuffer();
+		sbuf.append('(');
+		for (int i = 0; i < paramTypes.length; i++) {
+			sbuf.append(getClassSignature(paramTypes[i]));
+		}
+		sbuf.append(')');
+		sbuf.append(getClassSignature(retType));
+		return sbuf.toString();
 	}
-	sbuf.append(')');
-	sbuf.append(getClassSignature(retType));
-	return sbuf.toString();
-    }
 
 	/**
 	 * Computes the default serial version UID value for the given class.
@@ -73,7 +76,7 @@ public class SerialVersionUidGenerator {
 	public static long computeDefaultSUID(Class cl) {
 		if (!Serializable.class.isAssignableFrom(cl) || Proxy.isProxyClass(cl)) {
 			return 0L;
-		} 
+		}
 
 		try {
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -119,7 +122,7 @@ public class SerialVersionUidGenerator {
 					filteredFields.add(field);
 				}
 			}
-			fields = filteredFields.toArray(new Field[]{});
+			fields = filteredFields.toArray(new Field[] {});
 			/// End pepe hack
 			MemberSignature[] fieldSigs = new MemberSignature[fields.length];
 			for (int i = 0; i < fields.length; i++) {
@@ -165,7 +168,7 @@ public class SerialVersionUidGenerator {
 				throw new RuntimeException(e);
 			}
 			/// end pepe hack
-			
+
 			if (hasClinit) {
 				dout.writeUTF("<clinit>");
 				dout.writeInt(Modifier.STATIC);

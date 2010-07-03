@@ -12,6 +12,7 @@ import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
 
 /**
  * Adds the shadow fields to a {@link ClassNode} object.
+ * 
  * @author jtamayo
  */
 public class ShadowFieldRewriter implements Opcodes {
@@ -62,11 +63,7 @@ public class ShadowFieldRewriter implements Opcodes {
 		
 		cn.fields.addAll(shadowFields);
 		
-		// TODO: What should we do with volatile fields? Should the shadow be volatile or not?
-		// TODO: Make our fields transient, so they are not serialized - Change the computeSErialVersionUid
-		// TODO: What do we do with static final fields? do we instrument them or not? are they really constants? is it easier to keep an always 0 shadow field? Doesn't happen in real life
 		// TODO: How about the this$0 parameter, equivalent to the (OuterClass) this pointer in inner classes?
-	
 	}
 
 
