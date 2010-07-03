@@ -3,7 +3,6 @@ package edu.stanford.pepe;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -19,7 +18,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class VariousHacks {
+
+public class SerialVersionUidGenerator {
 
 	/**
 	 * Class for computing and caching field/constructor/method signatures

@@ -12,29 +12,34 @@ import java.util.zip.ZipOutputStream;
 import edu.stanford.pepe.org.objectweb.asm.ClassReader;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 
+/**
+ * Class for instrumenting rt.jar, the container for all core JVM classes.
+ * 
+ * @author jtamayo
+ */
 public class JREInstrumenter {
 
-	/**
-	 * @param args
-	 * @throws IOException
-	 */
+	private static final String INPUT = "jre/macos_1.6/classes.jar";
+	private static final String OUTPUT = "jre/rt_instrumented.jar";
+
 	public static void main(String[] args) throws IOException {
-		ZipInputStream is = new ZipInputStream(new FileInputStream("jre/macos_1.6/classes.jar"));
+		ZipInputStream is = new ZipInputStream(new FileInputStream(INPUT));
 		ZipEntry je;
-		ZipOutputStream os = new ZipOutputStream(new FileOutputStream("jre/rt_instrumented.jar"));
+		ZipOutputStream os = new ZipOutputStream(new FileOutputStream(OUTPUT));
 		while ((je = is.getNextEntry()) != null) {
 			byte[] byteArray = read(is);
 			if (je.getName().endsWith(".class")) {
 				ClassNode cn = new ClassNode();
 				ClassReader cr = new ClassReader(byteArray);
 				cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
-				
-				if (InstrumentationPolicy.isTypeInstrumentable(cn.name) || InstrumentationPolicy.isSpecialJavaClass(cn.name)) {
+
+				if (InstrumentationPolicy.isTypeInstrumentable(cn.name)
+						|| InstrumentationPolicy.isSpecialJavaClass(cn.name)) {
 					byteArray = PepeAgent.instrumentClass(cn);
 				} else {
 					System.out.println("Skipping " + cn.name);
 				}
-				
+
 			}
 			JarEntry newJarEntry = new JarEntry(je.getName());
 			os.putNextEntry(newJarEntry);
