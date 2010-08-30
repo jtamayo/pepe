@@ -10,6 +10,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author jtamayo
  */
 public class TransactionId {
+	
+	private static ThreadLocal<TransactionId> threadTransactionId = new ThreadLocal<TransactionId>() {
+		@Override
+		protected TransactionId initialValue() {
+			return newTransaction();
+		}
+	};
 
 	private static final long MAX_TRANSACTION_ID = 0xFFFFFFFFl;
 
@@ -31,7 +38,20 @@ public class TransactionId {
 	 * 0.
 	 */
 	public static TransactionId newTransaction() {
+		System.out.println("New transaction. id: " + nextTransactionId.get());
 		return new TransactionId(Math.min(nextTransactionId.incrementAndGet(), MAX_TRANSACTION_ID));
+	}
+	
+	public static TransactionId getCurrentTransaction() {
+		return threadTransactionId.get();
+	}
+	
+	public static void commit() {
+		threadTransactionId.set(newTransaction());
+	}
+	
+	public static void rollback() {
+		commit();
 	}
 
 	/**

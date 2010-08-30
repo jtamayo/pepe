@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,8 +24,27 @@ public class QueryLogger {
 		});
 	}
 	
-	public static void log(String sql, Set<Long> dependencies, long taint) {
-		executions.putIfAbsent(taint, new QueryExecution(sql, new Throwable().getStackTrace(), taint, dependencies));
+	private static int i = 0;
+	
+	private static Set<StackTrace> traces = new HashSet<StackTrace>();
+	
+	public static synchronized void log(String sql, Set<Long> dependencies, long taint) {
+		final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+		i++;
+//		if (i++ > 250000) {
+//			traces.add(new StackTrace(stackTrace));
+//			System.out.print("[");
+//			for (int i = stackTrace.length -1 ; i >= 0; i--) {
+//				StackTraceElement element = stackTrace[i];
+//				
+//				System.out.print(toString(element));
+//				if (i == 0) System.out.println("[");
+//			}
+//		} else {
+//			if (i%1000 == 0) System.err.println(i);
+//		}
+		
+		executions.putIfAbsent(taint, new QueryExecution(sql, stackTrace, taint, dependencies));
 	}
 
 	public static void consolidate() {
@@ -34,14 +54,28 @@ public class QueryLogger {
 			for (QueryExecution execution : allExecutions) {
 				s.add(new StackTrace(execution.stackTrace));
 			}
-			for (StackTrace stackTrace : s) {
-				System.out.print("[");
-				for (int i = stackTrace.stackTrace.length - 1; i >= 0; i--) {
-					System.out.print(stackTrace.stackTrace[i]);
-					if (i != 0) System.out.print("\t");
-				}
-				System.out.println("]");
+			
+			System.out.println("i: " + i);
+			System.out.println("Executions: " + executions.size());
+			System.out.println("Different queries: " + s.size());
+			final Set<Long> keySet = new TreeSet<Long>(executions.keySet());
+			for (Long key : keySet) {
+				System.out.printf("%16X\n",key);
 			}
+			
+//			for (StackTrace trace : traces) {
+//				StackTraceElement[] stackTrace = trace.stackTrace;
+//				
+//				System.out.print("[");
+//				for (int i = stackTrace.length -1 ; i >= 0; i--) {
+//					StackTraceElement element = stackTrace[i];
+//					
+//					System.out.print(toString(element));
+//					if (i != 0) System.out.print("\t");
+//				}
+//				System.out.println("]");
+//			}
+			
 			return;
 		}
 		// First, group the queries by transaction
@@ -94,6 +128,19 @@ public class QueryLogger {
 			}
 		}
 		return new StackTrace(new StackTraceElement[]{}); // There is only one query
+	}
+
+	private static String toString(StackTraceElement element) {
+		String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
+		String fileName = element.getFileName();
+		String methodName = element.getMethodName();
+		int lineNumber = element.getLineNumber();
+		
+        return className + "." + methodName +
+		        (element.isNativeMethod() ? "(Native Method)" :
+		         (fileName != null && lineNumber >= 0 ?
+		          "(" + fileName + ":" + lineNumber + ")" :
+		          (fileName != null ?  "("+fileName+")" : "(Unknown Source)")));
 	}
 }
 

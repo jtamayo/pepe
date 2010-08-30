@@ -50,6 +50,9 @@ public class ShadowStackRewriter implements Opcodes {
 		if (InstrumentationPolicy.isPrimitive(cn.name) && mn.name.equals("<init>")) {
 			System.out.println("Instrumenting " + cn.name);
 			v = new PrimitiveWrapperConstructorVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc);
+		} else if ("commit".equals(mn.name)){
+			System.out.println("Instrumenting TradeDirect");
+			v = new PlainMethodVisitor(new TradeDirectCommitMethodVisitor(cn.name, outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 		} else {
 			v = new PlainMethodVisitor(outputMethodVisitor, mn, frames, cn);
 		}
