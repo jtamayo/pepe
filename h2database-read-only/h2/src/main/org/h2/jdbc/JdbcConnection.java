@@ -10,20 +10,24 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.h2.command.CommandInterface;
 import org.h2.constant.ErrorCode;
@@ -43,16 +47,6 @@ import org.h2.value.ValueInt;
 import org.h2.value.ValueNull;
 import org.h2.value.ValueString;
 
-import edu.stanford.pepe.runtime.TransactionId;
-
-//## Java 1.6 begin ##
-import java.sql.Array;
-import java.sql.NClob;
-import java.sql.Struct;
-import java.sql.SQLXML;
-import java.sql.SQLClientInfoException;
-//## Java 1.6 end ##
-
 /**
  * <p>
  * Represents a connection (session) to a database.
@@ -64,9 +58,6 @@ import java.sql.SQLClientInfoException;
  * </p>
  */
 public class JdbcConnection extends TraceObject implements Connection {
-	
-	//##PEPE
-	public TransactionId transactionId = TransactionId.newTransaction();
 	
     /**
      * The stack trace of when the connection was created.
@@ -421,9 +412,6 @@ public class JdbcConnection extends TraceObject implements Connection {
             try {
                 commit = prepareCommand("COMMIT", commit);
                 commit.executeUpdate();
-                //##PEPE
-                transactionId = TransactionId.newTransaction();
-                //##EPEP
             } finally {
                 afterWriting();
             }
@@ -445,9 +433,6 @@ public class JdbcConnection extends TraceObject implements Connection {
             checkClosedForWrite();
             try {
                 rollbackInternal();
-                //##PEPE
-                transactionId = TransactionId.newTransaction();
-                //##EPEP
             } finally {
                 afterWriting();
             }

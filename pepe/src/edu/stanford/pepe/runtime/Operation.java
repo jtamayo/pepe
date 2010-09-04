@@ -50,7 +50,10 @@ public class Operation {
 				List<Long> dependencyIds = TransactionId.getDependencies(dependency);
 				for (long otherExecution : dependencyIds) {
 					QueryExecution exec = executions.get(otherExecution);
-					q.addDependency(otherTid, findQuery(exec));
+					// TODO: The null check should not exist
+					if (exec != null) {
+						q.addDependency(otherTid, findQuery(exec));
+					}
 				}
 			} else {
 				// This means I depend on queries that started AFTER me. Whether intentional or not
@@ -141,7 +144,7 @@ public class Operation {
 			StackTraceElement element = queryId.stackTrace[i];
 			sb.append(toString(element));
 			if (i != queryId.stackTrace.length - 1) { 
-				sb.append(" > ");
+				sb.append("\t>\t");
 			}
 		}
 //		for (int i = prefixLength; i < queryId.stackTrace.length - suffix; i++) {
@@ -165,6 +168,29 @@ public class Operation {
 		         (fileName != null && lineNumber >= 0 ?
 		          "(" + fileName + ":" + lineNumber + ")" :
 		          (fileName != null ?  "("+fileName+")" : "(Unknown Source)")));
+	}
+
+	public String toGraph() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("digraph " + this.hashCode() + " {");
+		
+
+		int sequence = 1;
+		Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
+		if (!queries.isEmpty()) {
+			for (StackTrace queryId : queries.keySet()) {
+				sequences.put(queryId, sequence);
+				sequence++;
+			}
+		}
+		for (Entry<StackTrace, Query> entry : queries.entrySet()) {
+			for (StackTrace dependency : entry.getValue().dependencies) {
+				sb.append(sequences.get(entry.getKey()) + " -> " + sequences.get(dependency) + ";\n");
+			}
+		}
+		
+		sb.append("}\n\n");
+		return sb.toString();
 	}
 	
 	

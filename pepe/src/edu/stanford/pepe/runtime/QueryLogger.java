@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 public class QueryLogger {
 	private static ConcurrentMap<Long, QueryExecution> executions = new ConcurrentHashMap<Long, QueryExecution>();
 
-	
 	static {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -43,26 +42,27 @@ public class QueryLogger {
 //		} else {
 //			if (i%1000 == 0) System.err.println(i);
 //		}
+		if (i++ < 250000) return;
 		
 		executions.putIfAbsent(taint, new QueryExecution(sql, stackTrace, taint, dependencies));
 	}
 
 	public static void consolidate() {
-		if (executions != null) {
-			Set<StackTrace> s = new HashSet<StackTrace>();
-			Collection<QueryExecution> allExecutions = executions.values();
-			for (QueryExecution execution : allExecutions) {
-				s.add(new StackTrace(execution.stackTrace));
-			}
-			
-			System.out.println("i: " + i);
-			System.out.println("Executions: " + executions.size());
-			System.out.println("Different queries: " + s.size());
-			final Set<Long> keySet = new TreeSet<Long>(executions.keySet());
-			for (Long key : keySet) {
-				System.out.printf("%16X\n",key);
-			}
-			
+//		if (executions != null) {
+//			Set<StackTrace> s = new HashSet<StackTrace>();
+//			Collection<QueryExecution> allExecutions = executions.values();
+//			for (QueryExecution execution : allExecutions) {
+//				s.add(new StackTrace(execution.stackTrace));
+//			}
+//			
+//			System.out.println("i: " + i);
+//			System.out.println("Executions: " + executions.size());
+//			System.out.println("Different queries: " + s.size());
+////			final Set<Long> keySet = new TreeSet<Long>(executions.keySet());
+////			for (Long key : keySet) {
+////				System.out.printf("%16X\n",key);
+////			}
+//			
 //			for (StackTrace trace : traces) {
 //				StackTraceElement[] stackTrace = trace.stackTrace;
 //				
@@ -75,9 +75,10 @@ public class QueryLogger {
 //				}
 //				System.out.println("]");
 //			}
-			
-			return;
-		}
+//			
+//			return;
+//		}
+
 		// First, group the queries by transaction
 		final Map<Long,Collection<QueryExecution>> executionsPerTransactionId = new HashMap<Long, Collection<QueryExecution>>(executions.size() / 10); // guess around 10 ops/transaction
 		for (QueryExecution execution : executions.values()) {
@@ -109,6 +110,10 @@ public class QueryLogger {
 		for (Operation o : operationsPerStackTraceSuffix.values()) {
 			System.out.println("-- Operation --");
 			o.print();
+		}
+		
+		for (Operation o : operationsPerStackTraceSuffix.values()) {
+			System.out.println(o.toGraph());
 		}
 		
 		// Now, I have built all the dependencies in the queryId, I need to somehow print the graph

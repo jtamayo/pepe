@@ -53,6 +53,7 @@ import org.h2.value.ValueTimestamp;
 
 import edu.stanford.pepe.TaintCheck;
 import edu.stanford.pepe.runtime.QueryLogger;
+import edu.stanford.pepe.runtime.TransactionId;
 
 //## Java 1.6 begin ##
 import java.sql.RowId;
@@ -108,7 +109,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             }
             resultSet = new JdbcResultSet(conn, this, result, id, closedByResultSet, scrollable, updatable);
             //##PEPE
-            long nextTaint = conn.transactionId.getNextTaint();
+            long nextTaint = TransactionId.getCurrentTransaction().getNextTaint();
             QueryLogger.log(sqlStatement, dependencies, nextTaint);
 			resultSet.taint = nextTaint;
             dependencies.clear();
@@ -140,7 +141,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             try {
                 int executeUpdateInternal = executeUpdateInternal();
                 //##PEPE
-                long nextTaint = conn.transactionId.getNextTaint();
+                long nextTaint = TransactionId.getCurrentTransaction().getNextTaint();
                 QueryLogger.log(sqlStatement, dependencies, nextTaint);
                 dependencies.clear();
                 //##EPEP

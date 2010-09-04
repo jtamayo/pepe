@@ -38,20 +38,19 @@ public class TransactionId {
 	 * 0.
 	 */
 	public static TransactionId newTransaction() {
-		System.out.println("New transaction. id: " + nextTransactionId.get());
 		return new TransactionId(Math.min(nextTransactionId.incrementAndGet(), MAX_TRANSACTION_ID));
 	}
 	
 	public static TransactionId getCurrentTransaction() {
 		return threadTransactionId.get();
 	}
-	
-	public static void commit() {
+
+	/**
+	 * To be invoked after a JDBC Connection starts a new transaction, either because of a commit
+	 * or a rollback.
+	 */
+	public static void onNewTransaction() {
 		threadTransactionId.set(newTransaction());
-	}
-	
-	public static void rollback() {
-		commit();
 	}
 
 	/**
