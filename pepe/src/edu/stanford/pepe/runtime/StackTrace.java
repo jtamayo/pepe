@@ -1,5 +1,6 @@
 package edu.stanford.pepe.runtime;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -7,11 +8,17 @@ import java.util.Arrays;
  * 
  * @author jtamayo
  */
-public class StackTrace {
+public class StackTrace implements Serializable {
+	private static final long serialVersionUID = -4643494257012911255L;
+	
 	public final StackTraceElement[] stackTrace;
 
 	public StackTrace(StackTraceElement[] stackTrace) {
 		this.stackTrace = stackTrace.clone();
+	}
+
+	public StackTrace(StackTrace other) {
+		this(other.stackTrace);
 	}
 
 	@Override

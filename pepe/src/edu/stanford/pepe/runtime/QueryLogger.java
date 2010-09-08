@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import edu.stanford.pepe.runtime.lessmemory.LowFootprintQueryLogger;
+
 
 public class QueryLogger {
 	private static ConcurrentMap<Long, QueryExecution> executions = new ConcurrentHashMap<Long, QueryExecution>();
@@ -28,6 +30,8 @@ public class QueryLogger {
 	private static Set<StackTrace> traces = new HashSet<StackTrace>();
 	
 	public static synchronized void log(String sql, Set<Long> dependencies, long taint) {
+		LowFootprintQueryLogger.log(sql, dependencies, taint);
+		if (i > -29) return;
 		final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
 		i++;
 //		if (i++ > 250000) {
@@ -48,6 +52,10 @@ public class QueryLogger {
 	}
 
 	public static void consolidate() {
+		System.out.println("Writing to disk");
+		LowFootprintQueryLogger.toDisk();
+		System.out.println("Done writing to disk");
+		if (i > -200) return;
 //		if (executions != null) {
 //			Set<StackTrace> s = new HashSet<StackTrace>();
 //			Collection<QueryExecution> allExecutions = executions.values();
@@ -79,42 +87,42 @@ public class QueryLogger {
 //			return;
 //		}
 
-		// First, group the queries by transaction
-		final Map<Long,Collection<QueryExecution>> executionsPerTransactionId = new HashMap<Long, Collection<QueryExecution>>(executions.size() / 10); // guess around 10 ops/transaction
-		for (QueryExecution execution : executions.values()) {
-			final long transactionId = execution.transactionId;
-			Collection<QueryExecution> executionsInTransaction = executionsPerTransactionId.get(transactionId);
-			if (executionsInTransaction == null) {
-				executionsInTransaction = new ArrayList<QueryExecution>();
-				executionsPerTransactionId.put(transactionId, executionsInTransaction);
-			}
-			executionsInTransaction.add(execution);
-		}
-		
-		// Now, for each transaction, determine the operation to which they belong
-		final Map<StackTrace, Operation> operationsPerStackTraceSuffix = new HashMap<StackTrace, Operation>(); 
-		for (Collection<QueryExecution> collection : executionsPerTransactionId.values()) {
-			final StackTrace operationId = getSuffix(collection);
-			Operation op = operationsPerStackTraceSuffix.get(operationId);
-			if (op == null) {
-				op = new Operation(operationId, executions);
-				operationsPerStackTraceSuffix.put(operationId, op);
-			}
-			// And then, add all QueryExecutions in the transaction to the Operation
-			for (QueryExecution queryExecution : collection) {
-				op.addExecution(queryExecution);
-			}
-		}
-		
-		// Now print all operations
-		for (Operation o : operationsPerStackTraceSuffix.values()) {
-			System.out.println("-- Operation --");
-			o.print();
-		}
-		
-		for (Operation o : operationsPerStackTraceSuffix.values()) {
-			System.out.println(o.toGraph());
-		}
+//		// First, group the queries by transaction
+//		final Map<Long,Collection<QueryExecution>> executionsPerTransactionId = new HashMap<Long, Collection<QueryExecution>>(executions.size() / 10); // guess around 10 ops/transaction
+//		for (QueryExecution execution : executions.values()) {
+//			final long transactionId = execution.transactionId;
+//			Collection<QueryExecution> executionsInTransaction = executionsPerTransactionId.get(transactionId);
+//			if (executionsInTransaction == null) {
+//				executionsInTransaction = new ArrayList<QueryExecution>();
+//				executionsPerTransactionId.put(transactionId, executionsInTransaction);
+//			}
+//			executionsInTransaction.add(execution);
+//		}
+//		
+//		// Now, for each transaction, determine the operation to which they belong
+//		final Map<StackTrace, Operation> operationsPerStackTraceSuffix = new HashMap<StackTrace, Operation>(); 
+//		for (Collection<QueryExecution> collection : executionsPerTransactionId.values()) {
+//			final StackTrace operationId = getSuffix(collection);
+//			Operation op = operationsPerStackTraceSuffix.get(operationId);
+//			if (op == null) {
+//				op = new Operation(operationId, executions);
+//				operationsPerStackTraceSuffix.put(operationId, op);
+//			}
+//			// And then, add all QueryExecutions in the transaction to the Operation
+//			for (QueryExecution queryExecution : collection) {
+//				op.addExecution(queryExecution);
+//			}
+//		}
+//		
+//		// Now print all operations
+//		for (Operation o : operationsPerStackTraceSuffix.values()) {
+//			System.out.println("-- Operation --");
+//			o.print();
+//		}
+//		
+//		for (Operation o : operationsPerStackTraceSuffix.values()) {
+//			System.out.println(o.toGraph());
+//		}
 		
 		// Now, I have built all the dependencies in the queryId, I need to somehow print the graph
 	}
@@ -159,7 +167,7 @@ class Query {
 	public final StackTrace id;
 	public final Set<StackTrace> dependencies = new HashSet<StackTrace>();
 
-	public Query(StackTraceElement[] stackTrace) {
+	public Query(StackTrace stackTrace) {
 		this.id = new StackTrace(stackTrace);
 	}
 

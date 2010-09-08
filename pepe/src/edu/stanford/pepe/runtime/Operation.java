@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 
+import edu.stanford.pepe.postprocessing.Execution;
+
 /**
  * An Operation represents a set of queries that, at a high level, are part of a
  * single operation. Every executed transaction is assumed to be an instance of
@@ -23,51 +25,47 @@ public class Operation {
 	
 	private final Map<StackTrace, Query> queries = new HashMap<StackTrace, Query>();
 
-	/** Map with all executions in a given run */
-	private final ConcurrentMap<Long, QueryExecution> executions;
-
-	public Operation(StackTrace id, ConcurrentMap<Long, QueryExecution> executions) {
+	public Operation(StackTrace id) {
 		this.id = id;
-		this.executions = executions;
 	}
 
 	public StackTrace getId() {
 		return id;
 	}
 	
-	public void addExecution(QueryExecution execution) {
-		Query q = findQuery(execution);
-		for (long dependency : execution.dependencies) {
-			// iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
-			long otherTid = TransactionId.getTransactionId(dependency);
-			if (otherTid < execution.transactionId) {
-				// If I depend on data from a previous transaction, I don't care, it could be static
-				// data retrieved at the beginning of execution
-				System.out.println("Query depends on previous transaction");
-			} else if (otherTid == execution.transactionId) {
-				// For queries in the same transaction, add the dependencies to the query
-				// otherTid may contain more than one dependency encoded in it. Unpack them.
-				List<Long> dependencyIds = TransactionId.getDependencies(dependency);
-				for (long otherExecution : dependencyIds) {
-					QueryExecution exec = executions.get(otherExecution);
-					// TODO: The null check should not exist
-					if (exec != null) {
-						q.addDependency(otherTid, findQuery(exec));
-					}
-				}
-			} else {
-				// This means I depend on queries that started AFTER me. Whether intentional or not
-				// we're showing this to the user
-				System.out.println("Query depends on future transaction");
-			}
-		}
-	}
+//	public void addExecution(QueryExecution execution) {
+//		Query q = findQuery(execution);
+//		for (long dependency : execution.dependencies) {
+//			// iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
+//			long otherTid = TransactionId.getTransactionId(dependency);
+//			if (otherTid < execution.transactionId) {
+//				// If I depend on data from a previous transaction, I don't care, it could be static
+//				// data retrieved at the beginning of execution
+//				System.out.println("Query depends on previous transaction");
+//			} else if (otherTid == execution.transactionId) {
+//				// For queries in the same transaction, add the dependencies to the query
+//				// otherTid may contain more than one dependency encoded in it. Unpack them.
+//				List<Long> dependencyIds = TransactionId.getDependencies(dependency);
+//				for (long otherExecution : dependencyIds) {
+//					QueryExecution exec = executions.get(otherExecution);
+//					// TODO: The null check should not exist
+//					if (exec != null) {
+//						q.addDependency(otherTid, findQuery(exec));
+//					}
+//				}
+//			} else {
+//				// This means I depend on queries that started AFTER me. Whether intentional or not
+//				// we're showing this to the user
+//				System.out.println("Query depends on future transaction");
+//			}
+//		}
+//	}
 	
-	private Query findQuery(QueryExecution execution) {
-		final StackTrace key = new StackTrace(execution.stackTrace);
+	private Query findQuery(Execution execution) {
+		final StackTrace key = new StackTrace(execution.getTrace());
 		Query q = queries.get(key);
 		if (q == null) {
-			q = new Query(execution.stackTrace);
+			q = new Query(execution.getTrace());
 			queries.put(key, q);
 		}
 		return q;
@@ -191,6 +189,38 @@ public class Operation {
 		
 		sb.append("}\n\n");
 		return sb.toString();
+	}
+
+	public void addExecutions(Collection<Execution> collection) {
+		Map<Long, Execution> executionsById = new HashMap<Long, Execution>();
+		for (Execution execution : collection) {
+			executionsById.put(execution.getId(), execution);
+		}
+		
+		for (Execution execution : collection) {
+			Query q = findQuery(execution);
+			for (long dependency : execution.getDependencies()) {
+				// iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
+				long otherTid = TransactionId.getTransactionId(dependency);
+				if (otherTid < execution.getTransactionId()) {
+					// If I depend on data from a previous transaction, I don't care, it could be static
+					// data retrieved at the beginning of execution
+					System.out.println("Query depends on previous transaction");
+				} else if (otherTid == execution.getTransactionId()) {
+					// For queries in the same transaction, add the dependencies to the query
+					// otherTid may contain more than one dependency encoded in it. Unpack them.
+					List<Long> dependencyIds = TransactionId.getDependencies(dependency);
+					for (long otherExecutionId : dependencyIds) {
+						Execution otherExecution = executionsById.get(otherExecutionId);
+						q.addDependency(otherTid, findQuery(otherExecution));
+					}
+				} else {
+					// This means I depend on queries that started AFTER me. Whether intentional or not
+					// we're showing this to the user
+					System.out.println("Query depends on future transaction");
+				}
+			}
+		}
 	}
 	
 	
