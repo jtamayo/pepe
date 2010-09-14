@@ -18,6 +18,7 @@ import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
+import edu.stanford.pepe.org.objectweb.asm.util.ASMifierClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
 
 /**
@@ -95,6 +96,15 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 		try {
 			ClassNode cn = new ClassNode();
 			ClassReader cr = new ClassReader(classfileBuffer);
+			
+			// TODO: Remove this
+			if (className.endsWith("TradeServices")) {
+				ASMifierClassVisitor v = new ASMifierClassVisitor(new PrintWriter(System.out));
+				cr.accept(v, 0);
+			}
+			
+			// End TODO:
+			
 			cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
 			for (FieldNode fn : (List<FieldNode>) cn.fields) {
 				if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentMap;
 
+import edu.stanford.pepe.postprocessing.Consolidate;
 import edu.stanford.pepe.postprocessing.Execution;
 
 /**
@@ -73,28 +73,35 @@ public class Operation {
 
 	public void print() {
 
-		int sequence = 1;
-		System.out.println();
-		System.out.println("-- Queries --");
-		Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
-		if (!queries.isEmpty()) {
-			int prefix = getStackPrefixSize();
-			int suffix = getStackSuffixSize();
-			for (StackTrace queryId : queries.keySet()) {
-				sequences.put(queryId, sequence);
-				System.out.println(sequence + ": " + getShortDescription(queryId, prefix, suffix));
-				sequence++;
-			}
+		System.out.println("--Operation--");
+		
+		for (StackTrace trace : queries.keySet()) {
+			Consolidate.print(trace);
 		}
 		System.out.println();
-		System.out.println("-- Dependencies --");
-		for (Entry<StackTrace, Query> entry : queries.entrySet()) {
-			System.out.print(sequences.get(entry.getKey()) + ": ");
-			for (StackTrace dependency : entry.getValue().dependencies) {
-				System.out.print(sequences.get(dependency) + " ");
-			}
-			System.out.println();
-		}
+		
+//		int sequence = 1;
+//		System.out.println();
+//		System.out.println("-- Queries --");
+//		Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
+//		if (!queries.isEmpty()) {
+//			int prefix = getStackPrefixSize();
+//			int suffix = getStackSuffixSize();
+//			for (StackTrace queryId : queries.keySet()) {
+//				sequences.put(queryId, sequence);
+//				System.out.println(sequence + ": " + getShortDescription(queryId, prefix, suffix));
+//				sequence++;
+//			}
+//		}
+//		System.out.println();
+//		System.out.println("-- Dependencies --");
+//		for (Entry<StackTrace, Query> entry : queries.entrySet()) {
+//			System.out.print(sequences.get(entry.getKey()) + ": ");
+////			for (StackTrace dependency : entry.getValue().dependencies) {
+////				System.out.print(sequences.get(dependency) + " ");
+////			}
+//			System.out.println();
+//		}
 	}
 	
 
@@ -155,24 +162,37 @@ public class Operation {
 		return sb.toString();
 	}
 	
-	private static String toString(StackTraceElement element) {
+	public static String toString(StackTraceElement element) {
 		String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
-		String fileName = element.getFileName();
+//		String fileName = element.getFileName();
 		String methodName = element.getMethodName();
 		int lineNumber = element.getLineNumber();
-		
-        return className + "." + methodName +
-		        (element.isNativeMethod() ? "(Native Method)" :
-		         (fileName != null && lineNumber >= 0 ?
-		          "(" + fileName + ":" + lineNumber + ")" :
-		          (fileName != null ?  "("+fileName+")" : "(Unknown Source)")));
+
+		return className
+				+ "."
+				+ methodName + "(" + lineNumber + ")";
+//				+ (element.isNativeMethod() ? "(Native)" : (fileName != null && lineNumber >= 0 ? "(" + fileName
+//						+ ":" + lineNumber + ")" : (fileName != null ? "(" + fileName + ")" : "(Unknown Source)")));
 	}
 
 	public String toGraph() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("digraph " + this.hashCode() + " {");
+		sb.append("digraph " + this.hashCode() + " { \n");
+		// Print a description of the operation
+		if (this.id.stackTrace.length > 0) {
+			sb.append("[label=\"");
+			for (int i = 0; i < this.id.stackTrace.length; i++) {
+				sb.append(toString(this.id.stackTrace[i]));
+				if (i < this.id.stackTrace.length - 1) {
+					sb.append("\\n");
+				}
+			}
+			sb.append("\"");
+			sb.append(", rankdir=RL");
+			sb.append("];\n");
+		}
 		
-
+		// First assign a sequence number to each query
 		int sequence = 1;
 		Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
 		if (!queries.isEmpty()) {
@@ -181,9 +201,25 @@ public class Operation {
 				sequence++;
 			}
 		}
-		for (Entry<StackTrace, Query> entry : queries.entrySet()) {
-			for (StackTrace dependency : entry.getValue().dependencies) {
-				sb.append(sequences.get(entry.getKey()) + " -> " + sequences.get(dependency) + ";\n");
+		sequences.put(new StackTrace(new StackTraceElement[]{}), sequence++);
+		// Now output all the nodes
+		for (Entry<StackTrace, Integer> entry : sequences.entrySet()) {
+			sb.append(entry.getValue());
+			sb.append(" [label=\"");
+			final int stackSize = Math.min(entry.getKey().stackTrace.length, this.id.stackTrace.length + 3);
+			for (int i = this.id.stackTrace.length; i < stackSize; i++) {
+				sb.append(toString(entry.getKey().stackTrace[i]));
+				if (i < stackSize - 1) {
+					sb.append("\\n");
+				}
+			}
+			sb.append("\"];\n");
+		}
+		
+		// Finally, add all the edges
+		for (Query query : queries.values()) {
+			for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
+				sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=" + dependency.getValue() + "];\n");
 			}
 		}
 		
@@ -203,16 +239,14 @@ public class Operation {
 				// iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
 				long otherTid = TransactionId.getTransactionId(dependency);
 				if (otherTid < execution.getTransactionId()) {
-					// If I depend on data from a previous transaction, I don't care, it could be static
-					// data retrieved at the beginning of execution
-					System.out.println("Query depends on previous transaction");
+					q.addDependency(Query.PreviousTransactionQuery.get());
 				} else if (otherTid == execution.getTransactionId()) {
 					// For queries in the same transaction, add the dependencies to the query
 					// otherTid may contain more than one dependency encoded in it. Unpack them.
 					List<Long> dependencyIds = TransactionId.getDependencies(dependency);
 					for (long otherExecutionId : dependencyIds) {
 						Execution otherExecution = executionsById.get(otherExecutionId);
-						q.addDependency(otherTid, findQuery(otherExecution));
+						q.addDependency(findQuery(otherExecution));
 					}
 				} else {
 					// This means I depend on queries that started AFTER me. Whether intentional or not
