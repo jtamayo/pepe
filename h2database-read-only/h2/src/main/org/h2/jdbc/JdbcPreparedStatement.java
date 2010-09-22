@@ -90,6 +90,10 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
      */
     public ResultSet executeQuery() throws SQLException {
         try {
+        	// ##PEPE
+        	long PEPE_start = System.nanoTime();
+        	// ##PEPE
+        	
             int id = getNextId(TraceObject.RESULT_SET);
             if (isDebugEnabled()) {
                 debugCodeAssign("ResultSet", TraceObject.RESULT_SET, id, "executeQuery()");
@@ -110,7 +114,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             resultSet = new JdbcResultSet(conn, this, result, id, closedByResultSet, scrollable, updatable);
             //##PEPE
             long nextTaint = TransactionId.getCurrentTransaction().getNextTaint();
-            QueryLogger.log(sqlStatement, dependencies, nextTaint);
+            QueryLogger.log(sqlStatement, dependencies, nextTaint, System.nanoTime() - PEPE_start);
 			resultSet.taint = nextTaint;
             dependencies.clear();
             //##EPEP
@@ -136,13 +140,16 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
      */
     public int executeUpdate() throws SQLException {
         try {
+        	// #PEPE
+        	long PEPE_start = System.nanoTime();
+        	
             debugCodeCall("executeUpdate");
             checkClosedForWrite();
             try {
                 int executeUpdateInternal = executeUpdateInternal();
                 //##PEPE
                 long nextTaint = TransactionId.getCurrentTransaction().getNextTaint();
-                QueryLogger.log(sqlStatement, dependencies, nextTaint);
+                QueryLogger.log(sqlStatement, dependencies, nextTaint, System.nanoTime() - PEPE_start);
                 dependencies.clear();
                 //##EPEP
                 return executeUpdateInternal;

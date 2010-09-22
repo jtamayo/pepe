@@ -3,6 +3,8 @@ package edu.stanford.pepe.runtime;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.stanford.pepe.postprocessing.Execution;
+
 /**
  * A query represents a specific call point in the code, as defined by the stack
  * trace of the point where the SQL query is invoked.
@@ -12,6 +14,9 @@ import java.util.Map;
 public class Query {
 	private final StackTrace id;
 	private final Map<StackTrace, Integer> dependencyValues = new HashMap<StackTrace, Integer>();
+	/** Number of times the query was executed */
+	private int executionCount = 0;
+	private long totalTimeNanos;
 	
 	public StackTrace getId() {
 		return id;
@@ -49,5 +54,24 @@ public class Query {
 			super(new StackTrace(new StackTraceElement[]{}));
 		}
 		
+	}
+
+	/**
+	 * Number of times the query was executed.
+	 */
+	public int getExecutionCount() {
+		return executionCount;
+	}
+	
+	public double getAvgExecutionTime() {
+		return totalTimeNanos / executionCount;
+	}
+	
+	/**
+	 * Increments by one the execution count.
+	 */
+	public void addExecution(Execution execution) {
+		executionCount++;
+		totalTimeNanos += execution.getElapsedTimeNanos();
 	}
 }

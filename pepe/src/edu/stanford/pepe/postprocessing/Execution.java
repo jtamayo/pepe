@@ -10,6 +10,7 @@ public class Execution {
 	private final long[] dependencies;
 	private final long id;
 	private final StackTrace trace;
+	private final long elapsedTimeNanos;
 
 	/**
 	 * Cache of StackTraces to reduce memory consumption. The StackTraces are
@@ -35,7 +36,8 @@ public class Execution {
 	 * Builds a new Execution. Uses a cached copy of the given StackTrace to
 	 * reduce memory consumption.
 	 */
-	public Execution(long[] dependencies, long id, StackTrace trace) {
+	public Execution(long[] dependencies, long id, StackTrace trace, long elapsedTimeNanos) {
+		this.elapsedTimeNanos = elapsedTimeNanos;
 		this.dependencies = dependencies.clone();
 		this.id = id;
 		this.trace = cache(trace);
@@ -60,6 +62,10 @@ public class Execution {
 	
 	public int getQueryId() {
 		return TransactionId.getQueryId(id);
+	}
+
+	public long getElapsedTimeNanos() {
+		return elapsedTimeNanos;
 	}
 	
 

@@ -23,7 +23,9 @@ public class InstrumentationPolicy implements Opcodes {
 	 * from the others.
 	 */
 	public static boolean isSpecialJavaClass(String type) {
-		return isPrimitiveWrapperOrString(type) || type.equals("java/lang/Thread") || type.equals("java/io/ObjectStreamClass");
+		return isPrimitiveWrapperOrString(type) || type.equals("java/lang/Thread")
+				|| type.equals("java/io/ObjectStreamClass") || type.equals("java/lang/StringBuffer")
+				|| type.equals("java/lang/StringBuilder") || type.equals("java/lang/AbstractStringBuilder");
 	}
 	
 	/**

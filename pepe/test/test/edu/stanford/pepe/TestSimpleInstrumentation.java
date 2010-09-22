@@ -147,6 +147,18 @@ public class TestSimpleInstrumentation extends TestCase {
 		
 	}
 	
+	public void testStringConcat() {
+		// Test that string concatenation works
+		final long taint = 0x11111111F0000010L;
+		final String taintedString = TaintCheck.taint("Hello", taint);
+		assertEquals(taint, TaintCheck.getTaint(taintedString));
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(taintedString);
+		assertEquals(taint, TaintCheck.getTaint(sb.toString()));
+		
+	}
+	
 	public int add3(int a) {
 		return a + 3;
 	}

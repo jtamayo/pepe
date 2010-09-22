@@ -95,17 +95,9 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 
 		try {
 			ClassNode cn = new ClassNode();
-			ClassReader cr = new ClassReader(classfileBuffer);
-			
-			// TODO: Remove this
-			if (className.endsWith("TradeServices")) {
-				ASMifierClassVisitor v = new ASMifierClassVisitor(new PrintWriter(System.out));
-				cr.accept(v, 0);
-			}
-			
-			// End TODO:
-			
+			ClassReader cr = new ClassReader(classfileBuffer);			
 			cr.accept(cn, 0); // Makes the ClassReader visit the ClassNode
+			
 			for (FieldNode fn : (List<FieldNode>) cn.fields) {
 				if (fn.name.equals(ShadowFieldRewriter.TAINT_MARK)) {
 					logger.info("Skipping already instrumented class " + cn.name);
@@ -140,6 +132,20 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			ClassAdapter ca = new TaintCheckInstrumenter(cw);
 			cn.accept(ca);
+			return cw.toByteArray();
+		} else if (cn.name.equals("java/lang/StringBuffer") || cn.name.equals("java/lang/StringBuilder")
+				|| cn.name.equals("java/lang/AbstractStringBuilder")) {
+			System.out.println("Instrumenting " + cn.name);
+			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			ClassAdapter ca = new StringBuilderInstrumenter(cw);
+			cn.accept(ca);
+			
+			// HACK
+			ASMifierClassVisitor ca2 = new ASMifierClassVisitor(new PrintWriter(System.out));
+			ClassReader cr = new ClassReader(cw.toByteArray());
+			cr.accept(ca2, 0);
+			// END HACK
+			
 			return cw.toByteArray();
 		} else if (cn.name.equals("java/lang/String")) {
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);

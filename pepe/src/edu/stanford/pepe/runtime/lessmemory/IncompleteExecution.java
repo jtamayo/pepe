@@ -12,8 +12,10 @@ public class IncompleteExecution implements Serializable {
 	
 	private final long[] dependencies;
 	private final long id;
+	private final long elapsedTimeNanos;
 	
-	public IncompleteExecution(Set<Long> dependencies, long id) {
+	public IncompleteExecution(Set<Long> dependencies, long id, long elapsedTimeNanos) {
+		this.elapsedTimeNanos = elapsedTimeNanos;
 		this.dependencies = new long[dependencies.size()];
 		
 		int i = 0;
@@ -31,5 +33,9 @@ public class IncompleteExecution implements Serializable {
 	
 	public long getId() {
 		return id;
+	}
+
+	public long getElapsedTimeNanos() {
+		return elapsedTimeNanos;
 	}
 }

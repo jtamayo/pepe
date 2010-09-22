@@ -33,7 +33,7 @@ public class QueryLogger {
 		System.out.println("Done writing to disk");
 	}
 
-	public static synchronized void log(String sql, Set<Long> dependencies, long taint) {
+	public static synchronized void log(String sql, Set<Long> dependencies, long taint, long elapsedTimeNanos) {
 		final StackTrace trace = new StackTrace(new Throwable().getStackTrace());
 		List<IncompleteExecution> executions = executionsPerQuery.get(trace);
 		if (executions == null) {
@@ -44,7 +44,7 @@ public class QueryLogger {
 			System.out.println("Queries: " + executionsPerQuery.size());
 		}
 
-		executions.add(new IncompleteExecution(dependencies, taint));
+		executions.add(new IncompleteExecution(dependencies, taint, elapsedTimeNanos));
 	}
 
 	public static void toDisk() {
