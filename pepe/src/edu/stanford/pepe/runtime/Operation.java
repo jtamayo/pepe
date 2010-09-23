@@ -2,6 +2,7 @@ package edu.stanford.pepe.runtime;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,19 +55,6 @@ public class Operation {
 		return 0; // Mmm, shouldn't really happen, unless there's only one query
 	}
 
-	public static int getSuffixSize(final Collection<StackTrace> c) {
-		final StackTrace prototype = c.iterator().next(); // get a query, all of the rest will be compared to this one
-		for (int i = 0; i < prototype.stackTrace.length; i++) {
-			for (StackTrace query : c) {
-				if (!prototype.stackTrace[prototype.stackTrace.length - i - 1]
-						.equals(query.stackTrace[query.stackTrace.length - i - 1])) {
-					return i;
-				}
-			}
-		}
-		return 0; // Mmm, shouldn't really happen, unless there's only one query
-	}
-	
 	public static String toString(StackTraceElement element) {
 		String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
 //		String fileName = element.getFileName();
@@ -112,30 +100,11 @@ public class Operation {
 			outputNode(sb, query, sequences.get(query.getId()));
 		}
 		
-//		for (Entry<StackTrace, Integer> entry : sequences.entrySet()) {
-//			// Node name
-//			sb.append(entry.getValue());
-//			// Node label
-//			sb.append(" [label=\"");
-//			final int stackSize = Math.min(entry.getKey().stackTrace.length, this.id.stackTrace.length + 3);
-//			for (int i = this.id.stackTrace.length; i < stackSize; i++) {
-//				sb.append(toString(entry.getKey().stackTrace[i]));
-//				if (i < stackSize - 1) {
-//					sb.append("\\n");
-//				}
-//			}
-//			sb.append("\"");
-//			// Node shape
-//			sb.append(", shape=box");
-//			// Close the node
-//			sb.append("];\n");
-//		}
-		
 		// Finally, add all the edges
 		for (Query query : queries.values()) {
 			for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
 				sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\""
-						+ dependency.getValue() + "/" + query.getExecutionCount() + " " + query.getAvgExecutionTime()/1000 + "ms" + "\"];\n");
+						+ dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
 			}
 		}
 		
@@ -150,10 +119,9 @@ public class Operation {
 		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
 		for (int i = this.id.stackTrace.length; i < stackSize; i++) {
 			sb.append(toString(query.getId().stackTrace[i]));
-			if (i < stackSize - 1) {
-				sb.append("\\n");
-			}
+			sb.append("\\n");
 		}
+		sb.append("avg: " + query.getAvgExecutionTime()/1000 + "ms");
 		sb.append("\"");
 		// Node shape
 		sb.append(", shape=box");
@@ -177,15 +145,8 @@ public class Operation {
 				long otherTid = TransactionId.getTransactionId(dependency);
 				if (otherTid < execution.getTransactionId()) {
 					System.out.println("Query depends on previous transaction");
-//					q.addDependency(Query.PreviousTransactionQuery.get());
 				} else if (otherTid == execution.getTransactionId()) {
-					// For queries in the same transaction, add the dependencies to the query
-					// otherTid may contain more than one dependency encoded in it. Unpack them.
-					List<Long> dependencyIds = TransactionId.getDependencies(dependency);
-					for (long otherExecutionId : dependencyIds) {
-						Execution otherExecution = executionsById.get(otherExecutionId);
-						q.addDependency(findQuery(otherExecution));
-					}
+					q.addDependency(findQuery(executionsById.get(dependency)));
 				} else {
 					// This means I depend on queries that started AFTER me. Whether intentional or not
 					// we're showing this to the user

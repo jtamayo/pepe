@@ -36,6 +36,7 @@ public class Consolidate {
 		saveGraphs();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processFile(String file) throws IOException, FileNotFoundException, ClassNotFoundException {
 		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 		try {

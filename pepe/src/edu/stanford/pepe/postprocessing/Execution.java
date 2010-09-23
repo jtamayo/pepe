@@ -1,5 +1,8 @@
 package edu.stanford.pepe.postprocessing;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -7,7 +10,7 @@ import edu.stanford.pepe.runtime.StackTrace;
 import edu.stanford.pepe.runtime.TransactionId;
 
 public class Execution {
-	private final long[] dependencies;
+	private final Set<Long> dependencies;
 	private final long id;
 	private final StackTrace trace;
 	private final long elapsedTimeNanos;
@@ -38,13 +41,21 @@ public class Execution {
 	 */
 	public Execution(long[] dependencies, long id, StackTrace trace, long elapsedTimeNanos) {
 		this.elapsedTimeNanos = elapsedTimeNanos;
-		this.dependencies = dependencies.clone();
 		this.id = id;
 		this.trace = cache(trace);
+
+		this.dependencies = new HashSet<Long>();
+
+		for (long dependency : dependencies) {
+			List<Long> dependencyIds = TransactionId.getDependencies(dependency);
+			this.dependencies.addAll(dependencyIds);
+		}
 	}
 
-	public long[] getDependencies() {
-		// TODO: Unsafe, the class is not really immutable.
+	/**
+	 * Returns the set of Executions on which this Execution depends. 
+	 */
+	public Set<Long> getDependencies() {
 		return dependencies;
 	}
 
