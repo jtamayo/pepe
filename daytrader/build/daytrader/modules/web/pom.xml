@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.geronimo.daytrader</groupId>
+        <artifactId>daytrader</artifactId>
+        <version>2.2-SNAPSHOT</version>
+    </parent>
+    <artifactId>daytrader-web</artifactId>
+    <name>DayTrader :: Web Application</name>
+    <packaging>war</packaging>
+    <description>Daytrader Web</description>
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/daytrader/trunk/modules/web</connection>
+        <developerConnection>
+            scm:svn:http://svn.apache.org/repos/asf/geronimo/daytrader/trunk/modules/web</developerConnection>
+        <url>http://svn.apache.org/viewcvs.cgi/geronimo/daytrader/trunk/modules/web</url>
+    </scm>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.daytrader</groupId>
+            <artifactId>daytrader-ejb</artifactId>
+            <version>${pom.version}</version>
+            <scope>provided</scope>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+    		<groupId>org.apache.geronimo.specs</groupId>
+    		<artifactId>geronimo-annotation_1.0_spec</artifactId>
+    		<scope>provided</scope>
+		</dependency>
+        <!-- Removed per DAYTRADER-7 due to interop issues on commercial AppServers 
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jspc-maven-plugin</artifactId>
+            <version>1.4.4</version>
+            <scope>provided</scope>
+        </dependency>
+        -->
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- Removed per DATRADER-7 due to interop issues on commercial AppServers
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jspc-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jspc</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <!-- <webXml>${basedir}/target/jspweb.xml</webXml> Removed per DATRADER-7 due to interop issues on commercial AppServers -->
+                    <filters>
+                        <filter>
+                            ${basedir}/src/main/webapp/WEB-INF/classes/build.properties
+                        </filter>
+                    </filters>
+                    <archive>
+                        <manifestEntries>
+                            <Class-Path>dt-ejb.jar streamer.jar wsappclient.jar dacapo.jar</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                    <resources>
+                        <resource
+                                implementation="org.apache.maven.model.Resource">
+                            <filtering>true</filtering>
+                            <directory>
+                                ${basedir}/src/main/webapp/WEB-INF
+                            </directory>
+                            <includes>
+                                <include>web.xml</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                    <!--                        
+                    HACK: Include legal files explicity, otherwise they will
+                          end up in the wrong path
+                          or in another jar file in the war.    
+                    NOTE: targetPath is broken for webResources (as documented)
+                    -->
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.outputDirectory}</directory>
+                            <includes>
+                                <include>META-INF/LICENSE*</include>
+                                <include>META-INF/NOTICE*</include>
+                                <include>META-INF/DISCLAIMER*</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

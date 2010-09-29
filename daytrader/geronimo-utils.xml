@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Sep 28, 2010 4:56:48 PM                                                        
+
+     geronimo-utils    
+     Utilities for dealing with Apache Geronimo
+                   
+     juanmtamayo                                                                
+     ====================================================================== -->
+<project name="geronimo-utils">
+	<description>
+	     Utilities for dealing with Apache Geronimo
+    </description>
+
+	<target name="start-geronimo">
+		<echo message="${ger-home}/bin/${gsh-exe}" />
+		<exec executable="${ger-home}/bin/${gsh-exe}" dir="${ger-home}" spawn="true">
+			<env key="GERONIMO_HOME" path="${ger-home}" />
+			<arg value="-c" />
+			<arg value="geronimo/start-server" />
+		</exec>
+		<echo message="Waiting for geronimo startup..." />
+		<waitfor maxwait="2" maxwaitunit="minute" checkevery="1000">
+			<http url="http://localhost:8080/console/login.jsp" />
+		</waitfor>
+		<echo message="Established connection..." />
+		<sleep seconds="1" />
+	</target>
+
+	<target name="stop-geronimo">
+		<exec executable="${ger-home}/bin/${gsh-exe}" dir="${ger-home}" spawn="false">
+			<env key="GERONIMO_HOME" path="${ger-home}" />
+			<arg value="-c" />
+			<arg value="geronimo/stop-server -u system -w manager" />
+		</exec>
+	</target>
+
+	<target name="deploy">
+		<exec executable="${ger-home}/bin/${gsh-exe}">
+			<env key="GERONIMO_HOME" path="${ger-home}" />
+			<arg value="-c" />
+			<arg value="deploy/install-plugin -u system -w manager ${deploy-subject}" />
+		</exec>
+	</target>
+
+	<target name="undeploy">
+		<exec executable="${ger-home}/bin/${gsh-exe}">
+			<env key="GERONIMO_HOME" path="${ger-home}" />
+			<arg value="-c" />
+			<arg value="deploy/undeploy -u system -w manager ${deploy-subject}" />
+		</exec>
+	</target>
+
+</project>

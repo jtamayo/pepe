@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 5.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_5_0.dtd">
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<jboss>
+   <enterprise-beans>
+      <session>
+         <ejb-name>TradeSLSBBean</ejb-name>
+         <jndi-name>ejb/Trade</jndi-name>
+            
+            <resource-ref>
+               <res-ref-name>jms/QueueConnectionFactory</res-ref-name>
+               <jndi-name>ConnectionFactory</jndi-name>
+            </resource-ref>
+            
+            <resource-ref>
+               <res-ref-name>jms/TopicConnectionFactory</res-ref-name>
+               <jndi-name>ConnectionFactory</jndi-name>
+            </resource-ref>
+            
+             <resource-ref>
+               <res-ref-name>jdbc/TradeDataSource</res-ref-name>
+               <!-- If using DB2, comment out this line -->
+               <!--<jndi-name>jdbc/TradeDataSource</jndi-name>-->
+               <!-- If using MySql or Oracle, use this line -->
+               <jndi-name>java:jdbc/TradeDataSource</jndi-name>
+             </resource-ref>
+
+            <message-destination-ref>
+                <message-destination-ref-name>jms/TradeBrokerQueue</message-destination-ref-name>
+                <jndi-name>TradeBrokerQueue</jndi-name>
+            </message-destination-ref>
+            <message-destination-ref>
+                <message-destination-ref-name>jms/TradeStreamerTopic</message-destination-ref-name>
+                <jndi-name>TradeStreamerTopic</jndi-name>
+            </message-destination-ref>
+                
+      </session>       
+  
+      <message-driven>
+         <ejb-name>DTStreamer3MDB</ejb-name> 
+         <destination-jndi-name>TradeStreamerTopic</destination-jndi-name>  
+      </message-driven>
+      
+      <message-driven>
+         <ejb-name>DTBroker3MDB</ejb-name>   
+         <destination-jndi-name>TradeBrokerQueue</destination-jndi-name> 
+         <ejb-ref>
+         <ejb-ref-name>ejb/Trade</ejb-ref-name>
+         <jndi-name>ejb/Trade</jndi-name>
+         </ejb-ref>                      
+      </message-driven> 
+
+   </enterprise-beans>
+  
+   <resource-managers>
+          <resource-manager>
+               <res-name>jms/QueueConnectionFactory</res-name>
+               <res-jndi-name>ConnectionFactory</res-jndi-name>
+            </resource-manager>
+            
+            <resource-manager>
+               <res-name>jms/TopicConnectionFactory</res-name>
+               <res-jndi-name>ConnectionFactory</res-jndi-name>
+            </resource-manager>
+            
+            <resource-manager>
+               <res-name>jms/TradeStreamerTopic</res-name>
+               <res-jndi-name>TradeStreamerTopic</res-jndi-name>
+            </resource-manager>
+            
+            <resource-manager>
+               <res-name>jms/TradeBrokerQueue</res-name>
+               <res-jndi-name>TradeBrokerQueue</res-jndi-name>
+            </resource-manager>
+            
+             <resource-manager>
+               <res-name>jdbc/TradeDataSource</res-name>
+               <!-- If using DB2, comment out this line -->
+               <!--<res-jndi-name>jdbc/TradeDataSource</res-jndi-name>-->
+               <!-- If using MySql or Oracle, use this line -->
+               <res-jndi-name>java:jdbc/TradeDataSource</res-jndi-name>
+            </resource-manager>
+   </resource-managers> 
+</jboss>

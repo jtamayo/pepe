@@ -1,0 +1,65 @@
+<%--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+--%>
+
+<div dojoAttachPoint="accountSummaryNode" class="daytrader-pane">
+	<div dojoAttachPoint="labelNode" class="daytrader-pane-header">
+		<table align="center" width="98%">
+			<tr>
+				<td class="title">${this.label}</td>
+				<td align="right">
+					<div dojoAttachPoint="paneControl" dojoAttachEvent="onclick: onLabelClick" class="daytrader-minimize-image"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div dojoAttachPoint="containerNode" class="daytrader-pane-content">
+		<div style="height: 4px"></div>
+		<table align="center" width="96%">
+			<tr>
+				<th align="right" width="50%"><span>Open Balance: </span></th>
+				<td dojoAttachPoint="openBalance" align="left"  width="50%"></td>
+			</tr>
+			<tr>
+				<th align="right"><span>Cash Balance: </span></th>
+				<td dojoAttachPoint="balance" align="left"></td>
+			</tr>
+			<tr>
+				<th align="right"><span>Holdings Value: </span></th>
+				<td dojoAttachPoint="holdingsValue" align="left"></td>
+			</tr>
+			<tr>
+				<th align="right"><span>Sum Total: </span></th>
+				<td dojoAttachPoint="total" align="left"></td>
+			</tr>
+			<tr>
+				<th align="right"><span>Precent Change: </span></th>
+				<td dojoAttachPoint="change" align="left"></td>
+			</tr>
+				
+		</table>
+		
+		<!-- This table holds debug buttons -->
+		<table dojoAttachPoint="asDebug" align="center" width="96%"style="display: none">
+			<tr>
+				<td align="right"><div dojoAttachPoint="buttonNode"></div></td>
+				<td align="left"></td>
+			</tr>
+		</table>
+		
+		<div style="height: 4px"></div>
+	</div>
+</div>

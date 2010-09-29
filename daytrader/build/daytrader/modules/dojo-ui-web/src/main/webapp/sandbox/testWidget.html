@@ -1,0 +1,66 @@
+<%--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+--%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Test Widget</title>
+
+<link rel="stylesheet" href="css/index.css" type="text/css" />
+<script type="text/javascript">
+	var djConfig = {isDebug: true};
+	djConfig.debugAtAllCosts = true;
+</script>
+<script type="text/javascript" src="/dojo/dojo.js"></script>
+<script language="JavaScript" type="text/javascript">
+	dojo.require("dojo.widget.ContentPane");
+	dojo.require("dojo.widget.LayoutContainer");
+	dojo.require("dojo.widget.SplitContainer");
+	dojo.require("dojo.widget.TabContainer");
+	dojo.require("dojo.widget.Button");
+	dojo.require("dojo.widget.LinkPane");
+	dojo.require("dojo.widget.ComboBox");
+	dojo.require("dojotrader.widget.MarketSummary");
+	dojo.require("dojotrader.widget.QuickQuote");
+	dojo.require("dojotrader.widget.Portfolio");
+	dojo.require("dojotrader.widget.BuyQuote");
+	dojo.require("dojotrader.widget.Messages");
+	dojo.require("dojotrader.widget.LoginLogout");
+	dojo.require("dojotrader.widget.AccountSummary");
+
+	dojo.hostenv.writeIncludes();
+</script>
+</head>
+<body>
+
+<table>
+	<tr>
+		<td colspan="2"><div dojoType="dojotrader:LoginLogout">Loading...</div></td> 
+	</tr>
+	<tr>
+		<td><div dojoType="dojotrader:Portfolio" debug=false>Loading...</div></td><td><div dojoType="dojotrader:MarketSummary">Loading...</div></td>
+	</tr>
+	<tr>
+		<td><div dojoType="dojotrader:QuickQuote">Loading...</div></td><td><div dojoType="dojotrader:BuyQuote">Loading...</div></td>
+	</tr>
+	<tr>
+		<td><div dojoType="dojotrader:Messages">Loading...</div></td><td><div dojoType="dojotrader:AccountSummary">Loading...</div></td>
+	</tr>
+	
+</table>
+
+</body>
+</html>
