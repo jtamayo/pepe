@@ -38,6 +38,8 @@ import java.sql.Timestamp;
 
 import org.apache.geronimo.samples.daytrader.*;
 
+import java.util.concurrent.*;
+
 /**
  * TradeDirect uses direct JDBC and JMS access to a
  * <code>javax.sql.DataSource</code> to implement the business methods of the
@@ -59,6 +61,11 @@ import org.apache.geronimo.samples.daytrader.*;
 public class TradeDirect implements TradeServices
 
 {
+	/**
+	 * Fixed thread pool for executing SQL queries.
+	 */
+    private static final Executor executor = Executors.newFixedThreadPool(10);
+	
 	private static String dsName = TradeConfig.DATASOURCE;
 
 	private static DataSource datasource = null;
