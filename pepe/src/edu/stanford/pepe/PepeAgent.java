@@ -139,13 +139,6 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			ClassAdapter ca = new StringBuilderInstrumenter(cw);
 			cn.accept(ca);
-			
-			// HACK
-			ASMifierClassVisitor ca2 = new ASMifierClassVisitor(new PrintWriter(System.out));
-			ClassReader cr = new ClassReader(cw.toByteArray());
-			cr.accept(ca2, 0);
-			// END HACK
-			
 			return cw.toByteArray();
 		} else if (cn.name.equals("java/lang/String")) {
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);

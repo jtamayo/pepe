@@ -2,8 +2,6 @@ package edu.stanford.pepe.runtime;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -71,19 +69,11 @@ public class Operation {
 	public String toGraph() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("digraph " + this.hashCode() + " { \n");
-		// Print a description of the operation
-		if (this.id.stackTrace.length > 0) {
-			sb.append("label=\"");
-			for (int i = 0; i < this.id.stackTrace.length; i++) {
-				sb.append(toString(this.id.stackTrace[i]));
-				if (i < this.id.stackTrace.length - 1) {
-					sb.append("\\n");
-				}
-			}
-			sb.append("\";");
-			sb.append("rankdir=RL;");
-			sb.append("\n");
-		}
+		
+		printContext(sb);
+		// Layout properties
+		sb.append("rankdir=RL;");
+		sb.append("\n");
 		
 		// First assign a sequence number to each query
 		int sequence = 1;
@@ -112,16 +102,39 @@ public class Operation {
 		return sb.toString();
 	}
 
+	// Print a description of the operation
+	private void printContext(StringBuffer sb) {
+		if (this.id.stackTrace.length > 0) {
+			sb.append("label=<");
+			sb.append("<font face=\"Times-Bold\">Context</font>");
+			sb.append("<br/>");
+			for (int i = this.id.stackTrace.length - 1; i >= 0; i--) {
+				sb.append(toString(this.id.stackTrace[i]));
+				if (i != 0) {
+					sb.append("<br/>");
+				}
+			}
+			
+			sb.append(">;");
+		}
+	}
+
 	private void outputNode(StringBuffer sb, Query query, final Integer querySequence) {
 		sb.append(querySequence);
 		// Node label
 		sb.append(" [label=\"");
-		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
-		for (int i = this.id.stackTrace.length; i < stackSize; i++) {
+		final int start = query.getId().stackTrace.length - this.id.stackTrace.length - 1;
+		final int end = Math.max(0, start - 2);
+//		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
+		for (int i = start; i >= end; i--) {
 			sb.append(toString(query.getId().stackTrace[i]));
 			sb.append("\\n");
 		}
-		sb.append("avg: " + query.getAvgExecutionTime()/1000 + "ms");
+//		for (int i = stackSize - 1; i >= this.id.stackTrace.length; i--) {
+//			sb.append(toString(query.getId().stackTrace[i]));
+//			sb.append("\\n");
+//		}
+		sb.append("executeXxxx(): " + query.getAvgExecutionTime()/1000 + "ms");
 		sb.append("\"");
 		// Node shape
 		sb.append(", shape=box");

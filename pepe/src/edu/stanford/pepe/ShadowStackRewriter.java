@@ -49,13 +49,13 @@ public class ShadowStackRewriter implements Opcodes {
 		if (InstrumentationPolicy.isPrimitive(cn.name) && mn.name.equals("<init>")) {
 			System.out.println("Instrumenting " + cn.name);
 			v = new PrimitiveWrapperConstructorVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc);
-		} else if ("org/apache/geronimo/samples/daytrader/direct/TradeDirect".equals(cn.name)) {
-			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
-			v = new PlainMethodVisitor(new TradeServicesVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
-//		} else if (("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) || "org/h2/jdbc/JdbcConnection".equals(cn.name)) &&
-//				("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
+//		} else if ("org/apache/geronimo/samples/daytrader/direct/TradeDirect".equals(cn.name)) {
 //			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
-//			v = new PlainMethodVisitor(new JdbcConnectionVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
+//			v = new PlainMethodVisitor(new TradeServicesVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
+		} else if (("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) || "org/h2/jdbc/JdbcConnection".equals(cn.name)) &&
+				("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
+			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
+			v = new PlainMethodVisitor(new JdbcConnectionVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 //		} else if ("commit".equals(mn.name)){
 //			System.out.println("Instrumenting TradeDirect");
 //			v = new PlainMethodVisitor(new TradeDirectCommitMethodVisitor(cn.name, outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);

@@ -31,8 +31,8 @@ public class Consolidate {
 	}
 
 	private void doStuff() throws IOException, FileNotFoundException, ClassNotFoundException {
-		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285183850109.dmp");
-//		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1284485690098.dmp");
+		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285345967065.dmp");
+//		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285183850109.dmp"); Hand-coded tx
 		saveGraphs();
 	}
 
