@@ -85,10 +85,25 @@ public class TradeDirect implements TradeServices
 			pending.get().add(future);
 			return future;
 		}
+
+		/**
+		 * Forces all futures to be executed.
+		 * @throws ExecutionException 
+		 * @throws InterruptedException 
+		 */
+		public void forceAll() throws InterruptedException, ExecutionException {
+			for (Future<?> f : pending.get()) {
+				f.get();
+			}
+		}
+		
+		public void clear() {
+			pending.get().clear();
+		}
 		
 	}
 	
-	private static FutureManager futures = new FutureManager();
+	private static FutureManager executor = new FutureManager();
 	
     
     // END JM VARIABLES
@@ -230,6 +245,8 @@ public class TradeDirect implements TradeServices
 	public OrderDataBean buy(String userID, String symbol, double quantity,
 			int orderProcessingMode) throws Exception {
 		
+		executor.clear();
+		
 		Connection conn = null;
 		Future<OrderDataBean> orderData = null;
 		UserTransaction txn = null;
@@ -266,13 +283,7 @@ public class TradeDirect implements TradeServices
 			orderData = createOrder(conn, accountData.get(), quoteData.get(), holdingData,
 					"buy", quantity);
 			
-
-			// Update -- account should be credited during completeOrder
-			BigDecimal price = quoteData.get().getPrice();
-			BigDecimal orderFee = orderData.get().getOrderFee();
-			total = (new BigDecimal(quantity).multiply(price)).add(orderFee);
-			// subtract total from account balance
-			Future<Integer> creditAccountBalanceResult = delayedCreditAccountBalance(conn, accountData.get(), total.negate());
+			delayedCreditAccountBalance(quantity, conn, orderData, accountData, quoteData);
 
 			try {
 				if (orderProcessingMode == TradeConfig.SYNCH)
@@ -290,8 +301,11 @@ public class TradeDirect implements TradeServices
 			}
 
 			// TODO: JM, Why is this query not showing up in our tool?
+			// XXX: JM, the problem is that "completeOrder" commits the transaction as well!
 			orderData = getOrderData(conn, orderData.get().getOrderID().intValue());
 
+			executor.forceAll();
+			
 			if (txn != null) {
 				if (Log.doTrace())
 					Log.trace("TradeDirect:buy committing global transaction");
@@ -310,6 +324,21 @@ public class TradeDirect implements TradeServices
 		}
 
 		return orderData.get();
+	}
+
+	private void delayedCreditAccountBalance(final double quantity, final Connection conn,
+			final Future<OrderDataBean> orderData, final Future<AccountDataBean> accountData,
+			final Future<QuoteDataBean> quoteData) throws InterruptedException, ExecutionException, Exception {
+		// subtract total from account balance
+		executor.submit(new Callable<Integer>() {
+			public Integer call() throws Exception {
+				// Update -- account should be credited during completeOrder
+				BigDecimal price = quoteData.get().getPrice();
+				BigDecimal orderFee = orderData.get().getOrderFee();
+				final BigDecimal total = (new BigDecimal(quantity).multiply(price)).add(orderFee);
+				return creditAccountBalance(conn, accountData.get(), total.negate());
+			}
+		});
 	}
 
 	/**
@@ -557,7 +586,7 @@ public class TradeDirect implements TradeServices
        });
 		
 
-		HoldingDataBean holdingData = null;
+		Future<HoldingDataBean> holdingData = null;
 
 		if (Log.doTrace())
 			Log.trace("TradeDirect:completeOrder--> Completing Order "
@@ -573,9 +602,8 @@ public class TradeDirect implements TradeServices
              */
 
 			holdingData = createHolding(conn, accountID, quoteID, quantity,
-					price).get();
-			updateOrderHolding(conn, orderID.intValue(), holdingData
-					.getHoldingID().intValue());
+					price);
+			delayedUpdateOrderHolding(conn, orderID, holdingData);
 		}
 
 		// if (order.isSell()) {
@@ -584,8 +612,8 @@ public class TradeDirect implements TradeServices
              * Complete a Sell operation - remove the Holding from the Account -
              * deposit the Order proceeds to the Account balance
              */
-			holdingData = getHoldingData(conn, holdingID).get();
-			if (holdingData == null)
+			holdingData = getHoldingData(conn, holdingID);
+			if (holdingData.get() == null)
 				Log.debug("TradeDirect:completeOrder:sell -- user: " + userID.get()
 						+ " already sold holding: " + holdingID);
 			else
@@ -593,7 +621,7 @@ public class TradeDirect implements TradeServices
 
 		}
 
-		updateOrderStatus(conn, orderData.getOrderID(), "closed");
+		delayedUpdateOrderStatus(conn, orderData.getOrderID(), "closed");
 
 		if (Log.doTrace())
 			Log.trace("TradeDirect:completeOrder--> Completed Order "
@@ -603,6 +631,8 @@ public class TradeDirect implements TradeServices
 
 		stmt.close();
 
+		
+		executor.forceAll();
 		commit(conn);
 
 		// signify this order for user userID is complete
@@ -610,6 +640,19 @@ public class TradeDirect implements TradeServices
 		tradeAction.orderCompleted(userID.get(), orderID);
 
 		return orderData;
+	}
+
+	private void delayedUpdateOrderHolding(final Connection conn, final Integer orderID, final Future<HoldingDataBean> holdingData)
+			throws Exception {
+		executor.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+            	updateOrderHolding(conn, orderID.intValue(), holdingData.get()
+            			.getHoldingID().intValue());
+            	return null;
+            }
+       });
+		
+	
 	}
 
 	/**
@@ -690,6 +733,7 @@ public class TradeDirect implements TradeServices
 			AccountDataBean accountData, QuoteDataBean quoteData,
 			HoldingDataBean holdingData, String orderType, double quantity)
 			throws Exception {
+		
 		OrderDataBean orderData = null;
 
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
@@ -1352,15 +1396,26 @@ public class TradeDirect implements TradeServices
 		stmt.close();
 	}
 
-	private void updateOrderStatus(Connection conn, Integer orderID,
-			String status) throws Exception {
+	private void updateOrderStatus(final Connection conn, final Integer orderID,
+			final String status) throws Exception {
 		PreparedStatement stmt = getStatement(conn, updateOrderStatusSQL);
-
+		
 		stmt.setString(1, status);
 		stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 		stmt.setInt(3, orderID.intValue());
 		int count = stmt.executeUpdate();
 		stmt.close();
+
+	}
+	
+	private void delayedUpdateOrderStatus(final Connection conn, final Integer orderID,
+			final String status) throws Exception {
+		executor.submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				updateOrderStatus(conn, orderID, status);
+				return null;
+			}
+		});
 	}
 
 	private void updateOrderHolding(Connection conn, int orderID, int holdingID)
