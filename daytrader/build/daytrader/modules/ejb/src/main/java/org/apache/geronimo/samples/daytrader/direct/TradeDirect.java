@@ -19,6 +19,8 @@ package org.apache.geronimo.samples.daytrader.direct;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 import javax.jms.*;
@@ -61,10 +63,37 @@ import java.util.concurrent.*;
 public class TradeDirect implements TradeServices
 
 {
-	/**
-	 * Fixed thread pool for executing SQL queries.
-	 */
-    private static final Executor executor = Executors.newFixedThreadPool(10);
+	// BEGIN JM VARIABLES
+	
+	private static class FutureManager {
+		/**
+		 * Fixed thread pool for executing SQL queries.
+		 */
+		private static final ExecutorService executor = Executors.newFixedThreadPool(10);
+		private static ThreadLocal<List<Future<?>>> pending = new ThreadLocal<List<Future<?>>>() {
+			protected java.util.List<java.util.concurrent.Future<?>> initialValue() {
+				return new ArrayList<Future<?>>();
+			};
+		};
+		
+		/**
+		 * Submits the given task for execution, keeping the result in memory so that it can be forced before
+		 * commiting the transaction.
+		 */
+		public <T> Future<T> submit(Callable<T> callable) {
+			Future<T> future = executor.submit(callable);
+			pending.get().add(future);
+			return future;
+		}
+		
+	}
+	
+	private static FutureManager futures = new FutureManager();
+	
+    
+    // END JM VARIABLES
+    
+    
 	
 	private static String dsName = TradeConfig.DATASOURCE;
 
@@ -200,9 +229,9 @@ public class TradeDirect implements TradeServices
      */
 	public OrderDataBean buy(String userID, String symbol, double quantity,
 			int orderProcessingMode) throws Exception {
-
+		
 		Connection conn = null;
-		OrderDataBean orderData = null;
+		Future<OrderDataBean> orderData = null;
 		UserTransaction txn = null;
 
 		/*
@@ -229,36 +258,39 @@ public class TradeDirect implements TradeServices
 
 			conn = getConn();
 
-			AccountDataBean accountData = getAccountData(conn, userID);
-			QuoteDataBean quoteData = getQuoteData(conn, symbol);
+			Future<AccountDataBean> accountData = getAccountData(conn, userID);
+			Future<QuoteDataBean> quoteData = getQuoteData(conn, symbol);
 			HoldingDataBean holdingData = null; // the buy operation will create
                                                 // the holding
 
-			orderData = createOrder(conn, accountData, quoteData, holdingData,
+			orderData = createOrder(conn, accountData.get(), quoteData.get(), holdingData,
 					"buy", quantity);
+			
 
 			// Update -- account should be credited during completeOrder
-			BigDecimal price = quoteData.getPrice();
-			BigDecimal orderFee = orderData.getOrderFee();
+			BigDecimal price = quoteData.get().getPrice();
+			BigDecimal orderFee = orderData.get().getOrderFee();
 			total = (new BigDecimal(quantity).multiply(price)).add(orderFee);
 			// subtract total from account balance
-			creditAccountBalance(conn, accountData, total.negate());
+			Future<Integer> creditAccountBalanceResult = delayedCreditAccountBalance(conn, accountData.get(), total.negate());
 
 			try {
 				if (orderProcessingMode == TradeConfig.SYNCH)
-					completeOrder(conn, orderData.getOrderID());
+					completeOrder(conn, orderData.get().getOrderID());
 				else if (orderProcessingMode == TradeConfig.ASYNCH_2PHASE)
-					queueOrder(orderData.getOrderID(), true); // 2-phase
+					// TODO: See why this method is never invoked
+					queueOrder(orderData.get().getOrderID(), true); // 2-phase
                                                                 // commit
 			} catch (JMSException je) {
 				Log.error("TradeBean:buy(" + userID + "," + symbol + ","
 						+ quantity + ") --> failed to queueOrder", je);
 				/* On exception - cancel the order */
 
-				cancelOrder(conn, orderData.getOrderID());
+				cancelOrder(conn, orderData.get().getOrderID());
 			}
 
-			orderData = getOrderData(conn, orderData.getOrderID().intValue());
+			// TODO: JM, Why is this query not showing up in our tool?
+			orderData = getOrderData(conn, orderData.get().getOrderID().intValue());
 
 			if (txn != null) {
 				if (Log.doTrace())
@@ -277,7 +309,7 @@ public class TradeDirect implements TradeServices
 			releaseConn(conn);
 		}
 
-		return orderData;
+		return orderData.get();
 	}
 
 	/**
@@ -313,12 +345,12 @@ public class TradeDirect implements TradeServices
 
 			conn = getConn();
 
-			AccountDataBean accountData = getAccountData(conn, userID);
+			AccountDataBean accountData = getAccountData(conn, userID).get();
 			HoldingDataBean holdingData = getHoldingData(conn, holdingID
-					.intValue());
+					.intValue()).get();
 			QuoteDataBean quoteData = null;
 			if (holdingData != null)
-				quoteData = getQuoteData(conn, holdingData.getQuoteID());
+				quoteData = getQuoteData(conn, holdingData.getQuoteID()).get();
 
 			if ((accountData == null) || (holdingData == null)
 					|| (quoteData == null)) {
@@ -342,7 +374,7 @@ public class TradeDirect implements TradeServices
 			double quantity = holdingData.getQuantity();
 
 			orderData = createOrder(conn, accountData, quoteData, holdingData,
-					"sell", quantity);
+					"sell", quantity).get();
 
 			// Set the holdingSymbol purchaseDate to selling to signify the sell
             // is "inflight"
@@ -370,7 +402,7 @@ public class TradeDirect implements TradeServices
 				cancelOrder(conn, orderData.getOrderID());
 			}
 
-			orderData = getOrderData(conn, orderData.getOrderID().intValue());
+			orderData = getOrderData(conn, orderData.getOrderID().intValue()).get();
 
 			if (txn != null) {
 				if (Log.doTrace())
@@ -469,7 +501,7 @@ public class TradeDirect implements TradeServices
 
 	}
 
-	private OrderDataBean completeOrder(Connection conn, Integer orderID)
+	private OrderDataBean completeOrder(final Connection conn, Integer orderID)
 			throws Exception {
 
 		OrderDataBean orderData = null;
@@ -500,7 +532,7 @@ public class TradeDirect implements TradeServices
 			throw new Exception(
 					"TradeDirect:completeOrder -- attempt to complete Order that is already completed");
 
-		int accountID = rs.getInt("account_accountID");
+		final int accountID = rs.getInt("account_accountID");
 		String quoteID = rs.getString("quote_symbol");
 		int holdingID = rs.getInt("holding_holdingID");
 
@@ -516,8 +548,14 @@ public class TradeDirect implements TradeServices
          * accountData = getAccountData(accountID, conn); QuoteDataBean
          * quoteData = getQuoteData(conn, quoteID);
          */
-		String userID = getAccountProfileData(conn, new Integer(accountID))
-				.getUserID();
+		
+		Future<String> userID = executor.submit(new Callable<String>() {
+            public String call() throws Exception {
+            	return getAccountProfileData(conn, new Integer(accountID))
+            	.getUserID();
+            }
+       });
+		
 
 		HoldingDataBean holdingData = null;
 
@@ -535,7 +573,7 @@ public class TradeDirect implements TradeServices
              */
 
 			holdingData = createHolding(conn, accountID, quoteID, quantity,
-					price);
+					price).get();
 			updateOrderHolding(conn, orderID.intValue(), holdingData
 					.getHoldingID().intValue());
 		}
@@ -546,9 +584,9 @@ public class TradeDirect implements TradeServices
              * Complete a Sell operation - remove the Holding from the Account -
              * deposit the Order proceeds to the Account balance
              */
-			holdingData = getHoldingData(conn, holdingID);
+			holdingData = getHoldingData(conn, holdingID).get();
 			if (holdingData == null)
-				Log.debug("TradeDirect:completeOrder:sell -- user: " + userID
+				Log.debug("TradeDirect:completeOrder:sell -- user: " + userID.get()
 						+ " already sold holding: " + holdingID);
 			else
 				removeHolding(conn, holdingID, orderID.intValue());
@@ -569,7 +607,7 @@ public class TradeDirect implements TradeServices
 
 		// signify this order for user userID is complete
 		TradeAction tradeAction = new TradeAction(this);
-		tradeAction.orderCompleted(userID, orderID);
+		tradeAction.orderCompleted(userID.get(), orderID);
 
 		return orderData;
 	}
@@ -607,7 +645,7 @@ public class TradeDirect implements TradeServices
 				"TradeDirect:orderCompleted method not supported");
 	}
 
-	private HoldingDataBean createHolding(Connection conn, int accountID,
+	private Future<HoldingDataBean> createHolding(Connection conn, int accountID,
 			String symbol, double quantity, BigDecimal purchasePrice)
 			throws Exception {
 		HoldingDataBean holdingData = null;
@@ -648,7 +686,7 @@ public class TradeDirect implements TradeServices
 
 	}
 
-	private OrderDataBean createOrder(Connection conn,
+	private Future<OrderDataBean> createOrder(Connection conn,
 			AccountDataBean accountData, QuoteDataBean quoteData,
 			HoldingDataBean holdingData, String orderType, double quantity)
 			throws Exception {
@@ -969,7 +1007,7 @@ public class TradeDirect implements TradeServices
 							+ this.inSession + ")", userID);
 
 				conn = getConn();
-				accountData = getAccountData(conn, userID);
+				accountData = getAccountData(conn, userID).get();
 				commit(conn);
 
 			} catch (Exception e) {
@@ -987,14 +1025,18 @@ public class TradeDirect implements TradeServices
 		}
 	}
 
-	private AccountDataBean getAccountData(Connection conn, String userID)
+	private Future<AccountDataBean> getAccountData(final Connection conn, final String userID)
 			throws Exception {
-		PreparedStatement stmt = getStatement(conn, getAccountForUserSQL);
-		stmt.setString(1, userID);
-		ResultSet rs = stmt.executeQuery();
-		AccountDataBean accountData = getAccountDataFromResultSet(rs);
-		stmt.close();
-		return accountData;
+		return executor.submit(new Callable<AccountDataBean>() {
+            public AccountDataBean call() throws Exception {
+            	PreparedStatement stmt = getStatement(conn, getAccountForUserSQL);
+            	stmt.setString(1, userID);
+            	ResultSet rs = stmt.executeQuery();
+            	AccountDataBean accountData = getAccountDataFromResultSet(rs);
+            	stmt.close();
+            	return accountData;
+            }
+       });
 	}
 
 	private AccountDataBean getAccountDataForUpdate(Connection conn,
@@ -1059,7 +1101,7 @@ public class TradeDirect implements TradeServices
 		Connection conn = null;
 		try {
 			conn = getConn();
-			quoteData = getQuoteData(conn, symbol);
+			quoteData = getQuoteData(conn, symbol).get();
 			commit(conn);
 		} catch (Exception e) {
 			Log.error("TradeDirect:getQuoteData -- error getting data", e);
@@ -1070,20 +1112,25 @@ public class TradeDirect implements TradeServices
 		return quoteData;
 	}
 
-	private QuoteDataBean getQuoteData(Connection conn, String symbol)
+	private Future<QuoteDataBean> getQuoteData(final Connection conn, final String symbol)
 			throws Exception {
-		QuoteDataBean quoteData = null;
-		PreparedStatement stmt = getStatement(conn, getQuoteSQL);
-		stmt.setString(1, symbol);
-		ResultSet rs = stmt.executeQuery();
-		if (!rs.next())
-			Log
-					.error("TradeDirect:getQuoteData -- could not find quote for symbol="
-							+ symbol);
-		else
-			quoteData = getQuoteDataFromResultSet(rs);
-		stmt.close();
-		return quoteData;
+		return executor.submit(new Callable<QuoteDataBean>() {
+            public QuoteDataBean call() throws Exception {
+            	QuoteDataBean quoteData = null;
+            	PreparedStatement stmt = getStatement(conn, getQuoteSQL);
+            	stmt.setString(1, symbol);
+            	ResultSet rs = stmt.executeQuery();
+            	if (!rs.next())
+            		Log
+            		.error("TradeDirect:getQuoteData -- could not find quote for symbol="
+            				+ symbol);
+            	else
+            		quoteData = getQuoteDataFromResultSet(rs);
+            	stmt.close();
+            	return quoteData;
+            }
+       });
+		
 	}
 
 	private HoldingDataBean getHoldingData(int holdingID) throws Exception {
@@ -1091,7 +1138,7 @@ public class TradeDirect implements TradeServices
 		Connection conn = null;
 		try {
 			conn = getConn();
-			holdingData = getHoldingData(conn, holdingID);
+			holdingData = getHoldingData(conn, holdingID).get();
 			commit(conn);
 		} catch (Exception e) {
 			Log.error("TradeDirect:getHoldingData -- error getting data", e);
@@ -1102,20 +1149,26 @@ public class TradeDirect implements TradeServices
 		return holdingData;
 	}
 
-	private HoldingDataBean getHoldingData(Connection conn, int holdingID)
+	private Future<HoldingDataBean> getHoldingData(final Connection conn, final int holdingID)
 			throws Exception {
-		HoldingDataBean holdingData = null;
-		PreparedStatement stmt = getStatement(conn, getHoldingSQL);
-		stmt.setInt(1, holdingID);
-		ResultSet rs = stmt.executeQuery();
-		if (!rs.next())
-			Log.error("TradeDirect:getHoldingData -- no results -- holdingID="
-					+ holdingID);
-		else
-			holdingData = getHoldingDataFromResultSet(rs);
 
-		stmt.close();
-		return holdingData;
+		return executor.submit(new Callable<HoldingDataBean>() {
+            public HoldingDataBean call() throws Exception {
+            	HoldingDataBean holdingData = null;
+            	PreparedStatement stmt = getStatement(conn, getHoldingSQL);
+            	stmt.setInt(1, holdingID);
+            	ResultSet rs = stmt.executeQuery();
+            	if (!rs.next())
+            		Log.error("TradeDirect:getHoldingData -- no results -- holdingID="
+            				+ holdingID);
+            	else
+            		holdingData = getHoldingDataFromResultSet(rs);
+            	
+            	stmt.close();
+            	return holdingData;
+            }
+       });
+		
 	}
 
 	private OrderDataBean getOrderData(int orderID) throws Exception {
@@ -1123,7 +1176,7 @@ public class TradeDirect implements TradeServices
 		Connection conn = null;
 		try {
 			conn = getConn();
-			orderData = getOrderData(conn, orderID);
+			orderData = getOrderData(conn, orderID).get();
 			commit(conn);
 		} catch (Exception e) {
 			Log.error("TradeDirect:getOrderData -- error getting data", e);
@@ -1134,21 +1187,26 @@ public class TradeDirect implements TradeServices
 		return orderData;
 	}
 
-	private OrderDataBean getOrderData(Connection conn, int orderID)
+	private Future<OrderDataBean> getOrderData(final Connection conn, final int orderID)
 			throws Exception {
-		OrderDataBean orderData = null;
-		if (Log.doTrace())
-			Log.trace("TradeDirect:getOrderData(conn, " + orderID + ")");
-		PreparedStatement stmt = getStatement(conn, getOrderSQL);
-		stmt.setInt(1, orderID);
-		ResultSet rs = stmt.executeQuery();
-		if (!rs.next())
-			Log.error("TradeDirect:getOrderData -- no results for orderID:"
-					+ orderID);
-		else
-			orderData = getOrderDataFromResultSet(rs);
-		stmt.close();
-		return orderData;
+		return executor.submit(new Callable<OrderDataBean>() {
+            public OrderDataBean call() throws Exception {
+            	OrderDataBean orderData = null;
+            	if (Log.doTrace())
+            		Log.trace("TradeDirect:getOrderData(conn, " + orderID + ")");
+            	PreparedStatement stmt = getStatement(conn, getOrderSQL);
+            	stmt.setInt(1, orderID);
+            	ResultSet rs = stmt.executeQuery();
+            	if (!rs.next())
+            		Log.error("TradeDirect:getOrderData -- no results for orderID:"
+            				+ orderID);
+            	else
+            		orderData = getOrderDataFromResultSet(rs);
+            	stmt.close();
+            	return orderData;
+            }
+       });
+		
 	}
 
 	/**
@@ -1258,8 +1316,17 @@ public class TradeDirect implements TradeServices
 		}
 		return accountProfileData;
 	}
+	
+	private Future<Integer> delayedCreditAccountBalance(final Connection conn,
+			final AccountDataBean accountData, final BigDecimal credit) throws Exception {
+		return executor.submit(new Callable<Integer>() {
+            public Integer call() throws Exception {
+            	return creditAccountBalance(conn, accountData, credit);
+            }
+       });
+	}
 
-	private void creditAccountBalance(Connection conn,
+	private int creditAccountBalance(Connection conn,
 			AccountDataBean accountData, BigDecimal credit) throws Exception {
 		PreparedStatement stmt = getStatement(conn, creditAccountBalanceSQL);
 
@@ -1268,7 +1335,7 @@ public class TradeDirect implements TradeServices
 
 		int count = stmt.executeUpdate();
 		stmt.close();
-
+		return count;
 	}
 
 	// Set Timestamp to zero to denote sell is inflight

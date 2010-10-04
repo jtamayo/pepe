@@ -70,10 +70,17 @@ public class TestServlet extends HttpServlet {
 		try {
 			Log.debug("Enter TestServlet doGet");
 			TradeConfig.runTimeMode = TradeConfig.DIRECT;
-			for (int i=0; i<10; i++) 
-			{
-				new TradeAction().createQuote("s:"+i, "Company " + i, new BigDecimal(i*1.1));
-			}
+			
+			System.out.println("Initializing Dacapo database");
+			org.apache.geronimo.samples.daytrader.dacapo.DaCapoTrader.initializeTrade("medium");
+			System.out.println("Running benchmark");
+//			org.apache.geronimo.samples.daytrader.dacapo.DaCapoRunner.runDaCapoTrade("medium", 1, false);
+			System.out.println("Done running benchmark");
+			
+//			for (int i=0; i<10; i++) 
+//			{
+//				new TradeAction().createQuote("s:"+i, "Company " + i, new BigDecimal(i*1.1));
+//			}
 			/*
 			
 			AccountDataBean accountData = new TradeAction().register("user1", "password", "fullname", "address", 
