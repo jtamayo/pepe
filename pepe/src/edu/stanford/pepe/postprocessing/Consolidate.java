@@ -31,7 +31,7 @@ public class Consolidate {
 	}
 
 	private void doStuff() throws IOException, FileNotFoundException, ClassNotFoundException {
-		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285345967065.dmp");
+		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1288980829399.dmp");
 //		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285183850109.dmp"); Hand-coded tx
 		saveGraphs();
 	}
@@ -54,8 +54,9 @@ public class Consolidate {
 				executions.size() / 10); // guess around 10 ops/transaction
 		for (Entry<StackTrace, List<IncompleteExecution>> entry : executions.entrySet()) {
 			StackTrace trace = entry.getKey();
-			for (IncompleteExecution execution : entry.getValue()) {
-				final Execution e = new Execution(execution.getDependencies(), execution.getId(), trace, execution.getElapsedTimeNanos());
+            for (IncompleteExecution execution : entry.getValue()) {
+                final Execution e = new Execution(execution.getDependencies(), execution.getId(), trace, execution
+                        .getElapsedTimeNanos(), execution.getSql());
 				final long transactionId = e.getTransactionId();
 				if (!executionsPerTransactionId.containsKey(transactionId)) {
 					executionsPerTransactionId.put(transactionId, new ArrayList<Execution>());
@@ -64,6 +65,7 @@ public class Consolidate {
 			}
 		}
 
+		// Then add them to their corresponding operations
 		for (Collection<Execution> collection : executionsPerTransactionId.values()) {
 			final StackTrace operationId = getSuffix(collection);
 			Operation op = operationsPerStackTraceSuffix.get(operationId);

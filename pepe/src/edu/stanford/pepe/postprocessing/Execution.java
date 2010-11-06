@@ -1,7 +1,9 @@
 package edu.stanford.pepe.postprocessing;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -15,11 +17,13 @@ public class Execution {
 	private final StackTrace trace;
 	private final long elapsedTimeNanos;
 
+	// XXX This is kind of useless...
 	/**
 	 * Cache of StackTraces to reduce memory consumption. The StackTraces are
 	 * essentially immutable, hence they can be reused;
 	 */
 	private static final ConcurrentMap<StackTrace, StackTrace> stackTraceCache = new ConcurrentHashMap<StackTrace, StackTrace>();
+    private final String sql;
 
 	/**
 	 * Looks for the given trace in the cache. If not found, creates a new entry
@@ -34,14 +38,30 @@ public class Execution {
 		}
 		return output;
 	}
+	
+	/**
+	 * Keep a copy of the parsed sql statements, as they are mostly repeated when using
+	 * PreparedStatements.
+	 */
+	private static final Map<String, SqlParse> parseBySql = new HashMap<String, SqlParse>();
+	
+	public static SqlParse getParse(String sql) {
+	    SqlParse parse = parseBySql.get(sql);
+	    if (parse == null) { 
+	        parse = new SqlParse(sql);
+	        parseBySql.put(sql, parse);
+	    }
+	    return parse;
+	}
 
 	/**
 	 * Builds a new Execution. Uses a cached copy of the given StackTrace to
 	 * reduce memory consumption.
 	 */
-	public Execution(long[] dependencies, long id, StackTrace trace, long elapsedTimeNanos) {
+	public Execution(long[] dependencies, long id, StackTrace trace, long elapsedTimeNanos, String sql) {
 		this.elapsedTimeNanos = elapsedTimeNanos;
 		this.id = id;
+        this.sql = sql;
 		this.trace = cache(trace);
 
 		this.dependencies = new HashSet<Long>();
@@ -78,6 +98,17 @@ public class Execution {
 	public long getElapsedTimeNanos() {
 		return elapsedTimeNanos;
 	}
+
+	public String getSql() {
+        return sql;
+    }
 	
+	public Set<String> getUpdatedTables() {
+	    return getParse(sql).getUpdatedTables();
+	}
+	
+	public Set<String> getSelectedTables() {
+	    return getParse(sql).getSelectedTables();
+	}
 
 }

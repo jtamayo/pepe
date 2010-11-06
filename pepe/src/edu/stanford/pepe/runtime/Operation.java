@@ -124,17 +124,30 @@ public class Operation {
 		// Node label
 		sb.append(" [label=\"");
 		final int start = query.getId().stackTrace.length - this.id.stackTrace.length - 1;
-		final int end = Math.max(0, start - 2);
+		final int end = Math.max(0, start - 4);
 //		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
 		for (int i = start; i >= end; i--) {
 			sb.append(toString(query.getId().stackTrace[i]));
 			sb.append("\\n");
 		}
-//		for (int i = stackSize - 1; i >= this.id.stackTrace.length; i--) {
-//			sb.append(toString(query.getId().stackTrace[i]));
-//			sb.append("\\n");
-//		}
-		sb.append("executeXxxx(): " + query.getAvgExecutionTime()/1000 + "ms");
+		sb.append("-------------------\\n");
+		sb.append("Execution Time: " + query.getAvgExecutionTime()/1e6 + "ms\\n");
+		// Append selected/updated tables
+		if (!query.getSelectedTables().isEmpty()) {
+		    sb.append("Selected: ");
+		    for (Entry<String, Integer> entry : query.getSelectedTables().entrySet()) {
+                sb.append(entry.getKey() + "(" + entry.getValue() + ") ");
+            }
+		    sb.append("\\n");
+		}
+		if (!query.getUpdatedTables().isEmpty()) {
+		    sb.append("Updated: ");
+		    for (Entry<String, Integer> entry : query.getUpdatedTables().entrySet()) {
+		        sb.append(entry.getKey() + "(" + entry.getValue() + ") ");
+		    }
+		    sb.append("\\n");
+		}
+		
 		sb.append("\"");
 		// Node shape
 		sb.append(", shape=box");

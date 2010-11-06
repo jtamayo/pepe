@@ -44,7 +44,7 @@ public class QueryLogger {
 			System.out.println("Queries: " + executionsPerQuery.size());
 		}
 
-		executions.add(new IncompleteExecution(dependencies, taint, elapsedTimeNanos));
+		executions.add(new IncompleteExecution(dependencies, taint, elapsedTimeNanos, sql));
 	}
 
 	public static void toDisk() {
