@@ -21,11 +21,6 @@ import edu.stanford.pepe.runtime.lessmemory.IncompleteExecution;
 public class Consolidate {
 	private final Map<StackTrace, Operation> operationsPerStackTraceSuffix = new HashMap<StackTrace, Operation>();
 
-	/**
-	 * @param args
-	 * @throws Exception
-	 * @throws
-	 */
 	public static void main(String[] args) throws Exception {
 		new Consolidate().doStuff();
 	}
@@ -73,7 +68,7 @@ public class Consolidate {
 				op = new Operation(operationId);
 				operationsPerStackTraceSuffix.put(operationId, op);
 			}
-			op.addExecutions(collection);
+			op.addTransaction(collection);
 		}
 	}
 

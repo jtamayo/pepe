@@ -2,7 +2,11 @@ package edu.stanford.pepe.runtime;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import edu.stanford.pepe.postprocessing.Execution;
@@ -19,168 +23,293 @@ import edu.stanford.pepe.postprocessing.Execution;
  * @author jtamayo
  */
 public class Operation {
-	private final StackTrace id;
-	
-	private final Map<StackTrace, Query> queries = new HashMap<StackTrace, Query>();
+    private final StackTrace id;
 
-	public Operation(StackTrace id) {
-		this.id = id;
-	}
+    private final Map<StackTrace, Query> queries = new HashMap<StackTrace, Query>();
 
-	public StackTrace getId() {
-		return id;
-	}
-	
-	private Query findQuery(Execution execution) {
-		final StackTrace key = new StackTrace(execution.getTrace());
-		Query q = queries.get(key);
-		if (q == null) {
-			q = new Query(execution.getTrace());
-			queries.put(key, q);
-		}
-		return q;
-	}
-	
-	public static int getPrefixSize(final Collection<StackTrace> c) {
-		final StackTrace prototype = c.iterator().next(); // get a query, all of the rest will be compared to this one
-		for (int i = 0; i < prototype.stackTrace.length; i++) {
-			for (StackTrace trace : c) {
-				if (!prototype.stackTrace[i].equals(trace.stackTrace[i])) {
-					return i;
-				}
-			}
-		}
-		return 0; // Mmm, shouldn't really happen, unless there's only one query
-	}
+    public Operation(StackTrace id) {
+        this.id = id;
+    }
 
-	public static String toString(StackTraceElement element) {
-		String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
-//		String fileName = element.getFileName();
-		String methodName = element.getMethodName();
-		int lineNumber = element.getLineNumber();
+    public StackTrace getId() {
+        return id;
+    }
 
-		return className
-				+ "."
-				+ methodName + "(" + lineNumber + ")";
-//				+ (element.isNativeMethod() ? "(Native)" : (fileName != null && lineNumber >= 0 ? "(" + fileName
-//						+ ":" + lineNumber + ")" : (fileName != null ? "(" + fileName + ")" : "(Unknown Source)")));
-	}
+    private Query findQuery(Execution execution) {
+        final StackTrace key = new StackTrace(execution.getTrace());
+        return findQuery(key);
+    }
 
-	public String toGraph() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("digraph " + this.hashCode() + " { \n");
-		
-		printContext(sb);
-		// Layout properties
-		sb.append("rankdir=RL;");
-		sb.append("\n");
-		
-		// First assign a sequence number to each query
-		int sequence = 1;
-		Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
-		if (!queries.isEmpty()) {
-			for (StackTrace queryId : queries.keySet()) {
-				sequences.put(queryId, sequence);
-				sequence++;
-			}
-		}
-		sequences.put(new StackTrace(new StackTraceElement[]{}), sequence++);
-		// Now output all the nodes
-		for (Query query : queries.values()) {
-			outputNode(sb, query, sequences.get(query.getId()));
-		}
-		
-		// Finally, add all the edges
-		for (Query query : queries.values()) {
-			for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
-				sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\""
-						+ dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
-			}
-		}
-		
-		sb.append("}\n\n");
-		return sb.toString();
-	}
+    private Query findQuery(final StackTrace key) {
+        Query q = queries.get(key);
+        if (q == null) {
+            q = new Query(key);
+            queries.put(key, q);
+        }
+        return q;
+    }
 
-	// Print a description of the operation
-	private void printContext(StringBuffer sb) {
-		if (this.id.stackTrace.length > 0) {
-			sb.append("label=<");
-			sb.append("<font face=\"Times-Bold\">Context</font>");
-			sb.append("<br/>");
-			for (int i = this.id.stackTrace.length - 1; i >= 0; i--) {
-				sb.append(toString(this.id.stackTrace[i]));
-				if (i != 0) {
-					sb.append("<br/>");
-				}
-			}
-			
-			sb.append(">;");
-		}
-	}
+    public static int getPrefixSize(final Collection<StackTrace> c) {
+        final StackTrace prototype = c.iterator().next(); // get a query, all of the rest will be compared to this one
+        for (int i = 0; i < prototype.stackTrace.length; i++) {
+            for (StackTrace trace : c) {
+                if (!prototype.stackTrace[i].equals(trace.stackTrace[i])) {
+                    return i;
+                }
+            }
+        }
+        return 0; // Mmm, shouldn't really happen, unless there's only one query
+    }
 
-	private void outputNode(StringBuffer sb, Query query, final Integer querySequence) {
-		sb.append(querySequence);
-		// Node label
-		sb.append(" [label=\"");
-		final int start = query.getId().stackTrace.length - this.id.stackTrace.length - 1;
-		final int end = Math.max(0, start - 4);
-//		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
-		for (int i = start; i >= end; i--) {
-			sb.append(toString(query.getId().stackTrace[i]));
-			sb.append("\\n");
-		}
-		sb.append("-------------------\\n");
-		sb.append("Execution Time: " + query.getAvgExecutionTime()/1e6 + "ms\\n");
-		// Append selected/updated tables
-		if (!query.getSelectedTables().isEmpty()) {
-		    sb.append("Selected: ");
-		    for (Entry<String, Integer> entry : query.getSelectedTables().entrySet()) {
+    public static String toString(StackTraceElement element) {
+        String className = element.getClassName().substring(Math.max(0, element.getClassName().lastIndexOf(".") + 1));
+        //		String fileName = element.getFileName();
+        String methodName = element.getMethodName();
+        int lineNumber = element.getLineNumber();
+
+        return className + "." + methodName + "(" + lineNumber + ")";
+        //				+ (element.isNativeMethod() ? "(Native)" : (fileName != null && lineNumber >= 0 ? "(" + fileName
+        //						+ ":" + lineNumber + ")" : (fileName != null ? "(" + fileName + ")" : "(Unknown Source)")));
+    }
+
+    public String toGraph() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("digraph " + this.hashCode() + " { \n");
+
+        printContext(sb);
+        // Layout properties
+        sb.append("rankdir=RL;");
+        sb.append("\n");
+
+        // First assign a sequence number to each query
+        int sequence = 1;
+        Map<StackTrace, Integer> sequences = new HashMap<StackTrace, Integer>();
+        if (!queries.isEmpty()) {
+            for (StackTrace queryId : queries.keySet()) {
+                sequences.put(queryId, sequence);
+                sequence++;
+            }
+        }
+        sequences.put(new StackTrace(new StackTraceElement[] {}), sequence++);
+        // Now output all the nodes
+        for (Query query : queries.values()) {
+            outputNode(sb, query, sequences.get(query.getId()));
+        }
+
+        // Finally, add all the edges
+        for (Query query : queries.values()) {
+            for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
+                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"java: "
+                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
+            }
+            for (Entry<StackTrace, Integer> dependency : query.getRawDependencies().entrySet()) {
+                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL RaW: "
+                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
+            }
+
+            for (Entry<StackTrace, Integer> dependency : query.getWarDependencies().entrySet()) {
+                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL WaR: "
+                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
+            }
+            
+            for (Entry<StackTrace, Integer> dependency : query.getWawDependencies().entrySet()) {
+                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL WaW: "
+                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
+            }
+        }
+
+        sb.append("}\n\n");
+        return sb.toString();
+    }
+
+    // Print a description of the operation
+    private void printContext(StringBuffer sb) {
+        if (this.id.stackTrace.length > 0) {
+            sb.append("label=<");
+            sb.append("<font face=\"Times-Bold\">Context</font>");
+            sb.append("<br/>");
+            for (int i = this.id.stackTrace.length - 1; i >= 0; i--) {
+                sb.append(toString(this.id.stackTrace[i]));
+                if (i != 0) {
+                    sb.append("<br/>");
+                }
+            }
+
+            sb.append(">;");
+        }
+    }
+
+    private void outputNode(StringBuffer sb, Query query, final Integer querySequence) {
+        sb.append(querySequence);
+        // Node label
+        sb.append(" [label=\"");
+        final int start = query.getId().stackTrace.length - this.id.stackTrace.length - 1;
+        final int end = Math.max(0, start - 4);
+        //		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
+        for (int i = start; i >= end; i--) {
+            sb.append(toString(query.getId().stackTrace[i]));
+            sb.append("\\n");
+        }
+        sb.append("-------------------\\n");
+        sb.append("Execution Time: " + query.getAvgExecutionTime() / 1e6 + "ms\\n");
+        // Append selected/updated tables
+        if (!query.getSelectedTables().isEmpty()) {
+            sb.append("Selected: ");
+            for (Entry<String, Integer> entry : query.getSelectedTables().entrySet()) {
                 sb.append(entry.getKey() + "(" + entry.getValue() + ") ");
             }
-		    sb.append("\\n");
-		}
-		if (!query.getUpdatedTables().isEmpty()) {
-		    sb.append("Updated: ");
-		    for (Entry<String, Integer> entry : query.getUpdatedTables().entrySet()) {
-		        sb.append(entry.getKey() + "(" + entry.getValue() + ") ");
-		    }
-		    sb.append("\\n");
-		}
-		
-		sb.append("\"");
-		// Node shape
-		sb.append(", shape=box");
-		// Close the node
-		sb.append("];\n");
-	}
+            sb.append("\\n");
+        }
+        if (!query.getUpdatedTables().isEmpty()) {
+            sb.append("Updated: ");
+            for (Entry<String, Integer> entry : query.getUpdatedTables().entrySet()) {
+                sb.append(entry.getKey() + "(" + entry.getValue() + ") ");
+            }
+            sb.append("\\n");
+        }
 
-	public void addExecutions(Collection<Execution> collection) {
-		Map<Long, Execution> executionsById = new HashMap<Long, Execution>();
-		for (Execution execution : collection) {
-			executionsById.put(execution.getId(), execution);
-		}
-		
-		for (Execution execution : collection) {
-			Query q = findQuery(execution);
-			
-			q.addExecution(execution);
-			
-			for (long dependency : execution.getDependencies()) {
-				// iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
-				long otherTid = TransactionId.getTransactionId(dependency);
-				if (otherTid < execution.getTransactionId()) {
-					System.out.println("Query depends on previous transaction");
-				} else if (otherTid == execution.getTransactionId()) {
-					q.addDependency(findQuery(executionsById.get(dependency)));
-				} else {
-					// This means I depend on queries that started AFTER me. Whether intentional or not
-					// we're showing this to the user
-					System.out.println("Query depends on future transaction");
-				}
-			}
-		}
-	}
-	
-	
+        sb.append("\"");
+        // Node shape
+        sb.append(", shape=box");
+        // Close the node
+        sb.append("];\n");
+    }
+
+    /**
+     * Adds to this operation all executions that belong to a single
+     * transaction.
+     */
+    public void addTransaction(Collection<Execution> collection) {
+        // Organize all executions by id.
+        Map<Long, Execution> executionsById = new HashMap<Long, Execution>();
+        for (Execution execution : collection) {
+            executionsById.put(execution.getId(), execution);
+        }
+
+        // Go over each execution, and update the query it belongs to
+        for (Execution execution : collection) {
+            Query q = findQuery(execution);
+
+            q.addExecution(execution);
+
+            for (long dependency : execution.getDependencies()) {
+                // iterate over all dependencies, then over all dependencies of each, check if they belong to the same transaction
+                long otherTid = TransactionId.getTransactionId(dependency);
+                if (otherTid < execution.getTransactionId()) {
+                    System.out.println("Query depends on previous transaction");
+                } else if (otherTid == execution.getTransactionId()) {
+                    q.addDependency(findQuery(executionsById.get(dependency)));
+                } else {
+                    // This means I depend on queries that started AFTER me. Whether intentional or not
+                    // we're showing this to the user
+                    System.out.println("Query depends on future transaction");
+                }
+            }
+        }
+
+        // Now compute dependencies through the database.
+        Map<String,Set<StackTrace>> updated = new HashMap<String, Set<StackTrace>>();
+        Map<String,Set<StackTrace>> selected = new HashMap<String, Set<StackTrace>>();
+        Map<StackTrace, Set<StackTrace>> rawDependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        Map<StackTrace, Set<StackTrace>> wawDependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        Map<StackTrace, Set<StackTrace>> warDependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        SortedMap<Integer, Execution> executionsByQueryId = new TreeMap<Integer, Execution>();
+        
+        for (Execution execution : collection) {
+            // Sort the executions by queryId
+            final int queryId = execution.getQueryId();
+            executionsByQueryId.put(queryId, execution);
+            if (queryId >= TransactionId.MAX_NUM_QUERIES) {
+                throw new RuntimeException("Mmm, you seem to have more than " + TransactionId.MAX_NUM_QUERIES
+                        + " queries per transaction. I don't think I can handle that many.");
+            }
+
+            // Populate the updated and selected maps with empty sets for now,
+            // to make the code that builds the dependencies more straightforward.
+            for (String table : execution.getUpdatedTables()) {
+                if (updated.get(table) == null) {
+                    updated.put(table, new HashSet<StackTrace>());
+                }
+            }
+
+            for (String table : execution.getSelectedTables()) {
+                if (selected.get(table) == null) { 
+                    selected.put(table, new HashSet<StackTrace>());
+                }
+            }
+            
+            // Fill the dependency maps with empty hash sets. Many of them might
+            // not be used, but it makes the next part of the code much clearer
+            if (rawDependencies.get(execution.getTrace()) == null) {
+                rawDependencies.put(execution.getTrace(), new HashSet<StackTrace>());
+            }
+            if (wawDependencies.get(execution.getTrace()) == null) {
+                wawDependencies.put(execution.getTrace(), new HashSet<StackTrace>());
+            }
+            if (warDependencies.get(execution.getTrace()) == null) {
+                warDependencies.put(execution.getTrace(), new HashSet<StackTrace>());
+            }
+
+            
+        }
+        
+        for (Entry<Integer, Execution> entry : executionsByQueryId.entrySet()) {
+            Execution execution = entry.getValue();
+
+            for (String table : execution.getSelectedTables()) {
+                // Reads depend on all previous writes to the same table
+                Set<StackTrace> writers = updated.get(table);
+                if (writers != null) { // In case no one even writes to that table
+                    for (StackTrace writer : writers) {
+                        rawDependencies.get(execution.getTrace()).add(writer);
+                    }
+                }
+            }
+
+            for (String table : execution.getUpdatedTables()) {
+                // Writes depend on all previous writes as a waw dependency
+                Set<StackTrace> writers = updated.get(table);
+                for (StackTrace writer : writers) {
+                    wawDependencies.get(execution.getTrace()).add(writer);
+                }
+                // Writes also depend on all previous reads as a war dependency
+                Set<StackTrace> readers = selected.get(table);
+                if (readers != null) { // In case no one even reads that table
+                    for (StackTrace reader : readers) {
+                        warDependencies.get(execution.getTrace()).add(reader);
+                    }
+                }
+            }
+            
+            // Update the read/deleted tables
+            for (String table : execution.getUpdatedTables()) {
+                updated.get(table).add(execution.getTrace());
+            }
+
+            for (String table : execution.getSelectedTables()) {
+                selected.get(table).add(execution.getTrace());
+            }
+        }
+        
+        // Now take all the information and add it to the queries themselves
+        for (Entry<StackTrace, Set<StackTrace>> entry : rawDependencies.entrySet()) {
+            Query q = findQuery(entry.getKey());
+            for (StackTrace s : entry.getValue()) {
+                q.addRawDependency(findQuery(s));
+            }
+        }
+        for (Entry<StackTrace, Set<StackTrace>> entry : warDependencies.entrySet()) {
+            Query q = findQuery(entry.getKey());
+            for (StackTrace s : entry.getValue()) {
+                q.addWarDependency(findQuery(s));
+            }
+        }
+        for (Entry<StackTrace, Set<StackTrace>> entry : wawDependencies.entrySet()) {
+            Query q = findQuery(entry.getKey());
+            for (StackTrace s : entry.getValue()) {
+                q.addWawDependency(findQuery(s));
+            }
+        }
+    }
+
 }

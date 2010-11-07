@@ -79,6 +79,10 @@ public class Execution {
 		return dependencies;
 	}
 
+	/**
+	 * Unique id for an execution within a transaction. It corresponds to the index of the bit that's set
+	 * to represent this transaction.
+	 */
 	public long getId() {
 		return id;
 	}

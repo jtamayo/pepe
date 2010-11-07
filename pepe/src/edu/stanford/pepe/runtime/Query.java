@@ -2,7 +2,6 @@ package edu.stanford.pepe.runtime;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import edu.stanford.pepe.postprocessing.Execution;
 
@@ -13,8 +12,31 @@ import edu.stanford.pepe.postprocessing.Execution;
  * @author jtamayo
  */
 public class Query {
+    
+    private static class DependencyMap {
+        private final Map<StackTrace, Integer> values = new HashMap<StackTrace, Integer>();
+        
+        public void addDependency(Query findQuery) {
+            Integer oldValue = getValues().get(findQuery.id);
+            if (oldValue == null) {
+                oldValue = 0;
+            }
+            getValues().put(findQuery.id, oldValue + 1);
+        }
+
+        public Map<StackTrace, Integer> getValues() {
+            return values;
+        }
+    }
+    
 	private final StackTrace id;
-	private final Map<StackTrace, Integer> dependencyValues = new HashMap<StackTrace, Integer>();
+	/** Dependencies tracked through java data flow */
+	private final DependencyMap javaDependencies = new DependencyMap();
+	
+	private final DependencyMap rawDependencies = new DependencyMap();
+	private final DependencyMap warDependencies = new DependencyMap();
+	private final DependencyMap wawDependencies = new DependencyMap();
+	
 	/** Number of times the query was executed */
 	private int executionCount = 0;
 	private long totalTimeNanos;
@@ -27,21 +49,40 @@ public class Query {
 	}
 
 	public Map<StackTrace, Integer> getDependencyValues() {
-		return dependencyValues;
+		return javaDependencies.getValues();
 	}
-
 
 	public Query(StackTrace stackTrace) {
 		this.id = new StackTrace(stackTrace);
 	}
 
-	public void addDependency(Query findQuery) {
-		Integer oldValue = dependencyValues.get(findQuery.id);
-		if (oldValue == null) {
-			oldValue = 0;
-		}
-		dependencyValues.put(findQuery.id, oldValue + 1);
+	public void addDependency(Query q) {
+	    javaDependencies.addDependency(q);
 	}
+	
+	public void addRawDependency(Query q) {
+	    rawDependencies.addDependency(q);
+    }
+	
+	public Map<StackTrace, Integer> getRawDependencies() {
+	    return rawDependencies.getValues();
+	}
+
+	public void addWarDependency(Query q) {
+	    warDependencies.addDependency(q);
+	}
+	
+	public Map<StackTrace, Integer> getWarDependencies()  {
+	    return warDependencies.getValues();
+	}
+	
+	public void addWawDependency(Query q) {
+	    wawDependencies.addDependency(q);
+	}
+	
+	public Map<StackTrace, Integer> getWawDependencies() {
+        return wawDependencies.getValues();
+    }
 	
 	/**
 	 * Represents the dependency of a query to a previous transaction. 
