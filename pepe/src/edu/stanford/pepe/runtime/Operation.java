@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import edu.stanford.pepe.postprocessing.Execution;
+import edu.stanford.pepe.runtime.Query.Dependency;
 
 /**
  * An Operation represents a set of queries that, at a high level, are part of a
@@ -98,6 +99,29 @@ public class Operation {
 
         // Finally, add all the edges
         for (Query query : queries.values()) {
+            for (Entry<StackTrace, Dependency> entry : query.getDependencies().entrySet()) {
+                final Dependency dependency = entry.getValue();
+                final Integer thisSequence = sequences.get(query.getId());
+                final Integer dependencySequence = sequences.get(entry.getKey());
+                
+                sb.append(thisSequence + " -> " + dependencySequence);
+                sb.append(" [label=\"");
+                if (dependency.java != 0) {
+                    sb.append("java: " + dependency.java + "/" + query.getExecutionCount() + "\\n");
+                }
+                if (dependency.raw != 0) {
+                    sb.append("raw: " + dependency.raw + "/" + query.getExecutionCount() + "\\n");
+                }
+                if (dependency.war != 0) {
+                    sb.append("war: " + dependency.war + "/" + query.getExecutionCount() + "\\n");
+                }
+                if (dependency.waw != 0) {
+                    sb.append("waw: " + dependency.waw + "/" + query.getExecutionCount() + "\\n");
+                }
+                
+                sb.append("\"];\n");
+            }
+            /*
             for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
                 sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"java: "
                         + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
@@ -115,7 +139,7 @@ public class Operation {
             for (Entry<StackTrace, Integer> dependency : query.getWawDependencies().entrySet()) {
                 sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL WaW: "
                         + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
-            }
+            }*/
         }
 
         sb.append("}\n\n");

@@ -13,29 +13,34 @@ import edu.stanford.pepe.postprocessing.Execution;
  */
 public class Query {
     
-    private static class DependencyMap {
-        private final Map<StackTrace, Integer> values = new HashMap<StackTrace, Integer>();
-        
-        public void addDependency(Query findQuery) {
-            Integer oldValue = getValues().get(findQuery.id);
-            if (oldValue == null) {
-                oldValue = 0;
-            }
-            getValues().put(findQuery.id, oldValue + 1);
+    /*
+     * Ok, so I need an explicit representation of the dependency between two queries. Hmm, this is going to be painfully heavy. 
+     * In some sense I already have such dependency, it's just I'm not managin iit properly. What I need is a single map from 
+     * dependent query to a structure that keeps track of all the types of dependencies. 
+     */
+    private final Map<StackTrace, Dependency> dependencies = new HashMap<StackTrace, Dependency>();
+    
+    /**
+     * Represents all the ways in which a Query might depend on another query.
+     */
+    public static class Dependency {
+        /** Dependency tracked through the java code */
+        public int java;
+        public int raw;
+        public int waw;
+        public int war;
+    }
+    
+    private Dependency dependencyFor(Query q) {
+        Dependency d = dependencies.get(q.getId());
+        if (d == null) {
+            d = new Dependency();
+            dependencies.put(q.getId(), d);
         }
-
-        public Map<StackTrace, Integer> getValues() {
-            return values;
-        }
+        return d;
     }
     
 	private final StackTrace id;
-	/** Dependencies tracked through java data flow */
-	private final DependencyMap javaDependencies = new DependencyMap();
-	
-	private final DependencyMap rawDependencies = new DependencyMap();
-	private final DependencyMap warDependencies = new DependencyMap();
-	private final DependencyMap wawDependencies = new DependencyMap();
 	
 	/** Number of times the query was executed */
 	private int executionCount = 0;
@@ -48,41 +53,29 @@ public class Query {
 		return id;
 	}
 
-	public Map<StackTrace, Integer> getDependencyValues() {
-		return javaDependencies.getValues();
-	}
-
 	public Query(StackTrace stackTrace) {
 		this.id = new StackTrace(stackTrace);
 	}
 
+	public Map<StackTrace, Dependency> getDependencies() {
+        return dependencies;
+    }
+
 	public void addDependency(Query q) {
-	    javaDependencies.addDependency(q);
+	    dependencyFor(q).java++;
 	}
 	
 	public void addRawDependency(Query q) {
-	    rawDependencies.addDependency(q);
+	    dependencyFor(q).raw++;
     }
-	
-	public Map<StackTrace, Integer> getRawDependencies() {
-	    return rawDependencies.getValues();
-	}
 
 	public void addWarDependency(Query q) {
-	    warDependencies.addDependency(q);
+	    dependencyFor(q).war++;
 	}
-	
-	public Map<StackTrace, Integer> getWarDependencies()  {
-	    return warDependencies.getValues();
-	}
-	
+		
 	public void addWawDependency(Query q) {
-	    wawDependencies.addDependency(q);
+	    dependencyFor(q).waw++;
 	}
-	
-	public Map<StackTrace, Integer> getWawDependencies() {
-        return wawDependencies.getValues();
-    }
 	
 	/**
 	 * Represents the dependency of a query to a previous transaction. 
