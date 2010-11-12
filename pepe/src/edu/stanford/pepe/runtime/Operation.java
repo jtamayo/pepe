@@ -1,8 +1,11 @@
 package edu.stanford.pepe.runtime;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -27,6 +30,7 @@ public class Operation {
     private final StackTrace id;
 
     private final Map<StackTrace, Query> queries = new HashMap<StackTrace, Query>();
+    private final Map<List<StackTrace>, Integer> executionOrders = new HashMap<List<StackTrace>, Integer>();
 
     public Operation(StackTrace id) {
         this.id = id;
@@ -97,7 +101,7 @@ public class Operation {
             outputNode(sb, query, sequences.get(query.getId()));
         }
 
-        // Finally, add all the edges
+        // Finally, add all dependency edges
         for (Query query : queries.values()) {
             for (Entry<StackTrace, Dependency> entry : query.getDependencies().entrySet()) {
                 final Dependency dependency = entry.getValue();
@@ -121,25 +125,25 @@ public class Operation {
                 
                 sb.append("\"];\n");
             }
-            /*
-            for (Entry<StackTrace, Integer> dependency : query.getDependencyValues().entrySet()) {
-                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"java: "
-                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
+        }
+        
+        final String[] colors = { "#7FC97F", "#BEAED4", "#FDC086", "#FFFF99", "#386CB0", "#F0027F" };
+        
+        // And also the execution order edges
+        int orderIndex = 0;
+        for (Entry<List<StackTrace>, Integer> e : executionOrders.entrySet()) {
+            final List<StackTrace> list = e.getKey();
+            for (int i = 0; i < list.size() - 1; i++) {
+                final StackTrace start = list.get(i);
+                final StackTrace end = list.get(i+1);
+                sb.append(sequences.get(start) + " -> " + sequences.get(end));
+                sb.append(" [weight=0,color=\""  + colors[orderIndex] + "\",label=\"" + i + "\"");
+                if (i == 0) {
+                    sb.append(",style=\"bold\"");
+                }
+                sb.append("];\n");
             }
-            for (Entry<StackTrace, Integer> dependency : query.getRawDependencies().entrySet()) {
-                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL RaW: "
-                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
-            }
-
-            for (Entry<StackTrace, Integer> dependency : query.getWarDependencies().entrySet()) {
-                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL WaR: "
-                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
-            }
-            
-            for (Entry<StackTrace, Integer> dependency : query.getWawDependencies().entrySet()) {
-                sb.append(sequences.get(query.getId()) + " -> " + sequences.get(dependency.getKey()) + " [label=\"SQL WaW: "
-                        + dependency.getValue() + "/" + query.getExecutionCount() + "\"];\n");
-            }*/
+            orderIndex++;
         }
 
         sb.append("}\n\n");
@@ -322,18 +326,39 @@ public class Operation {
                 q.addRawDependency(findQuery(s));
             }
         }
-        for (Entry<StackTrace, Set<StackTrace>> entry : warDependencies.entrySet()) {
-            Query q = findQuery(entry.getKey());
-            for (StackTrace s : entry.getValue()) {
-                q.addWarDependency(findQuery(s));
-            }
+        // XXX: Commented to make the layout neater
+//        for (Entry<StackTrace, Set<StackTrace>> entry : warDependencies.entrySet()) {
+//            Query q = findQuery(entry.getKey());
+//            for (StackTrace s : entry.getValue()) {
+//                q.addWarDependency(findQuery(s));
+//            }
+//        }
+//        for (Entry<StackTrace, Set<StackTrace>> entry : wawDependencies.entrySet()) {
+//            Query q = findQuery(entry.getKey());
+//            for (StackTrace s : entry.getValue()) {
+//                q.addWawDependency(findQuery(s));
+//            }
+//        }
+        
+        // Finally compute the order in which the queries were executed.
+        final List<StackTrace> executionOrder = new ArrayList<StackTrace>();
+        for (Entry<Integer, Execution> entry : executionsByQueryId.entrySet()) {
+            executionOrder.add(entry.getValue().getTrace());
         }
-        for (Entry<StackTrace, Set<StackTrace>> entry : wawDependencies.entrySet()) {
-            Query q = findQuery(entry.getKey());
-            for (StackTrace s : entry.getValue()) {
-                q.addWawDependency(findQuery(s));
-            }
+        
+        this.addExecutionOrder(executionOrder);
+    }
+
+    /**
+     * Adds to the count of possible execution orders the given execution order. 
+     */
+    private void addExecutionOrder(List<StackTrace> executionOrder) {
+        Integer executionCount = executionOrders.get(executionOrder);
+        if (executionCount == null) {
+            executionCount = 0;
         }
+        executionOrders.put(executionOrder, executionCount + 1);
+        
     }
 
 }
