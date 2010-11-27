@@ -20,7 +20,7 @@ import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 public class JREInstrumenter {
 
 	private static final String INPUT = "jre/macos_1.6/classes.jar";
-	private static final String OUTPUT = "jre/rt_instrumented.jar";
+	private static final String OUTPUT = "jre/macos_1.6/rt_instrumented.jar";
 
 	public static void main(String[] args) throws IOException {
 		ZipInputStream is = new ZipInputStream(new FileInputStream(INPUT));

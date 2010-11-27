@@ -78,6 +78,22 @@ public class Operation {
     }
 
     public String toGraph() {
+	//XXX Hack to get a list of SQL statements
+	System.out.println("=== OPERATION ===");
+        for (int i = this.id.stackTrace.length - 1; i >= 0; i--) {
+            System.out.println(this.id.stackTrace[i]);
+        }
+	
+        System.out.println();
+	for (String s : sqls) {
+	    System.out.println(s);
+	}
+	
+	System.out.println();
+	System.out.println();
+	System.out.println();
+	
+	
         StringBuffer sb = new StringBuffer();
         sb.append("digraph " + this.hashCode() + " { \n");
 
@@ -133,11 +149,12 @@ public class Operation {
         int orderIndex = 0;
         for (Entry<List<StackTrace>, Integer> e : executionOrders.entrySet()) {
             final List<StackTrace> list = e.getKey();
+            if (e.getValue() < 700) continue;
             for (int i = 0; i < list.size() - 1; i++) {
                 final StackTrace start = list.get(i);
                 final StackTrace end = list.get(i+1);
                 sb.append(sequences.get(start) + " -> " + sequences.get(end));
-                sb.append(" [weight=0,color=\""  + colors[orderIndex] + "\",label=\"" + i + "\"");
+                sb.append(" [constraint=false,color=\""  + colors[orderIndex] + "\",label=\"" + (i+1) + "\"");
                 if (i == 0) {
                     sb.append(",style=\"bold\"");
                 }
@@ -203,11 +220,30 @@ public class Operation {
         sb.append("];\n");
     }
 
+    
+//    private Map<StackTrace, Set<String>> sqlPerQuery = new HashMap<StackTrace, Set<String>>();
+    private Set<String> sqls = new HashSet<String>();
+    
+    private void addSql(StackTrace stackTrace, String sql) {
+//	Set<String> sqls = sqlPerQuery.get(sql);
+//	if (sqls == null) {
+//	    sqls = new HashSet<String>();
+//	    sqlPerQuery.put(stackTrace, sqls);
+//	}
+	sqls.add(sql);
+    }
+    
     /**
      * Adds to this operation all executions that belong to a single
      * transaction.
      */
     public void addTransaction(Collection<Execution> collection) {
+	// XXX Quick list of SQL statements
+	for (Execution execution : collection) {
+	    addSql(execution.getTrace(), execution.getSql());
+	}
+	
+	
         // Organize all executions by id.
         Map<Long, Execution> executionsById = new HashMap<Long, Execution>();
         for (Execution execution : collection) {
@@ -326,19 +362,18 @@ public class Operation {
                 q.addRawDependency(findQuery(s));
             }
         }
-        // XXX: Commented to make the layout neater
-//        for (Entry<StackTrace, Set<StackTrace>> entry : warDependencies.entrySet()) {
-//            Query q = findQuery(entry.getKey());
-//            for (StackTrace s : entry.getValue()) {
-//                q.addWarDependency(findQuery(s));
-//            }
-//        }
-//        for (Entry<StackTrace, Set<StackTrace>> entry : wawDependencies.entrySet()) {
-//            Query q = findQuery(entry.getKey());
-//            for (StackTrace s : entry.getValue()) {
-//                q.addWawDependency(findQuery(s));
-//            }
-//        }
+        for (Entry<StackTrace, Set<StackTrace>> entry : warDependencies.entrySet()) {
+            Query q = findQuery(entry.getKey());
+            for (StackTrace s : entry.getValue()) {
+                q.addWarDependency(findQuery(s));
+            }
+        }
+        for (Entry<StackTrace, Set<StackTrace>> entry : wawDependencies.entrySet()) {
+            Query q = findQuery(entry.getKey());
+            for (StackTrace s : entry.getValue()) {
+                q.addWawDependency(findQuery(s));
+            }
+        }
         
         // Finally compute the order in which the queries were executed.
         final List<StackTrace> executionOrder = new ArrayList<StackTrace>();

@@ -34,7 +34,7 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 		for (Handler h : Logger.getLogger("").getHandlers()) {
 			h.setLevel(Level.ALL);
 		}
-		logger.setLevel(Level.WARNING);
+		logger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -104,15 +104,18 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 					return null;
 				}
 			}
-			logger.info("Transforming class " + className + " with ClassLoader " + loader);
+			logger.info("Transforming class " + className);// + " with ClassLoader " + loader);
 			return instrumentClass(cn);
 		} catch (Exception t) {
 			logger.severe("PEPE: Exception while transforming " + className);
 			t.printStackTrace();
-			throw new RuntimeException(t);
+			logger.severe("PEPE: Not transforming " + className);
+			return null;
+//			throw new RuntimeException(t);
 		} catch (Error e) {
 			logger.severe("PEPE: Error while transforming " + className);
 			e.printStackTrace();
+			logger.severe("PEPE: Not transforming " + className);
 			throw new Error(e);
 		}
 	}

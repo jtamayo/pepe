@@ -19,10 +19,11 @@
 		</delete>
 
 		<mkdir dir="${buildDir}" />
-		<javac srcdir="${srcDir}" destdir="${buildDir}" debug="on">
+		<javac srcdir="${srcDir}" excludes="edu/stanford/pepe/postprocessing/*.java" destdir="${buildDir}" debug="on">
 			<classpath>
 				<fileset dir="${libDir}">
 					<include name="*.jar" />
+					<include name="jsqlparser-0.6.3/jsqlparser/lib/jsqlparser.jar" />
 				</fileset>
 			</classpath>
 		</javac>
