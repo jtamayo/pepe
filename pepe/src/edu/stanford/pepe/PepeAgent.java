@@ -34,7 +34,7 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 		for (Handler h : Logger.getLogger("").getHandlers()) {
 			h.setLevel(Level.ALL);
 		}
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.WARNING);
 	}
 
 	/**

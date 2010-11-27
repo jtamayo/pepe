@@ -1,8 +1,8 @@
-package edu.stanford.pepe;
+package edu.stanford.pepe.export;
 
 /**
  * Simple convenience methods for determining if a given value is tainted. All
- * of its methods are constructed at runtime by {@link TaintCheckInstrumenter}.
+ * of its methods are constructed at runtime by TaintCheckInstrumenter.
  * 
  * @author jtamayo
  */
@@ -49,7 +49,7 @@ public class TaintCheck {
 	 *            the taint to introduce
 	 * @return the tainted reference
 	 */
-	public static <T> T taint(T ref, long taint) {
+	public static Object taint(Object ref, long taint) {
 		throw new UnsupportedOperationException();
 	}
 }

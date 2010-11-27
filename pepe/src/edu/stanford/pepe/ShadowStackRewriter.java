@@ -52,8 +52,12 @@ public class ShadowStackRewriter implements Opcodes {
 //		} else if ("org/apache/geronimo/samples/daytrader/direct/TradeDirect".equals(cn.name)) {
 //			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
 //			v = new PlainMethodVisitor(new TradeServicesVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
-		} else if (("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) || "org/h2/jdbc/JdbcConnection".equals(cn.name)) &&
-				("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
+		} else if (
+			("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) 
+				|| "org/h2/jdbc/JdbcConnection".equals(cn.name)
+				|| "org/apache/derby/client/am/Connection".equals(cn.name)
+				|| "org/apache/derby/impl/jdbc/EmbedConnection".equals(cn.name)) 
+			&& ("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
 			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
 			v = new PlainMethodVisitor(new JdbcConnectionVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 //		} else if ("commit".equals(mn.name)){
