@@ -3,8 +3,6 @@
  */
 package edu.stanford.pepe;
 
-import static edu.stanford.pepe.TaintProperties.SHADOW_FIELD_SIZE;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +29,7 @@ import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 		
 		public static final int WORKING_STACK_SIZE = 8; // DUP2_X2 uses 4 shadow vars
+		public static final int SHADOW_FIELD_SIZE = 2;
 
 		private final MethodNode mn;
 		private final MethodVisitor output;
@@ -64,7 +63,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 			this.endLabel = new Label();
 		}
 		
-		@Override
 		public void visitMaxs(int maxStack, int maxLocals) {
 			output.visitLabel(endLabel);
 			for (int i = 0; i < mn.maxStack; i++) {
@@ -76,28 +74,24 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 			return output.visitAnnotation(desc, visible);
 		}
 
 
 
-		@Override
 		public AnnotationVisitor visitAnnotationDefault() {
 			return output.visitAnnotationDefault();
 		}
 
 
 
-		@Override
 		public void visitAttribute(Attribute attr) {
 			output.visitAttribute(attr);
 		}
 
 
 
-		@Override
 		public void visitCode() {
 			output.visitCode();
 			output.visitLabel(startLabel);
@@ -160,7 +154,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 			
 		}
 
-		@Override
 		public void visitEnd() {
 	        if (inst != (mn.instructions.size() - 1)) {
 	            throw new RuntimeException(
@@ -171,7 +164,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 			inst++;
 			final Frame frame = frames[inst];
@@ -256,7 +248,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
 			inst++;
 			// I emit V1_5 classes to avoid dealing with stack frames
@@ -265,7 +256,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitIincInsn(int var, int increment) {
 			inst++;
 			// The local variable remains tainted like it was before
@@ -274,7 +264,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitInsn(int opcode) {
 			inst++;
 			final Frame frame = frames[inst];
@@ -651,7 +640,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 			output.visitVarInsn(LSTORE, i);
 		}
 
-		@Override
 		public void visitIntInsn(int opcode, int operand) {
 			inst++;
 			Frame frame = frames[inst];
@@ -684,7 +672,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitJumpInsn(int opcode, Label label) {
 			inst++;
 			// Right now we're not tracking control flow dependencies, and thus we don't care about jump instructions
@@ -694,7 +681,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 		@SuppressWarnings("unchecked")
-		@Override
 		public void visitLabel(Label label) {
 			inst++;
 			// I need to check whether this is the start of a catch block, so I can clear the stack
@@ -728,7 +714,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitLdcInsn(Object cst) {
 			inst++;
 			// Constants are untainted
@@ -745,7 +730,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitLineNumber(int line, Label start) {
 			inst++;
 			output.visitLineNumber(line, getNewLabel(start));
@@ -753,7 +737,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
 			output.visitLocalVariable(name, desc, signature, getNewLabel(start), getNewLabel(end), index);
 			output.visitLocalVariable("_$shadow$_" + name, "J", null, getNewLabel(start), getNewLabel(end), mn.maxLocals + index*SHADOW_FIELD_SIZE);
@@ -761,7 +744,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 			inst++;
 			// Because we're not tracking control flow, we don't care about switch instructions
@@ -770,7 +752,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 			inst++;
 			Frame frame = frames[inst];
@@ -903,7 +884,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 			output.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", ThreadInstrumenter.GET_RETURN_VALUE, "()J");
 		}
 
-		@Override
 		public void visitMultiANewArrayInsn(String desc, int dims) {
 			inst++;
 			Frame frame = frames[inst];
@@ -922,14 +902,12 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
 			return output.visitParameterAnnotation(parameter, desc, visible);
 		}
 
 
 
-		@Override
 		public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
 			inst++;
 			// Because we're not tracking control flow, we don't care about switch instructions
@@ -947,14 +925,12 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 			output.visitTryCatchBlock(getNewLabel(start), getNewLabel(end), getNewLabel(handler), type);
 		}
 
 
 
-		@Override
 		public void visitTypeInsn(int opcode, String type) {
 			inst++;
 			Frame frame = frames[inst];
@@ -996,7 +972,6 @@ public class PlainMethodVisitor implements MethodVisitor, Opcodes {
 
 
 
-		@Override
 		public void visitVarInsn(int opcode, int var) {
 			inst++;
 			Frame frame = frames[inst];

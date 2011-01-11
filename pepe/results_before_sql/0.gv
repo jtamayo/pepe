@@ -1,0 +1,16 @@
+digraph 1861195045 { 
+rankdir=RL;
+1 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(477)\nTradeDirect.sell(366)\nTradeDirect.getOrderData(1137)\nexecuteXxxx(): 128.183ms", shape=box];
+2 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(379)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\nexecuteXxxx(): 897.626ms", shape=box];
+3 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(298)\nDaCapoTrader.doLogout(323)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\nexecuteXxxx(): 231.634ms", shape=box];
+4 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(283)\nDaCapoTrader.doBuy(446)\nTradeDirect.buy(254)\nTradeDirect.getOrderData(1137)\nexecuteXxxx(): 89.688ms", shape=box];
+5 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(391)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\nexecuteXxxx(): 177.803ms", shape=box];
+6 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(66)\nDaCapoDBBuilder.getOrdinal(57)\nexecuteXxxx(): 356.559ms", shape=box];
+7 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(345)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\nexecuteXxxx(): 635.799ms", shape=box];
+8 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(289)\nDaCapoTrader.doRegister(570)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\nexecuteXxxx(): 217.736ms", shape=box];
+9 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nexecuteXxxx(): 138.444ms", shape=box];
+10 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(473)\nDaCapoTrader.getHoldingIDFromHoldings(497)\nTradeDirect.getHoldings(906)\nexecuteXxxx(): 996.545ms", shape=box];
+11 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(342)\nTradeDirect.getAccountData(965)\nTradeDirect.getAccountData(987)\nexecuteXxxx(): 116.079ms", shape=box];
+12 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(280)\nDaCapoTrader.doQuote(409)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\nexecuteXxxx(): 153.399ms", shape=box];
+}
+

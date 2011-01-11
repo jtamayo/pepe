@@ -26,7 +26,11 @@ public class Consolidate {
 	}
 
 	private void doStuff() throws IOException, FileNotFoundException, ClassNotFoundException {
-		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1288980829399.dmp");
+		processFile("/Users/juanmtamayo/Projects/pepe/ofbiz.10.04/1292270448851.dmp");
+//		processFile("/Users/juanmtamayo/Projects/pepe/javaee5/domains/domain1/config/1290970295793.dmp");
+//		processFile("/Users/juanmtamayo/Projects/pepe/javaee5/domains/domain1/config/1290973555306.dmp");
+//		processFile("/Users/juanmtamayo/Projects/pepe/javaee5/domains/domain1/config/1290974239524.dmp");
+//		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1288980829399.dmp");
 //		processFile("/Users/juanmtamayo/Projects/pepe/dacapo/1285183850109.dmp"); Hand-coded tx
 		saveGraphs();
 	}

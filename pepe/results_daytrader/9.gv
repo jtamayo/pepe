@@ -1,0 +1,7 @@
+digraph 1671237131 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(286)<br/>DaCapoTrader.doUpdate(536)>;rankdir=RL;
+1 [label="TradeDirect.updateAccountProfile(1240)\nTradeDirect.getAccountProfileData(1180)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.150928ms\nSelected: accountprofileejb(126) \n", shape=box];
+2 [label="TradeDirect.updateAccountProfile(1238)\nTradeDirect.updateAccountProfile(1313)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.146912ms\nUpdated: accountprofileejb(126) \n", shape=box];
+1 -> 2 [label="raw: 126/126\n"];
+}
+

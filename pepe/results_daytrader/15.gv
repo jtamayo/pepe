@@ -1,0 +1,7 @@
+digraph 783943498 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(293)<br/>DaCapoTrader.doSell(477)<br/>TradeDirect.sell(337)<br/>TradeDirect.createOrder(654)<br/>KeySequenceDirect.getNextID(49)>;rankdir=RL;
+1 [label="KeySequenceDirect.allocNewBlock(65)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.0375ms\nSelected: keygenejb(2) \n", shape=box];
+2 [label="KeySequenceDirect.allocNewBlock(89)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.0865ms\nUpdated: keygenejb(2) \n", shape=box];
+2 -> 1 [label="java: 2/2\nwar: 2/2\n"];
+}
+

@@ -1,0 +1,33 @@
+digraph 880184776 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(293)<br/>DaCapoTrader.doSell(477)>;rankdir=RL;
+1 [label="SELECT accountprofileejb, accountejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nexecuteXxxx(): 355.971ms", shape=box];
+2 [label="SELECT accountejb\nTradeDirect.sell(309)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 221.81ms", shape=box];
+3 [label="UPDATE holdingejb\nTradeDirect.sell(342)\nTradeDirect.updateHoldingStatus(1277)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\nexecuteXxxx(): 284.273ms", shape=box];
+4 [label="SELECT holdingejb\nTradeDirect.sell(310)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 202.216ms", shape=box];
+5 [label="DELETE holdingejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(547)\nTradeDirect.removeHolding(631)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 487.272ms", shape=box];
+6 [label="SELECT holdingejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(542)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nexecuteXxxx(): 203.703ms", shape=box];
+7 [label="INSERT orderejb\nTradeDirect.sell(337)\nTradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\nexecuteXxxx(): 279.578ms", shape=box];
+8 [label="SELECT orderejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 183.019ms", shape=box];
+9 [label="UPDATE orderejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(547)\nTradeDirect.removeHolding(639)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 734.58ms", shape=box];
+10 [label="UPDATE accountejb\nTradeDirect.sell(350)\nTradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\nexecuteXxxx(): 231.105ms", shape=box];
+11 [label="SELECT orderejb\nTradeDirect.sell(337)\nTradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nexecuteXxxx(): 104.749ms", shape=box];
+12 [label="SELECT quoteejb\nTradeDirect.sell(314)\nTradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 176.04ms", shape=box];
+13 [label="UPDATE orderejb\nTradeDirect.sell(354)\nTradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 583.935ms", shape=box];
+1 -> 2 [label="760/761"];
+1 -> 8 [label="761/761"];
+3 -> 4 [label="760/761"];
+5 -> 8 [label="761/761"];
+5 -> 4 [label="760/761"];
+6 -> 8 [label="761/761"];
+6 -> 4 [label="760/761"];
+7 -> 2 [label="760/761"];
+7 -> 12 [label="760/761"];
+7 -> 4 [label="760/761"];
+8 -> 11 [label="760/761"];
+9 -> 8 [label="761/761"];
+9 -> 4 [label="760/761"];
+10 -> 2 [label="760/761"];
+13 -> 8 [label="760/761"];
+11 -> 7 [label="SQL Dependency"];
+}
+

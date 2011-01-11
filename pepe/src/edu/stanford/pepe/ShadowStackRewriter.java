@@ -2,7 +2,6 @@ package edu.stanford.pepe;
 
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.stanford.aj.prep.FrameAnalyzer;
@@ -15,11 +14,8 @@ import edu.stanford.pepe.org.objectweb.asm.tree.MethodNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.analysis.Frame;
 
 public class ShadowStackRewriter implements Opcodes {
-	public static Logger logger = Logger.getLogger(ShadowStackRewriter.class.getName());
-	{
-		logger.setLevel(Level.INFO);
-	}
-
+	public static Logger logger = Logger.getLogger("edu.stanford.pepe.ShadowStackRewriter");
+	
 	@SuppressWarnings("unchecked")
 	public static void rewrite(ClassNode cn, ClassVisitor output) {
 		// Switch to version 1.5, to avoid generating stack frames
@@ -47,22 +43,16 @@ public class ShadowStackRewriter implements Opcodes {
 			MethodVisitor outputMethodVisitor) {
 		MethodVisitor v;
 		if (InstrumentationPolicy.isPrimitive(cn.name) && mn.name.equals("<init>")) {
-			System.out.println("Instrumenting " + cn.name);
+			logger.info("Instrumenting " + cn.name);
 			v = new PrimitiveWrapperConstructorVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc);
-//		} else if ("org/apache/geronimo/samples/daytrader/direct/TradeDirect".equals(cn.name)) {
-//			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
-//			v = new PlainMethodVisitor(new TradeServicesVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 		} else if (
 			("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) 
 				|| "org/h2/jdbc/JdbcConnection".equals(cn.name)
 				|| "org/apache/derby/client/am/Connection".equals(cn.name)
 				|| "org/apache/derby/impl/jdbc/EmbedConnection".equals(cn.name)) 
 			&& ("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
-			System.out.println("Instrumenting " + cn.name + " " + mn.name + mn.desc);
+			logger.warning("Instrumenting " + cn.name + " " + mn.name + mn.desc);
 			v = new PlainMethodVisitor(new JdbcConnectionVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
-//		} else if ("commit".equals(mn.name)){
-//			System.out.println("Instrumenting TradeDirect");
-//			v = new PlainMethodVisitor(new TradeDirectCommitMethodVisitor(cn.name, outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 		} else {
 			v = new PlainMethodVisitor(outputMethodVisitor, mn, frames, cn);
 		}

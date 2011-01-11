@@ -1,0 +1,45 @@
+digraph 190335975 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)>;rankdir=RL;
+1 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\n-------------------\nExecution Time: 0.226425ms\nSelected: orderejb(20805) \n", shape=box];
+2 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.599157ms\nUpdated: orderejb(20784) \n", shape=box];
+3 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.632284ms\nUpdated: orderejb(20784) \n", shape=box];
+4 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.476887ms\nUpdated: orderejb(20805) \n", shape=box];
+5 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\n-------------------\nExecution Time: 0.349404ms\nSelected: accountprofileejb(20805) accountejb(20805) \n", shape=box];
+6 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.25267ms\nSelected: orderejb(20805) \n", shape=box];
+7 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.291101ms\nUpdated: holdingejb(20784) \n", shape=box];
+8 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n-------------------\nExecution Time: 0.209371ms\nSelected: holdingejb(20784) \n", shape=box];
+9 [label="TradeDirect.buy(225)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.204723ms\nSelected: accountejb(20805) \n", shape=box];
+10 [label="TradeDirect.buy(226)\nTradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.254008ms\nSelected: quoteejb(20805) \n", shape=box];
+11 [label="TradeDirect.buy(238)\nTradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.42497ms\nUpdated: accountejb(20805) \n", shape=box];
+1 -> 4 [label="raw: 20805/20805\n"];
+2 -> 1 [label="war: 20784/20784\n"];
+2 -> 3 [label="waw: 20784/20784\n"];
+2 -> 4 [label="waw: 20784/20784\n"];
+2 -> 6 [label="java: 20776/20784\nwar: 20784/20784\n"];
+3 -> 1 [label="java: 20776/20784\nwar: 20784/20784\n"];
+3 -> 4 [label="waw: 20784/20784\n"];
+3 -> 6 [label="war: 20784/20784\n"];
+3 -> 8 [label="java: 20767/20784\n"];
+4 -> 9 [label="java: 20784/20805\n"];
+4 -> 10 [label="java: 20784/20805\n"];
+5 -> 6 [label="java: 20805/20805\n"];
+5 -> 9 [label="java: 20784/20805\n"];
+5 -> 11 [label="raw: 20805/20805\n"];
+6 -> 1 [label="java: 20796/20805\n"];
+6 -> 4 [label="raw: 20805/20805\n"];
+7 -> 6 [label="java: 20784/20784\n"];
+7 -> 9 [label="java: 20781/20784\n"];
+8 -> 7 [label="raw: 20784/20784\n"];
+11 -> 9 [label="java: 20784/20805\nwar: 20784/20805\n"];
+9 -> 10 [constraint=false,color="#7FC97F",label="1",style="bold"];
+10 -> 4 [constraint=false,color="#7FC97F",label="2"];
+4 -> 1 [constraint=false,color="#7FC97F",label="3"];
+1 -> 11 [constraint=false,color="#7FC97F",label="4"];
+11 -> 6 [constraint=false,color="#7FC97F",label="5"];
+6 -> 5 [constraint=false,color="#7FC97F",label="6"];
+5 -> 7 [constraint=false,color="#7FC97F",label="7"];
+7 -> 8 [constraint=false,color="#7FC97F",label="8"];
+8 -> 3 [constraint=false,color="#7FC97F",label="9"];
+3 -> 2 [constraint=false,color="#7FC97F",label="10"];
+}
+

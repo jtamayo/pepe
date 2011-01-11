@@ -3,7 +3,7 @@ package test.edu.stanford.pepe;
 import java.math.BigDecimal;
 
 import junit.framework.TestCase;
-import edu.stanford.pepe.export.TaintCheck;
+import edu.stanford.pepe.TaintCheck;
 
 public class TestSimpleInstrumentation extends TestCase {
 	public void testSimpleTaint() throws Exception {

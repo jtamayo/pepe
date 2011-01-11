@@ -101,195 +101,160 @@ class SqlParse {
     private Set<String> selectedTables = new HashSet<String>();
     
     private final class IntoTableVisitorImplementation implements IntoTableVisitor {
-        @Override
         public void visit(Table arg0) {
             updatedTables.add(arg0.getName());
         }
     }
     
     private final class ExpressionVisitorImplementation implements ExpressionVisitor {
-        @Override
         public void visit(AnyComparisonExpression arg0) {
             throw new NotYetImplementedException();
         }
         
-        @Override
         public void visit(AllComparisonExpression arg0) {
             throw new NotYetImplementedException();
         }
         
-        @Override
         public void visit(ExistsExpression arg0) {
             throw new NotYetImplementedException();
         }
         
-        @Override
         public void visit(WhenClause arg0) {
             throw new NotYetImplementedException();
         }
         
-        @Override
         public void visit(CaseExpression arg0) {
             throw new NotYetImplementedException();            
         }
         
-        @Override
         public void visit(SubSelect arg0) {
             arg0.getSelectBody().accept(new SelectVisitorImplementation());
         }
         
-        @Override
         public void visit(Column arg0) {
             // Not really interested in what columns are compared.
         }
         
-        @Override
         public void visit(NotEqualsTo arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(MinorThanEquals arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(MinorThan arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(LikeExpression arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(IsNullExpression arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(InExpression arg0) {
             arg0.getItemsList().accept(new ItemsListVisitorImplementation());
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(GreaterThanEquals arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(GreaterThan arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(EqualsTo arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Between arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getBetweenExpressionEnd().accept(new ExpressionVisitorImplementation());
             arg0.getBetweenExpressionStart().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(OrExpression arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(AndExpression arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Subtraction arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Multiplication arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Division arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Addition arg0) {
             arg0.getLeftExpression().accept(new ExpressionVisitorImplementation());
             arg0.getRightExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(StringValue arg0) {
             // Ignore string values
         }
         
-        @Override
         public void visit(Parenthesis arg0) {
             arg0.getExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(TimestampValue arg0) {
             // Ignore literals
         }
         
-        @Override
         public void visit(TimeValue arg0) {
             // Ignore literals
         }
         
-        @Override
         public void visit(DateValue arg0) {
             // Ignore literals
         }
         
-        @Override
         public void visit(LongValue arg0) {
             // Ignore literals
         }
         
-        @Override
         public void visit(DoubleValue arg0) {
             // Ignore literals
         }
         
-        @Override
         public void visit(JdbcParameter arg0) {
             // Ignore jdbc parameters
         }
         
-        @Override
         public void visit(InverseExpression arg0) {
             arg0.getExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(Function arg0) {
             arg0.getParameters().accept(new ItemsListVisitorImplementation());
         }
         
-        @Override
         public void visit(NullValue arg0) {
             // Ignore null literals
         }
@@ -298,7 +263,6 @@ class SqlParse {
 
     private final class ItemsListVisitorImplementation implements ItemsListVisitor {
         @SuppressWarnings("unchecked")
-        @Override
         public void visit(ExpressionList arg0) {
             List<Expression> expressions = arg0.getExpressions();
             for (Expression e : expressions) {
@@ -306,26 +270,22 @@ class SqlParse {
             }
         }
 
-        @Override
         public void visit(SubSelect arg0) {
             arg0.getSelectBody().accept(new SelectVisitorImplementation());
         }
     }
 
     private final class FromItemVisitorImplementation implements FromItemVisitor {
-        @Override
         public void visit(SubJoin arg0) {
             arg0.getLeft().accept(new FromItemVisitorImplementation());
             arg0.getJoin().getRightItem().accept(new FromItemVisitorImplementation());
             arg0.getJoin().getOnExpression().accept(new ExpressionVisitorImplementation());
         }
         
-        @Override
         public void visit(SubSelect arg0) {
             arg0.getSelectBody().accept(new SelectVisitorImplementation());
         }
         
-        @Override
         public void visit(Table arg0) {
             selectedTables.add(arg0.getName());
         }
@@ -335,7 +295,6 @@ class SqlParse {
 
 
         @SuppressWarnings("unchecked")
-        @Override
         public void visit(Union arg0) {
             List<PlainSelect> plainSelects = arg0.getPlainSelects();
             for (PlainSelect select : plainSelects) {
@@ -343,7 +302,6 @@ class SqlParse {
             }
         }
 
-        @Override
         public void visit(PlainSelect arg0) {
             arg0.getFromItem().accept(new FromItemVisitorImplementation());
             List<Join> joins = arg0.getJoins();
@@ -365,39 +323,32 @@ class SqlParse {
     
     private final class StatementVisitorImplementation implements StatementVisitor {
 
-        @Override
         public void visit(CreateTable arg0) {
             throw new RuntimeException("Not implementing create_table yet");
         }
 
-        @Override
         public void visit(Truncate arg0) {
             throw new RuntimeException("Not implementing truncate yet");
         }
 
-        @Override
         public void visit(Drop arg0) {
             throw new RuntimeException("Not implementing drop yet");
         }
 
-        @Override
         public void visit(Replace arg0) {
             throw new RuntimeException("Not implementing replace yet");
         }
 
-        @Override
         public void visit(Insert arg0) {
             updatedTables.add(arg0.getTable().getName());
             arg0.getItemsList().accept(new ItemsListVisitorImplementation());
         }
 
-        @Override
         public void visit(Update arg0) {
             updatedTables.add(arg0.getTable().getName());
             arg0.getWhere().accept(new ExpressionVisitorImplementation());
         }
 
-        @Override
         public void visit(Delete arg0) {
             updatedTables.add(arg0.getTable().getName());
             final Expression where = arg0.getWhere();
@@ -406,7 +357,6 @@ class SqlParse {
             }
         }
 
-        @Override
         public void visit(Select arg0) {
             arg0.getSelectBody().accept(new SelectVisitorImplementation());
         }

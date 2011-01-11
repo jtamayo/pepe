@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 import edu.stanford.pepe.runtime.lessmemory.IncompleteExecution;
 
@@ -18,6 +19,8 @@ public class QueryLogger {
 	// Not thread-safe, how do I fix it.
 	public static ConcurrentMap<StackTrace, List<IncompleteExecution>> executionsPerQuery = new ConcurrentHashMap<StackTrace, List<IncompleteExecution>>();
 
+	public static final Logger logger = Logger.getLogger("edu.stanford.pepe");
+	
 	static {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

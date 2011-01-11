@@ -1,0 +1,9 @@
+digraph 461631130 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(66)<br/>DaCapoDBBuilder.getOrdinal(56)<br/>DaCapoDBBuilder.resetDataBase(44)>;rankdir=RL;
+1 [label="TradeDirect.resetTrade(1780)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.151ms\nUpdated: accountprofileejb(1) \n", shape=box];
+2 [label="TradeDirect.resetTrade(1774)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 13.205ms\nUpdated: quoteejb(1) \n", shape=box];
+3 [label="TradeDirect.resetTrade(1777)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.163ms\nUpdated: accountejb(1) \n", shape=box];
+4 [label="TradeDirect.resetTrade(1786)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.089ms\nUpdated: orderejb(1) \n", shape=box];
+5 [label="TradeDirect.resetTrade(1783)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.115ms\nUpdated: holdingejb(1) \n", shape=box];
+}
+

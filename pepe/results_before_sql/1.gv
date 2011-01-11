@@ -1,0 +1,26 @@
+digraph 858319113 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)>;rankdir=RL;
+1 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nexecuteXxxx(): 167.001ms", shape=box];
+2 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 499.16ms", shape=box];
+3 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 520.249ms", shape=box];
+4 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\nexecuteXxxx(): 302.92ms", shape=box];
+5 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nexecuteXxxx(): 289.222ms", shape=box];
+6 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 151.363ms", shape=box];
+7 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nexecuteXxxx(): 207.114ms", shape=box];
+8 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\nexecuteXxxx(): 178.512ms", shape=box];
+9 [label="TradeDirect.buy(225)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 162.353ms", shape=box];
+10 [label="TradeDirect.buy(226)\nTradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\nexecuteXxxx(): 166.876ms", shape=box];
+11 [label="TradeDirect.buy(238)\nTradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\nexecuteXxxx(): 341.108ms", shape=box];
+2 -> 6 [label="20779/20784"];
+3 -> 1 [label="20779/20784"];
+3 -> 8 [label="20772/20784"];
+4 -> 9 [label="20784/20805"];
+4 -> 10 [label="20784/20805"];
+5 -> 6 [label="20805/20805"];
+5 -> 9 [label="20784/20805"];
+6 -> 1 [label="20797/20805"];
+7 -> 6 [label="20784/20784"];
+7 -> 9 [label="20779/20784"];
+11 -> 9 [label="20784/20805"];
+}
+

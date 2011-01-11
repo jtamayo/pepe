@@ -1,0 +1,13 @@
+digraph 926196541 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(196)<br/>TradeDirect.register(1573)<br/>KeySequenceDirect.getNextID(44)>;rankdir=RL;
+1 [label="KeySequenceDirect.allocNewBlock(73)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.144ms\nUpdated: keygenejb(1) \n", shape=box];
+2 [label="KeySequenceDirect.allocNewBlock(78)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.378ms\nSelected: keygenejb(1) \n", shape=box];
+3 [label="KeySequenceDirect.allocNewBlock(89)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.548ms\nUpdated: keygenejb(1) \n", shape=box];
+4 [label="KeySequenceDirect.allocNewBlock(65)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.351ms\nSelected: keygenejb(1) \n", shape=box];
+1 -> 4 [label="war: 1/1\n"];
+2 -> 1 [label="raw: 1/1\n"];
+3 -> 1 [label="waw: 1/1\n"];
+3 -> 2 [label="java: 1/1\nwar: 1/1\n"];
+3 -> 4 [label="war: 1/1\n"];
+}
+

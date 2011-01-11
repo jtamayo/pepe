@@ -1,0 +1,16 @@
+digraph 1820523433 { 
+rankdir=RL;
+1 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(477)\nTradeDirect.sell(366)\nTradeDirect.getOrderData(1137)\n-------------------\nExecution Time: 0.101763ms\nSelected: orderejb(761) \n", shape=box];
+2 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(379)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\n-------------------\nExecution Time: 1.101405ms\nSelected: accountejb(738) holdingejb(738) \n", shape=box];
+3 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(298)\nDaCapoTrader.doLogout(323)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\n-------------------\nExecution Time: 0.632984ms\nUpdated: accountejb(512) \n", shape=box];
+4 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(283)\nDaCapoTrader.doBuy(446)\nTradeDirect.buy(254)\nTradeDirect.getOrderData(1137)\n-------------------\nExecution Time: 0.389555ms\nSelected: orderejb(726) \n", shape=box];
+5 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(391)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\n-------------------\nExecution Time: 0.192427ms\nSelected: quoteejb(20862) \n", shape=box];
+6 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(66)\nDaCapoDBBuilder.getOrdinal(57)\n-------------------\nExecution Time: 0.404846ms\nUpdated: quoteejb(1098) \n", shape=box];
+7 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(345)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\n-------------------\nExecution Time: 0.731788ms\nSelected: accountejb(1653) holdingejb(1653) \n", shape=box];
+8 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(289)\nDaCapoTrader.doRegister(570)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\n-------------------\nExecution Time: 0.371947ms\nUpdated: accountejb(38) \n", shape=box];
+9 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\n-------------------\nExecution Time: 0.221053ms\nSelected: orderejb(20805) \n", shape=box];
+10 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(473)\nDaCapoTrader.getHoldingIDFromHoldings(497)\nTradeDirect.getHoldings(906)\n-------------------\nExecution Time: 0.904052ms\nSelected: accountejb(761) holdingejb(761) \n", shape=box];
+11 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(342)\nTradeDirect.getAccountData(965)\nTradeDirect.getAccountData(987)\n-------------------\nExecution Time: 0.251113ms\nSelected: accountejb(1653) \n", shape=box];
+12 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(280)\nDaCapoTrader.doQuote(409)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\n-------------------\nExecution Time: 0.150065ms\nSelected: quoteejb(3758) \n", shape=box];
+}
+

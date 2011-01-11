@@ -5,6 +5,7 @@
 	<property name="libDir" value="lib" />
 	<property name="srcDir" value="src" />
 	<property name="agentJar" value="pepeagent.jar" />
+	<property name="exportJar" value="pepeexport.jar" />
 
 
 	<!-- ================================= 
@@ -34,4 +35,29 @@
 			</manifest>
 		</jar>
 	</target>
+	
+	<!-- ================================= 
+          target: export              
+         ================================= -->
+    <target name="export" depends="" description="Builds TaintCheck and other classes require to compile the DB drivers using java 1.4">
+		<mkdir dir="${buildDir}" />
+		<delete>
+			<fileset dir="${buildDir}">
+				<include name="**/*.*" />
+			</fileset>
+		</delete>
+
+		<mkdir dir="${buildDir}" />
+		<javac source="1.4" srcdir="${srcDir}" includes="edu/stanford/pepe/export/*.java" destdir="${buildDir}" debug="on">
+			<classpath>
+				<fileset dir="${libDir}">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<jar destfile="${exportJar}" includes="**/*.*" basedir="${buildDir}">
+		</jar>
+    </target>
+	
+	
 </project>

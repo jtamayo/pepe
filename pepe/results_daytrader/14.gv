@@ -1,0 +1,11 @@
+digraph 737681147 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(242)>;rankdir=RL;
+1 [label="TradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.875476ms\nUpdated: orderejb(21) \n", shape=box];
+2 [label="TradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.36119ms\nUpdated: orderejb(21) \n", shape=box];
+3 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.107142ms\nUpdated: holdingejb(21) \n", shape=box];
+4 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\n-------------------\nExecution Time: 0.062904ms\nSelected: holdingejb(21) \n", shape=box];
+1 -> 2 [label="waw: 21/21\n"];
+2 -> 4 [label="java: 21/21\n"];
+4 -> 3 [label="raw: 21/21\n"];
+}
+

@@ -108,11 +108,11 @@ public class Execution {
     }
 	
 	public Set<String> getUpdatedTables() {
-	    return getParse(sql).getUpdatedTables();
+	    return new HashSet<String>();//getParse(sql).getUpdatedTables();
 	}
 	
 	public Set<String> getSelectedTables() {
-	    return getParse(sql).getSelectedTables();
+	    return new HashSet<String>();//getParse(sql).getSelectedTables();
 	}
 
 }

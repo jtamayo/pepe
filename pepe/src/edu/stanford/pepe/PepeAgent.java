@@ -18,7 +18,6 @@ import edu.stanford.pepe.org.objectweb.asm.ClassWriter;
 import edu.stanford.pepe.org.objectweb.asm.Opcodes;
 import edu.stanford.pepe.org.objectweb.asm.tree.ClassNode;
 import edu.stanford.pepe.org.objectweb.asm.tree.FieldNode;
-import edu.stanford.pepe.org.objectweb.asm.util.ASMifierClassVisitor;
 import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
 
 /**
@@ -29,13 +28,20 @@ import edu.stanford.pepe.org.objectweb.asm.util.CheckClassAdapter;
  */
 public class PepeAgent implements ClassFileTransformer, Opcodes {
 
+	public static final boolean VERIFY_BYTECODE = false;
+    
 	public static final Logger logger = Logger.getLogger("edu.stanford.pepe");
-	{
-		for (Handler h : Logger.getLogger("").getHandlers()) {
-			h.setLevel(Level.ALL);
-		}
-		logger.setLevel(Level.WARNING);
-	}
+	
+//	static {
+//		logger.setLevel(Level.INFO); // Changed by premain after writing "Agent started"
+//	}
+	
+//	{
+//		for (Handler h : Logger.getLogger("").getHandlers()) {
+//			h.setLevel(Level.ALL);
+//		}
+//		logger.setLevel(Level.WARNING);
+//	}
 
 	/**
 	 * Invoked by the JVM before starting the main program.
@@ -47,11 +53,11 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 	 */
 	public static void premain(String agentArgs, Instrumentation inst) {
 		logger.info("Pepe agent started");
+		logger.setLevel(Level.WARNING);
 
 		inst.addTransformer(new PepeAgent());
 
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override
 			public void uncaughtException(Thread t, Throwable e) {
 				logger.severe("Death of thread " + t.getName());
 				e.printStackTrace();
@@ -138,7 +144,7 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 			return cw.toByteArray();
 		} else if (cn.name.equals("java/lang/StringBuffer") || cn.name.equals("java/lang/StringBuilder")
 				|| cn.name.equals("java/lang/AbstractStringBuilder")) {
-			System.out.println("Instrumenting " + cn.name);
+			logger.info("Instrumenting " + cn.name);
 			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			ClassAdapter ca = new StringBuilderInstrumenter(cw);
 			cn.accept(ca);
@@ -158,8 +164,14 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 			ShadowFieldRewriter.rewrite(cn);
 			// Now add the shadow stack
 			ClassWriter cw = new ClassWriter(0);
-			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
-			ShadowStackRewriter.rewrite(cn, verifier);
+			ClassVisitor output;
+			if (VERIFY_BYTECODE) {
+				output = new CheckClassAdapter(cw);
+			} else {
+				output = cw;
+			}
+//			ClassVisitor verifier = new CheckClassAdapter(cw); // For debugging purposes, the bytecode should be as sane as possible
+			ShadowStackRewriter.rewrite(cn, output);
 			return cw.toByteArray();
 		}
 	}
@@ -176,3 +188,4 @@ public class PepeAgent implements ClassFileTransformer, Opcodes {
 	}
 
 }
+

@@ -80,6 +80,7 @@ public class InstrumentationPolicy implements Opcodes {
 				&& !type.startsWith("com/sun/corba/ee/impl/oa/rfm") // Lots of unexpected merges as well
 				&& !type.startsWith("com/sun/faces")
 				&& !type.startsWith("com/sun/org/apache/xalan/internal/xsltc/compiler")
+				&& !type.startsWith("org/apache/derby/exe")
 				;
 	}
 

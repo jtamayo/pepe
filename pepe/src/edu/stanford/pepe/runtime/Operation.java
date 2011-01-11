@@ -189,7 +189,7 @@ public class Operation {
         // Node label
         sb.append(" [label=\"");
         final int start = query.getId().stackTrace.length - this.id.stackTrace.length - 1;
-        final int end = Math.max(0, start - 4);
+        final int end = Math.max(0, start - 16);
         //		final int stackSize = Math.min(query.getId().stackTrace.length, this.id.stackTrace.length + 3);
         for (int i = start; i >= end; i--) {
             sb.append(toString(query.getId().stackTrace[i]));
@@ -284,8 +284,9 @@ public class Operation {
             final int queryId = execution.getQueryId();
             executionsByQueryId.put(queryId, execution);
             if (queryId >= TransactionId.MAX_NUM_QUERIES) {
-                throw new RuntimeException("Mmm, you seem to have more than " + TransactionId.MAX_NUM_QUERIES
+                System.err.println("Mmm, you seem to have more than " + TransactionId.MAX_NUM_QUERIES
                         + " queries per transaction. I don't think I can handle that many.");
+                continue;
             }
 
             // Populate the updated and selected maps with empty sets for now,

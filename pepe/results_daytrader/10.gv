@@ -1,0 +1,45 @@
+digraph 1543841604 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(283)<br/>DaCapoTrader.doBuy(446)>;rankdir=RL;
+1 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n-------------------\nExecution Time: 0.136566ms\nSelected: holdingejb(725) \n", shape=box];
+2 [label="TradeDirect.buy(226)\nTradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.172924ms\nSelected: quoteejb(726) \n", shape=box];
+3 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.332504ms\nUpdated: holdingejb(725) \n", shape=box];
+4 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.391964ms\nUpdated: orderejb(726) \n", shape=box];
+5 [label="TradeDirect.buy(225)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.116797ms\nSelected: accountejb(726) \n", shape=box];
+6 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.39411ms\nUpdated: orderejb(725) \n", shape=box];
+7 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\n-------------------\nExecution Time: 0.214545ms\nSelected: accountprofileejb(726) accountejb(726) \n", shape=box];
+8 [label="TradeDirect.buy(230)\nTradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\n-------------------\nExecution Time: 0.53587ms\nSelected: orderejb(726) \n", shape=box];
+9 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\n-------------------\nExecution Time: 0.446132ms\nUpdated: orderejb(725) \n", shape=box];
+10 [label="TradeDirect.buy(242)\nTradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\nJdbcPreparedStatement.executeQuery(117)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.133308ms\nSelected: orderejb(726) \n", shape=box];
+11 [label="TradeDirect.buy(238)\nTradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\nJdbcPreparedStatement.executeUpdate(152)\nQueryLogger.log(37)\n-------------------\nExecution Time: 0.551603ms\nUpdated: accountejb(726) \n", shape=box];
+1 -> 3 [label="raw: 725/725\n"];
+3 -> 5 [label="java: 725/725\n"];
+3 -> 10 [label="java: 725/725\n"];
+4 -> 2 [label="java: 726/726\n"];
+4 -> 5 [label="java: 726/726\n"];
+6 -> 4 [label="waw: 725/725\n"];
+6 -> 8 [label="war: 725/725\n"];
+6 -> 9 [label="waw: 725/725\n"];
+6 -> 10 [label="java: 725/725\nwar: 725/725\n"];
+7 -> 5 [label="java: 726/726\n"];
+7 -> 10 [label="java: 726/726\n"];
+7 -> 11 [label="raw: 726/726\n"];
+8 -> 4 [label="raw: 726/726\n"];
+9 -> 1 [label="java: 725/725\n"];
+9 -> 4 [label="waw: 725/725\n"];
+9 -> 8 [label="java: 725/725\nwar: 725/725\n"];
+9 -> 10 [label="war: 725/725\n"];
+10 -> 4 [label="raw: 726/726\n"];
+10 -> 8 [label="java: 726/726\n"];
+11 -> 5 [label="java: 726/726\nwar: 726/726\n"];
+5 -> 2 [constraint=false,color="#7FC97F",label="1",style="bold"];
+2 -> 4 [constraint=false,color="#7FC97F",label="2"];
+4 -> 8 [constraint=false,color="#7FC97F",label="3"];
+8 -> 11 [constraint=false,color="#7FC97F",label="4"];
+11 -> 10 [constraint=false,color="#7FC97F",label="5"];
+10 -> 7 [constraint=false,color="#7FC97F",label="6"];
+7 -> 3 [constraint=false,color="#7FC97F",label="7"];
+3 -> 1 [constraint=false,color="#7FC97F",label="8"];
+1 -> 9 [constraint=false,color="#7FC97F",label="9"];
+9 -> 6 [constraint=false,color="#7FC97F",label="10"];
+}
+
