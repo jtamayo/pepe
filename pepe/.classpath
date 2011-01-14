@@ -5,5 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/jsqlparser-0.6.3/jsqlparser/lib/jsqlparser.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jdt-derby-proxy"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

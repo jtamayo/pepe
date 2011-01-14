@@ -1,0 +1,31 @@
+digraph 1175215772 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(283)<br/>DaCapoTrader.doBuy(446)<br/>TradeDirect.buy(226)>;rankdir=RL;
+1 [label="TradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 [label="TradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+3 [label="TradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+4 [label="TradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+5 [label="TradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+6 [label="TradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+7 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+8 [label="TradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+9 [label="TradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+10 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+11 [label="TradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 -> 3 [label="JAVA"];
+3 -> 4 [label="DB_DEPENDENCY"];
+3 -> 5 [label="JAVA"];
+4 -> 1 [label="JAVA"];
+4 -> 11 [label="JAVA"];
+5 -> 4 [label="DB_DEPENDENCY"];
+6 -> 5 [label="JAVA"];
+6 -> 10 [label="JAVA"];
+7 -> 3 [label="JAVA"];
+7 -> 11 [label="JAVA"];
+8 -> 3 [label="JAVA"];
+8 -> 11 [label="JAVA"];
+9 -> 11 [label="JAVA"];
+10 -> 4 [label="DB_DEPENDENCY"];
+10 -> 7 [label="DB_DEPENDENCY"];
+10 -> 9 [label="DB_DEPENDENCY"];
+}
+

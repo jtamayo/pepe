@@ -1,0 +1,7 @@
+digraph 1444378545 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(286)<br/>DaCapoTrader.doUpdate(536)<br/>TradeDirect.updateAccountProfile(1238)>;rankdir=RL;
+1 [label="TradeDirect.updateAccountProfile(1313)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+2 [label="TradeDirect.getAccountProfileData(1180)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 -> 1 [label="DB_DEPENDENCY"];
+}
+

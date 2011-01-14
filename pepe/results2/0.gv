@@ -1,0 +1,22 @@
+digraph 1543511728 { 
+rankdir=RL;
+1 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(342)\nTradeDirect.getAccountData(965)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(611)\nKeySequenceDirect.getNextID(49)\nKeySequenceDirect.allocNewBlock(89)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+3 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(254)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+4 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(391)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\nTradeDirect.getQuote(826)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+5 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(477)\nTradeDirect.sell(366)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+6 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(66)\nDaCapoDBBuilder.getOrdinal(57)\nDaCapoDBBuilder.populateStocks(86)\nTradeDirect.createQuote(779)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+7 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(298)\nDaCapoTrader.doLogout(323)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+8 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(196)\nTradeDirect.register(1599)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+9 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(289)\nDaCapoTrader.doRegister(570)\nTradeDirect.logout(1542)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+10 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(277)\nDaCapoTrader.doPortfolio(379)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+11 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(611)\nKeySequenceDirect.getNextID(44)\nKeySequenceDirect.allocNewBlock(65)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+12 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(283)\nDaCapoTrader.doBuy(446)\nTradeDirect.buy(254)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+13 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(345)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+14 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(66)\nDaCapoDBBuilder.getOrdinal(56)\nDaCapoDBBuilder.resetDataBase(44)\nTradeDirect.resetTrade(1777)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+15 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(293)\nDaCapoTrader.doSell(473)\nDaCapoTrader.getHoldingIDFromHoldings(497)\nTradeDirect.getHoldings(906)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+16 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(230)\nTradeDirect.createOrder(654)\nKeySequenceDirect.getNextID(44)\nKeySequenceDirect.allocNewBlock(78)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+17 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(289)\nDaCapoTrader.doRegister(583)\nTradeDirect.register(1599)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+18 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(280)\nDaCapoTrader.doQuote(409)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\nTradeDirect.getQuote(826)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+}
+

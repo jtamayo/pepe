@@ -1,0 +1,7 @@
+digraph 108973432 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(196)<br/>TradeDirect.register(1573)<br/>KeySequenceDirect.getNextID(44)<br/>KeySequenceDirect.allocNewBlock(65)>;rankdir=RL;
+1 [label="PreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 [label="PreparedStatementHandle.executeUpdate(103)\n", shape=box];
+2 -> 1 [label="JAVA"];
+}
+

@@ -1,0 +1,7 @@
+digraph 4508606 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(267)<br/>DaCapoTrader.doLogin(305)<br/>TradeDirect.login(1503)>;rankdir=RL;
+1 [label="PreparedStatementHandle.executeUpdate(103)\n", shape=box];
+2 [label="PreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 -> 1 [label="DB_DEPENDENCY"];
+}
+

@@ -1,0 +1,31 @@
+digraph 1860404380 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(226)>;rankdir=RL;
+1 [label="TradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 [label="TradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+3 [label="TradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+4 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+5 [label="TradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+6 [label="TradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+7 [label="TradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+8 [label="TradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+9 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+10 [label="TradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+11 [label="TradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+3 -> 5 [label="JAVA"];
+3 -> 9 [label="JAVA"];
+4 -> 2 [label="JAVA"];
+4 -> 8 [label="JAVA"];
+5 -> 11 [label="DB_DEPENDENCY"];
+6 -> 2 [label="JAVA"];
+6 -> 8 [label="JAVA"];
+7 -> 2 [label="JAVA"];
+8 -> 5 [label="JAVA"];
+8 -> 11 [label="DB_DEPENDENCY"];
+9 -> 4 [label="DB_DEPENDENCY"];
+9 -> 7 [label="DB_DEPENDENCY"];
+9 -> 11 [label="DB_DEPENDENCY"];
+10 -> 8 [label="JAVA"];
+11 -> 1 [label="JAVA"];
+11 -> 2 [label="JAVA"];
+}
+

@@ -1,0 +1,9 @@
+digraph 423180001 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(283)<br/>DaCapoTrader.doBuy(446)<br/>TradeDirect.buy(242)<br/>TradeDirect.completeOrder(551)>;rankdir=RL;
+1 [label="TradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+2 [label="TradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+3 [label="TradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+4 [label="TradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 -> 4 [label="JAVA"];
+}
+

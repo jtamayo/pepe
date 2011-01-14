@@ -1,0 +1,34 @@
+digraph 454514340 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(293)<br/>DaCapoTrader.doSell(477)<br/>TradeDirect.sell(354)>;
+//rankdir=RL;
+1 [label="TradeDirect.completeOrder(476)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+2 [label="TradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+3 [label="TradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+4 [label="TradeDirect.createOrder(674)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+5 [label="TradeDirect.completeOrder(547)\nTradeDirect.removeHolding(631)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+6 [label="TradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+7 [label="TradeDirect.updateHoldingStatus(1277)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+8 [label="TradeDirect.completeOrder(542)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+9 [label="TradeDirect.creditAccountBalance(1262)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+10 [label="TradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
+11 [label="TradeDirect.completeOrder(512)\nTradeDirect.getAccountProfileData(1217)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+12 [label="TradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+1 -> 4 [label="JAVA"];
+1 -> 10 [label="DB_DEPENDENCY"];
+2 -> 1 [label="JAVA"];
+4 -> 10 [label="DB_DEPENDENCY"];
+5 -> 1 [label="JAVA"];
+5 -> 12 [label="JAVA"];
+7 -> 12 [label="JAVA"];
+8 -> 1 [label="JAVA"];
+8 -> 7 [label="DB_DEPENDENCY"];
+8 -> 10 [label="DB_DEPENDENCY"];
+8 -> 12 [label="JAVA"];
+9 -> 3 [label="JAVA"];
+10 -> 3 [label="JAVA"];
+10 -> 6 [label="JAVA"];
+10 -> 12 [label="JAVA"];
+11 -> 1 [label="JAVA"];
+11 -> 3 [label="JAVA"];
+}
+

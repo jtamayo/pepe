@@ -1,16 +1,15 @@
 package edu.stanford.pepe.runtime;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import edu.stanford.pepe.postprocessing.Execution;
 import edu.stanford.pepe.runtime.Query.Dependency;
@@ -395,6 +394,11 @@ public class Operation {
         }
         executionOrders.put(executionOrder, executionCount + 1);
         
+    }
+    
+    @Override
+    public String toString() {
+        return id.toString();
     }
 
 }
