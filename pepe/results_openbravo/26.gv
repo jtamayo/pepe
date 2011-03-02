@@ -1,0 +1,6 @@
+digraph 6603598 { 
+label=<<font face="Times-Bold">Context</font><br/>Thread.run(680)<br/>JIoEndpoint$Worker.run(489)<br/>Http11Protocol$Http11ConnectionHandler.process(588)<br/>Http11Processor.process(859)<br/>CoyoteAdapter.service(298)<br/>StandardEngineValve.invoke(109)<br/>ErrorReportValve.invoke(102)<br/>StandardHostValve.invoke(127)<br/>StandardContextValve.invoke(191)<br/>StandardWrapperValve.invoke(129)<br/>StandardWrapper.allocate(809)<br/>StandardWrapper.loadServlet(1173)<br/>HttpSecureAppServlet.init(164)<br/>ClassInfoData.select(43)<br/>ClassInfoData.select(86)<br/>HttpBaseServlet.getPreparedStatement(379)<br/>ConnectionProviderImpl.getPreparedStatement(308)<br/>ConnectionProviderImpl.getPreparedStatement(316)<br/>ConnectionProviderImpl.getConnection(201)<br/>ConnectionProviderImpl.getNewConnection(223)<br/>DriverManager.getConnection(207)<br/>DriverManager.getConnection(582)<br/>PoolingDriver.connect(175)<br/>GenericObjectPool.borrowObject(771)<br/>PoolableConnectionFactory.makeObject(290)<br/>OpenbravoDriverManagerConnectionFactory.createConnection(62)<br/>OpenbravoDriverManagerConnectionFactory.executeDefaultSQL(75)>;rankdir=BT;
+1 [label="SessionInfo.initDB(109)\nAbstractJdbc2Statement.executeQuery(308)\nQueryLogger.log(40)\n", shape=box];
+2 [label="AbstractJdbc2Statement.executeQuery(282)\nQueryLogger.log(40)\n", shape=box];
+}
+

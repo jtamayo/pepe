@@ -1,6 +1,7 @@
-digraph 2067921590 { 
-label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(114)<br/>DaCapoTrader.reset(74)<br/>TradeDirect.resetDaCapo(2004)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(244)<br/>TradeDirect.completeOrder(532)<br/>TradeDirect.createHolding(613)<br/>KeySequenceDirect.getNextID(44)<br/>KeySequenceDirect.allocNewBlock(89)>;rankdir=RL;
+digraph 121398849 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(114)<br/>DaCapoTrader.reset(74)<br/>TradeDirect.resetDaCapo(2004)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(244)<br/>TradeDirect.completeOrder(532)<br/>TradeDirect.createHolding(613)<br/>KeySequenceDirect.getNextID(44)<br/>KeySequenceDirect.allocNewBlock(89)>;rankdir=BT;
 1 [label="PreparedStatementHandle.executeQuery(49)\n", shape=box];
 2 [label="PreparedStatementHandle.executeUpdate(103)\n", shape=box];
+2 -> 1 [label="db_war" color=darkorange];
 }
 

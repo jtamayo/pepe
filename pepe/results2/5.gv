@@ -1,7 +1,7 @@
-digraph 515060127 { 
-label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(283)<br/>DaCapoTrader.doBuy(446)<br/>TradeDirect.buy(242)<br/>TradeDirect.completeOrder(530)<br/>TradeDirect.createHolding(611)<br/>KeySequenceDirect.getNextID(49)<br/>KeySequenceDirect.allocNewBlock(89)>;rankdir=RL;
+digraph 184766585 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(107)<br/>DaCapoTrader.runTradeSession(283)<br/>DaCapoTrader.doBuy(446)<br/>TradeDirect.buy(242)<br/>TradeDirect.completeOrder(530)<br/>TradeDirect.createHolding(611)<br/>KeySequenceDirect.getNextID(49)<br/>KeySequenceDirect.allocNewBlock(89)>;rankdir=BT;
 1 [label="PreparedStatementHandle.executeUpdate(103)\n", shape=box];
 2 [label="PreparedStatementHandle.executeQuery(49)\n", shape=box];
-1 -> 2 [label="JAVA"];
+1 -> 2 [label="java" color=black];
 }
 

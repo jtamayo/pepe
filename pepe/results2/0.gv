@@ -1,5 +1,5 @@
-digraph 1543511728 { 
-rankdir=RL;
+digraph 1063563420 { 
+rankdir=BT;
 1 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(274)\nDaCapoTrader.doHome(342)\nTradeDirect.getAccountData(965)\nTradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 2 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(242)\nTradeDirect.completeOrder(530)\nTradeDirect.createHolding(611)\nKeySequenceDirect.getNextID(49)\nKeySequenceDirect.allocNewBlock(89)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
 3 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(254)\nTradeDirect.getOrderData(1137)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
@@ -18,5 +18,8 @@ rankdir=RL;
 16 [label="DaCapoTrader.run(102)\nDaCapoTrader.reset(66)\nTradeDirect.resetDaCapo(1996)\nDaCapoDBBuilder.reset(67)\nDaCapoDBBuilder.populateUsers(107)\nDaCapoDBBuilder.addUser(214)\nTradeDirect.buy(230)\nTradeDirect.createOrder(654)\nKeySequenceDirect.getNextID(44)\nKeySequenceDirect.allocNewBlock(78)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 17 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(289)\nDaCapoTrader.doRegister(583)\nTradeDirect.register(1599)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
 18 [label="DaCapoTrader.run(107)\nDaCapoTrader.runTradeSession(280)\nDaCapoTrader.doQuote(409)\nDaCapoTrader.doQuote(416)\nTradeDirect.getQuote(809)\nTradeDirect.getQuote(826)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
+8 -> 8 [label="db_waw" color=crimson];
+14 -> 14 [label="db_waw" color=crimson];
+17 -> 17 [label="db_waw" color=crimson];
 }
 

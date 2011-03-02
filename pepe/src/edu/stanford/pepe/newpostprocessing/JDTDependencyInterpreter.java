@@ -48,13 +48,13 @@ public class JDTDependencyInterpreter {
         List<StackTrace> reads = new ArrayList<StackTrace>();
         List<Integer> readSlots = new ArrayList<Integer>();
         List<StackTrace> writes = new ArrayList<StackTrace>();
-        Map<StackTrace, Set<StackTrace>> dependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        List<StackTrace> allQueries = new ArrayList<StackTrace>();
 
         int slot = 0;
         for (int i = 0; i < t.getQueries().size(); i++) {
             StackTraceElement[] e = t.getQueries().get(i);
             final StackTrace stackTrace = cutTrace(e);// new StackTrace(e);
-            dependencies.put(stackTrace, new HashSet<StackTrace>());
+            allQueries.add(stackTrace);
             if (t.getIsWrite().get(i)) {
                 writes.add(stackTrace);
                 slot++;
@@ -64,12 +64,27 @@ public class JDTDependencyInterpreter {
             }
         }
 
-        computeWriteDependencies(writes);
+        computeWriteAfterWriteDependencies(writes);
 
+        computeReadAfterWriteDependencies(t, reads, readSlots, writes, allQueries);
+
+    }
+
+    private void computeReadAfterWriteDependencies(Transaction t, List<StackTrace> reads, List<Integer> readSlots,
+            List<StackTrace> writes, List<StackTrace> allQueries) {
+
+        Map<StackTrace, Set<StackTrace>> dependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        Map<StackTrace, Set<StackTrace>> antiDependencies = new HashMap<StackTrace, Set<StackTrace>>();
+        for (StackTrace trace : allQueries) {
+            dependencies.put(trace, new HashSet<StackTrace>());
+            antiDependencies.put(trace, new HashSet<StackTrace>());
+        }
+        
         if (!reads.isEmpty()) {
             for (int i = 0; i < reads.size(); i++) {
                 final StackTrace read = reads.get(i);
                 final Fingerprint canonical = t.getFingerprints()[readSlots.get(i)][i];
+                // First compute dependencies 
                 for (int s = readSlots.get(i); s >= 0; s--) {
                     final Fingerprint other = t.getFingerprints()[s][i];
                     if (!other.equals(canonical)) {
@@ -77,11 +92,20 @@ public class JDTDependencyInterpreter {
                         dependencies.get(read).add(writes.get(s));
                     }
                 }
+                // Now compute antidependencies
+                final int numberOfSlots = t.getFingerprints().length;
+                for (int s = readSlots.get(i); s < numberOfSlots; s++) {
+                    final Fingerprint other = t.getFingerprints()[s][i];
+                    if (!other.equals(canonical)) {
+                        // Create an antidependency between the write and the read
+                        antiDependencies.get(writes.get(s - 1)).add(read);
+                    }
+                }
             }
 
             p.addTransaction(dependencies, DependencyType.DB_DEPENDENCY);
+            p.addTransaction(antiDependencies, DependencyType.DB_ANTIDEPENDENCY);
         }
-
     }
 
     /**
@@ -104,8 +128,17 @@ public class JDTDependencyInterpreter {
      * Creates a dependency from one write to the next, because we assume writes
      * cannot be reordered.
      */
-    private void computeWriteDependencies(List<StackTrace> writes) {
-        //        throw new RuntimeException("Not yet implemented");
+    private void computeWriteAfterWriteDependencies(List<StackTrace> writes) {
+        if (writes.size() >= 2) {
+            Map<StackTrace, Set<StackTrace>> dependencies = new HashMap<StackTrace, Set<StackTrace>>();
+            for (StackTrace write : writes) {
+                dependencies.put(write, new HashSet<StackTrace>());
+            }
+            for (int i = 1; i < writes.size(); i++) {
+                dependencies.get(writes.get(i)).add(writes.get(i-1));
+            }
+            p.addTransaction(dependencies, DependencyType.DB_WRITEDEPENDENCY);
+        }
     }
 
 }

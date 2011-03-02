@@ -1,0 +1,7 @@
+Ok, so what's the status:
+
+I need to
+1. Install the plugin console in geronimo, so I can deploy a connection by hand.
+2. Remove all connections, alias derby connection
+3. try to install the jar.
+4. Find out how connections work in geronimo.

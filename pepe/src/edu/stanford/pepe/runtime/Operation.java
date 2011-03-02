@@ -98,7 +98,7 @@ public class Operation {
 
         printContext(sb);
         // Layout properties
-        sb.append("rankdir=RL;");
+//        sb.append("rankdir=RL;");
         sb.append("\n");
 
         // First assign a sequence number to each query

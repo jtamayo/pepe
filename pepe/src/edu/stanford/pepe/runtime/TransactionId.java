@@ -50,6 +50,7 @@ public class TransactionId {
 	 * or a rollback.
 	 */
 	public static void onNewTransaction() {
+	    System.out.println("New transaction");
 		threadTransactionId.set(newTransaction());
 	}
 

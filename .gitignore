@@ -1,3 +1,11 @@
+# Don't track applications and slightly hacked code 
+# in the main repository
+applications/
+databases/
+
+# Don't publish the paper before it's time!
+cvs-aiken/
+
 # library source #
 MySQL/
 

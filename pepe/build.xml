@@ -21,6 +21,7 @@
 
 		<mkdir dir="${buildDir}" />
 		<javac srcdir="${srcDir}" excludes="edu/stanford/pepe/postprocessing/*.java" destdir="${buildDir}" debug="on">
+			<exclude name="edu/stanford/pepe/newpostprocessing/*.java"/>
 			<classpath>
 				<fileset dir="${libDir}">
 					<include name="*.jar" />

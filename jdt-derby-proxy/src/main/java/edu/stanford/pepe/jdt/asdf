@@ -1,0 +1,53 @@
+package edu.stanford.pepe.jdt;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.sql.ConnectionEventListener;
+import javax.sql.StatementEventListener;
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAResource;
+
+public class PepeXAConnection extends PepeConnection implements XAConnection {
+
+    public PepeXAConnection(XAConnection delegate) {
+        super(delegate);
+    }
+
+    @Override
+    public void addConnectionEventListener(ConnectionEventListener listener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addStatementEventListener(StatementEventListener arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void removeConnectionEventListener(ConnectionEventListener listener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void removeStatementEventListener(StatementEventListener arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public XAResource getXAResource() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+}

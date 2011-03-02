@@ -1,5 +1,5 @@
-digraph 1860404380 { 
-label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(226)>;rankdir=RL;
+digraph 1962083476 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(226)>;rankdir=BT;
 1 [label="TradeDirect.getQuoteData(1071)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 2 [label="TradeDirect.getAccountData(987)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 3 [label="TradeDirect.completeOrder(532)\nTradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
@@ -11,21 +11,28 @@ label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCa
 9 [label="TradeDirect.completeOrder(530)\nTradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 10 [label="TradeDirect.completeOrder(551)\nTradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
 11 [label="TradeDirect.createOrder(670)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
-3 -> 5 [label="JAVA"];
-3 -> 9 [label="JAVA"];
-4 -> 2 [label="JAVA"];
-4 -> 8 [label="JAVA"];
-5 -> 11 [label="DB_DEPENDENCY"];
-6 -> 2 [label="JAVA"];
-6 -> 8 [label="JAVA"];
-7 -> 2 [label="JAVA"];
-8 -> 5 [label="JAVA"];
-8 -> 11 [label="DB_DEPENDENCY"];
-9 -> 4 [label="DB_DEPENDENCY"];
-9 -> 7 [label="DB_DEPENDENCY"];
-9 -> 11 [label="DB_DEPENDENCY"];
-10 -> 8 [label="JAVA"];
-11 -> 1 [label="JAVA"];
-11 -> 2 [label="JAVA"];
+3 -> 2 [label="db_war" color=darkorange];
+3 -> 4 [label="db_waw" color=crimson];
+3 -> 5 [label="java" color=black];
+3 -> 9 [label="java" color=black];
+4 -> 2 [label="java" color=black];
+4 -> 7 [label="db_waw" color=crimson];
+4 -> 8 [label="java" color=black];
+5 -> 11 [label="db_raw" color=gold];
+6 -> 2 [label="java" color=black];
+6 -> 8 [label="java" color=black];
+7 -> 2 [label="java" color=black];
+7 -> 11 [label="db_waw" color=crimson];
+8 -> 5 [label="java" color=black];
+8 -> 11 [label="db_raw" color=gold];
+9 -> 4 [label="db_raw" color=gold];
+9 -> 7 [label="db_raw" color=gold];
+9 -> 11 [label="db_raw" color=gold];
+10 -> 2 [label="db_war" color=darkorange];
+10 -> 3 [label="db_waw" color=crimson];
+10 -> 5 [label="db_war" color=darkorange];
+10 -> 8 [label="java" color=black];
+11 -> 1 [label="java" color=black];
+11 -> 2 [label="java" color=black];
 }
 

@@ -52,7 +52,7 @@ public class Operation {
 
         printContext(sb);
         // Layout properties
-        sb.append("rankdir=RL;");
+        sb.append("rankdir=BT;");
         sb.append("\n");
 
         // First assign a sequence number to each query
@@ -77,15 +77,34 @@ public class Operation {
                 final Integer thisSequence = sequences.get(query.getId());
                 final Integer dependencySequence = sequences.get(entry.getKey());
 
+                // TODO: Should dependencies flow from source to destination, or the other way around?
+                //                sb.append(dependencySequence + " -> " + thisSequence);
                 sb.append(thisSequence + " -> " + dependencySequence);
                 sb.append(" [label=\"");
                 sb.append(dependency.getType());
-                sb.append("\"];\n");
+                sb.append("\" color=");
+                sb.append(colorFor(dependency.getType()));
+                sb.append("];\n");
             }
         }
 
         sb.append("}\n\n");
         return sb.toString();
+    }
+
+    private String colorFor(DependencyType type) {
+        switch (type) {
+        case JAVA:
+            return "black";
+        case DB_DEPENDENCY:
+            return "gold";
+        case DB_ANTIDEPENDENCY:
+            return "darkorange";
+        case DB_WRITEDEPENDENCY:
+            return "crimson";
+        default:
+            throw new IllegalArgumentException();
+        }
     }
 
     // Print a description of the operation
@@ -134,7 +153,7 @@ public class Operation {
         //              + (element.isNativeMethod() ? "(Native)" : (fileName != null && lineNumber >= 0 ? "(" + fileName
         //                      + ":" + lineNumber + ")" : (fileName != null ? "(" + fileName + ")" : "(Unknown Source)")));
     }
-    
+
     /**
      * Adds to this operation all executions that belong to a single
      * transaction.
@@ -142,7 +161,7 @@ public class Operation {
     public void addTransaction(Map<StackTrace, Set<StackTrace>> dependencies, DependencyType type) {
         final Set<StackTrace> queryTraces = dependencies.keySet();
 
-        for (StackTrace t : queryTraces ) {
+        for (StackTrace t : queryTraces) {
             Query q = findQuery(t);
             for (StackTrace dependency : dependencies.get(t)) {
                 q.addDependency(findQuery(dependency), type);
@@ -154,5 +173,5 @@ public class Operation {
     public String toString() {
         return id.toString();
     }
-    
+
 }

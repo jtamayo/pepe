@@ -1,10 +1,12 @@
-digraph 682820082 { 
-label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(242)<br/>TradeDirect.completeOrder(532)>;rankdir=RL;
+digraph 240990493 { 
+label=<<font face="Times-Bold">Context</font><br/>DaCapoTrader.run(102)<br/>DaCapoTrader.reset(66)<br/>TradeDirect.resetDaCapo(1996)<br/>DaCapoDBBuilder.reset(67)<br/>DaCapoDBBuilder.populateUsers(107)<br/>DaCapoDBBuilder.addUser(214)<br/>TradeDirect.buy(242)<br/>TradeDirect.completeOrder(532)>;rankdir=BT;
 1 [label="TradeDirect.updateOrderHolding(1298)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
 2 [label="TradeDirect.createHolding(619)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
 3 [label="TradeDirect.createHolding(623)\nTradeDirect.getHoldingData(1103)\nPreparedStatementHandle.executeQuery(49)\n", shape=box];
 4 [label="TradeDirect.updateOrderStatus(1288)\nPreparedStatementHandle.executeUpdate(103)\n", shape=box];
-1 -> 3 [label="JAVA"];
-3 -> 2 [label="DB_DEPENDENCY"];
+1 -> 2 [label="db_waw" color=crimson];
+1 -> 3 [label="java" color=black];
+3 -> 2 [label="db_raw" color=gold];
+4 -> 1 [label="db_waw" color=crimson];
 }
 

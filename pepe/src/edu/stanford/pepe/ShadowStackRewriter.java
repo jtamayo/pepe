@@ -42,6 +42,11 @@ public class ShadowStackRewriter implements Opcodes {
 	private static MethodVisitor buildMethodVisitor(ClassNode cn, MethodNode mn, Frame[] frames,
 			MethodVisitor outputMethodVisitor) {
 		MethodVisitor v;
+		
+		if ("org/postgresql/jdbc2/AbstractJdbc2Connection".equals(cn.name)) {
+		    System.out.println(" YES! Instrumenting org/postgresql/jdbc2/AbstractJdbc2Connection");
+		}
+		
 		if (InstrumentationPolicy.isPrimitive(cn.name) && mn.name.equals("<init>")) {
 			logger.info("Instrumenting " + cn.name);
 			v = new PrimitiveWrapperConstructorVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc);
@@ -49,8 +54,14 @@ public class ShadowStackRewriter implements Opcodes {
 			("org/tranql/connector/jdbc/ConnectionHandle".equals(cn.name) 
 				|| "org/h2/jdbc/JdbcConnection".equals(cn.name)
 				|| "org/apache/derby/client/am/Connection".equals(cn.name)
-				|| "org/apache/derby/impl/jdbc/EmbedConnection".equals(cn.name)) 
-			&& ("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) {
+				|| "org/apache/derby/impl/jdbc/EmbedConnection".equals(cn.name)
+				|| "org/hsqldb/jdbc/jdbcConnection".equals(cn.name)
+				|| "org/postgresql/jdbc2/AbstractJdbc2Connection".equals(cn.name)
+				) 
+			&& (("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc))) 
+//			&& (("commit".equals(mn.name) || "rollback".equals(mn.name)) && "()V".equals(mn.desc)) 
+//			    || ("setAutoCommit".equals(mn.name)))
+			{
 			logger.warning("Instrumenting " + cn.name + " " + mn.name + mn.desc);
 			v = new PlainMethodVisitor(new JdbcConnectionVisitor(outputMethodVisitor, mn.access, mn.name, mn.desc), mn, frames, cn);
 		} else {
