@@ -1,9 +1,0 @@
-K 10
-svn:ignore
-V 37
-
-wrapper.dll
-wrapper.exe
-wrapper.jar
-
-END
